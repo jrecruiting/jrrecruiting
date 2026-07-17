@@ -1,0 +1,341 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Auth ──────────────────────────────────────────────
+
+enum Role {
+  PARENT
+  COACH
+  ADMIN
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String?
+  role          Role
+  name          String
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts Account[]
+  sessions Session[]
+
+  players        Player[]           @relation("ParentPlayers")
+  coachProfile   CoachProfile?
+  stars          Star[]
+  notifications  Notification[]
+  claimRequests  ClaimRequest[]
+  resolvedClaims ClaimRequest[]     @relation("ClaimResolvedBy")
+  profileViews   ProfileViewEvent[]
+  payments       Payment[]
+  createdPlayers Player[]           @relation("AdminAuthoredPlayers")
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expires      DateTime
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ── Coach ─────────────────────────────────────────────
+
+enum CoachVerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model CoachProfile {
+  id                 String                  @id @default(cuid())
+  userId             String                  @unique
+  user               User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization       String
+  title              String?
+  phone              String?
+  verificationStatus CoachVerificationStatus @default(PENDING)
+  verifiedAt         DateTime?
+  verifiedByAdminId  String?
+  rejectionReason    String?
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+
+  @@map("coach_profiles")
+}
+
+// ── Player ────────────────────────────────────────────
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum ListingStatus {
+  DRAFT
+  PENDING_PAYMENT
+  ACTIVE
+  INACTIVE
+  EXPIRED
+}
+
+model Player {
+  id               String  @id @default(cuid())
+  parentId         String?
+  parent           User?   @relation("ParentPlayers", fields: [parentId], references: [id])
+  isAdminAuthored  Boolean @default(false)
+  createdByAdminId String?
+  createdByAdmin   User?   @relation("AdminAuthoredPlayers", fields: [createdByAdminId], references: [id])
+
+  firstName       String
+  lastName        String
+  dob             DateTime
+  gender          Gender
+  gradYear        Int
+  country         String
+  state           String?
+  city            String?
+  heightIn        Int?
+  weightLb        Int?
+  gpa             Decimal? @db.Decimal(3, 2)
+  bio             String?  @db.Text
+  primaryPhotoUrl String?
+  photoConsent    Boolean  @default(false)
+
+  listingStatus ListingStatus @default(DRAFT)
+  publishedAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sports        PlayerSport[]
+  media         MediaAsset[]
+  stars         Star[]
+  profileViews  ProfileViewEvent[]
+  claimRequests ClaimRequest[]
+  payments      Payment[]
+
+  @@index([country, state])
+  @@index([gender, gradYear])
+  @@index([listingStatus])
+  @@map("players")
+}
+
+model Sport {
+  id        String        @id @default(cuid())
+  name      String        @unique
+  slug      String        @unique
+  positions Json
+  players   PlayerSport[]
+
+  @@map("sports")
+}
+
+model PlayerSport {
+  id        String   @id @default(cuid())
+  playerId  String
+  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  sportId   String
+  sport     Sport    @relation(fields: [sportId], references: [id])
+  position  String?
+  isPrimary Boolean  @default(false)
+  stats     Json?
+  updatedAt DateTime @updatedAt
+
+  @@unique([playerId, sportId])
+  @@index([sportId, position])
+  @@map("player_sports")
+}
+
+enum MediaType {
+  PHOTO
+  VIDEO
+}
+
+enum MediaProvider {
+  YOUTUBE
+  HUDL
+  VIMEO
+  OTHER
+  VERCEL_BLOB
+}
+
+model MediaAsset {
+  id        String        @id @default(cuid())
+  playerId  String
+  player    Player        @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  type      MediaType
+  provider  MediaProvider
+  url       String
+  title     String?
+  sortOrder Int           @default(0)
+  createdAt DateTime      @default(now())
+
+  @@map("media_assets")
+}
+
+// ── Claim flow (admin-authored → parent-linked) ────────
+
+enum ClaimStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model ClaimRequest {
+  id          String      @id @default(cuid())
+  playerId    String
+  player      Player      @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  requestedBy String
+  requester   User        @relation(fields: [requestedBy], references: [id])
+  status      ClaimStatus @default(PENDING)
+  note        String?
+  createdAt   DateTime    @default(now())
+  resolvedAt  DateTime?
+  resolvedBy  String?
+  resolver    User?       @relation("ClaimResolvedBy", fields: [resolvedBy], references: [id])
+
+  @@map("claim_requests")
+}
+
+// ── Coach engagement ────────────────────────────────────
+
+model Star {
+  id             String   @id @default(cuid())
+  coachId        String
+  coach          User     @relation(fields: [coachId], references: [id], onDelete: Cascade)
+  playerId       String
+  player         Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  notifyOnUpdate Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  @@unique([coachId, playerId])
+  @@index([playerId])
+  @@map("stars")
+}
+
+model ProfileViewEvent {
+  id       String   @id @default(cuid())
+  playerId String
+  player   Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  coachId  String?
+  coach    User?    @relation(fields: [coachId], references: [id])
+  viewedAt DateTime @default(now())
+
+  @@index([playerId, viewedAt])
+  @@map("profile_view_events")
+}
+
+// ── Notifications / Email outbox ───────────────────────
+
+enum NotificationType {
+  PROFILE_VIEWED
+  PROFILE_UPDATED
+  COACH_APPROVED
+  COACH_REJECTED
+  LISTING_PAID
+  CLAIM_APPROVED
+  CLAIM_REJECTED
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  payload   Json
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+enum EmailStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+model EmailOutbox {
+  id          String      @id @default(cuid())
+  toEmail     String
+  templateKey String
+  payload     Json
+  status      EmailStatus @default(PENDING)
+  attempts    Int         @default(0)
+  lastError   String?
+  createdAt   DateTime    @default(now())
+  sentAt      DateTime?
+
+  @@index([status, createdAt])
+  @@map("email_outbox")
+}
+
+// ── Payments ────────────────────────────────────────────
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model Payment {
+  id                      String        @id @default(cuid())
+  playerId                String
+  player                  Player        @relation(fields: [playerId], references: [id])
+  parentId                String
+  parent                  User          @relation(fields: [parentId], references: [id])
+  stripeCheckoutSessionId String        @unique
+  stripePaymentIntentId   String?
+  amountCents             Int
+  currency                String        @default("usd")
+  status                  PaymentStatus @default(PENDING)
+  createdAt               DateTime      @default(now())
+  paidAt                  DateTime?
+
+  @@index([playerId, status])
+  @@map("payments")
+}
