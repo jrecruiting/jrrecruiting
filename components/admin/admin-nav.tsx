@@ -1,10 +1,12 @@
 import Link from "next/link";
+import { signOutAction } from "@/actions/auth";
 import {
   Gauge,
   UsersThree,
   ShieldCheck,
   HandCoins,
   ArrowsClockwise,
+  SignOut,
 } from "@phosphor-icons/react/dist/ssr";
 
 const navItems = [
@@ -31,6 +33,15 @@ export function AdminNav() {
           {item.label}
         </Link>
       ))}
+      <form action={signOutAction} className="mt-auto">
+        <button
+          type="submit"
+          className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+        >
+          <SignOut className="h-4 w-4" weight="bold" aria-hidden />
+          Sign Out
+        </button>
+      </form>
     </nav>
   );
 }

@@ -1,16 +1,18 @@
 import { notFound } from "next/navigation";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getSports } from "@/lib/data/sports";
-import { updatePlayerAdmin, deletePlayerAdmin } from "@/actions/players";
+import { updatePlayerParent, deletePlayerParent } from "@/actions/players";
 import { PlayerForm } from "@/components/player/player-form";
 import { Button } from "@/components/ui/button";
 
-export default async function EditPlayerPage({
+export default async function EditAthletePage({
   params,
 }: {
   params: Promise<{ playerId: string }>;
 }) {
   const { playerId } = await params;
+  const session = await auth();
 
   const [player, sports] = await Promise.all([
     prisma.player.findUnique({
@@ -20,13 +22,13 @@ export default async function EditPlayerPage({
     getSports(),
   ]);
 
-  if (!player) notFound();
+  if (!player || player.parentId !== session!.user.id) notFound();
 
   const primarySport = player.sports.find((s) => s.isPrimary) ?? player.sports[0];
   const primaryVideo = player.media.find((m) => m.type === "VIDEO");
 
-  const boundUpdate = updatePlayerAdmin.bind(null, playerId);
-  const boundDelete = deletePlayerAdmin.bind(null, playerId);
+  const boundUpdate = updatePlayerParent.bind(null, playerId);
+  const boundDelete = deletePlayerParent.bind(null, playerId);
 
   return (
     <div className="flex flex-col gap-6">
@@ -36,7 +38,7 @@ export default async function EditPlayerPage({
         </h1>
         <form action={boundDelete}>
           <Button type="submit" variant="destructive" size="sm">
-            Delete Player
+            Remove Athlete
           </Button>
         </form>
       </div>

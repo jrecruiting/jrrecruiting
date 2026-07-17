@@ -227,7 +227,11 @@ export function PlayerForm({
         </p>
       )}
 
-      <Button type="submit" disabled={isPending} className="w-fit">
+      <Button
+        type="submit"
+        disabled={isPending}
+        className="w-fit bg-gold text-gold-foreground hover:bg-gold/90"
+      >
         {isPending ? "Saving..." : submitLabel}
       </Button>
     </form>

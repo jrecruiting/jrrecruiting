@@ -1,6 +1,6 @@
 import { getSports } from "@/lib/data/sports";
 import { createPlayerAdmin } from "@/actions/players";
-import { PlayerForm } from "@/components/admin/player-form";
+import { PlayerForm } from "@/components/player/player-form";
 
 export default async function NewPlayerPage() {
   const sports = await getSports();
