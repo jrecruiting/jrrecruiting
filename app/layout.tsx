@@ -35,10 +35,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${sora.variable} ${geistMono.variable} h-full antialiased`}
+      className={`dark ${inter.variable} ${sora.variable} ${geistMono.variable} h-full antialiased [color-scheme:dark]`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col bg-background text-foreground">
         {children}
         <Toaster richColors position="top-right" />
       </body>
