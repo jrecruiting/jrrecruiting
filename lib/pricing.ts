@@ -3,20 +3,46 @@
 // paid as a single one-time fee covering all years through graduation.
 export const BASE_ANNUAL_RATE_CENTS = 80_000;
 
+export type PackageTierId = "freshman" | "sophomore" | "junior" | "senior" | "juco" | "transfer";
+
 export type PackageTier = {
-  id: "freshman" | "sophomore" | "junior" | "senior";
+  id: PackageTierId;
   name: string;
   gradeLabel: string;
   years: number;
   discountPercent: number;
 };
 
+// High-school packages — 4 grad-year tiers, discount scales with years of
+// eligibility remaining (the earlier you sign up, the more you save).
 export const PACKAGE_TIERS: PackageTier[] = [
   { id: "freshman", name: "Freshman Launch", gradeLabel: "Freshman", years: 4, discountPercent: 30 },
   { id: "sophomore", name: "Sophomore Rise", gradeLabel: "Sophomore", years: 3, discountPercent: 20 },
   { id: "junior", name: "Junior Push", gradeLabel: "Junior", years: 2, discountPercent: 10 },
   { id: "senior", name: "Senior Signing", gradeLabel: "Senior", years: 1, discountPercent: 0 },
 ];
+
+// JUCO and Transfer players aren't tiered by grad year — each is a single
+// flat package, identical in price/structure to Senior Signing (full
+// $800 rate, no early-signup discount, one year of listing coverage).
+export type FlatPackageCategory = {
+  tierId: "juco" | "transfer";
+  sectionName: string;
+  playerType: "JUCO" | "TRANSFER";
+};
+
+export const FLAT_PACKAGE_CATEGORIES: FlatPackageCategory[] = [
+  { tierId: "juco", sectionName: "JUCO Grind", playerType: "JUCO" },
+  { tierId: "transfer", sectionName: "Portal Entry", playerType: "TRANSFER" },
+];
+
+export const FLAT_PACKAGE_TIERS: PackageTier[] = FLAT_PACKAGE_CATEGORIES.map((cat) => ({
+  id: cat.tierId,
+  name: cat.sectionName,
+  gradeLabel: cat.sectionName,
+  years: 1,
+  discountPercent: 0,
+}));
 
 export function priceForTier(tier: PackageTier) {
   const annualRateCents = Math.round(BASE_ANNUAL_RATE_CENTS * (1 - tier.discountPercent / 100));
@@ -41,11 +67,21 @@ export type SubscriptionPlan = {
   monthlyCents: number;
 };
 
-export const SUBSCRIPTION_PLANS: Record<PackageTier["id"], SubscriptionPlan[]> = {
+export const SUBSCRIPTION_PLANS: Record<PackageTierId, SubscriptionPlan[]> = {
   senior: [
     { upfrontPercent: 20, monthlyCents: 9_995 },
     // Rounded up from $79.95 to $80.00 — divides the $560 balance into
     // 7 clean, equal payments instead of 7 payments + a $0.35 final one.
+    { upfrontPercent: 30, monthlyCents: 8_000 },
+  ],
+  // JUCO/Transfer are single flat packages priced identically to Senior
+  // Signing (same $800 total, same installment options).
+  juco: [
+    { upfrontPercent: 20, monthlyCents: 9_995 },
+    { upfrontPercent: 30, monthlyCents: 8_000 },
+  ],
+  transfer: [
+    { upfrontPercent: 20, monthlyCents: 9_995 },
     { upfrontPercent: 30, monthlyCents: 8_000 },
   ],
   junior: [

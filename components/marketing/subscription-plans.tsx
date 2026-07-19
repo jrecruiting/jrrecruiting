@@ -2,18 +2,24 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  PACKAGE_TIERS,
   SUBSCRIPTION_PLANS,
   fullPriceForTier,
   calculateInstallmentSchedule,
   formatCents,
   gradYearForTier,
+  type PackageTier,
 } from "@/lib/pricing";
 
-export function SubscriptionPlans() {
+export function SubscriptionPlans({
+  tiers,
+  showGradYear = true,
+}: {
+  tiers: PackageTier[];
+  showGradYear?: boolean;
+}) {
   return (
     <div className="flex flex-col gap-12">
-      {PACKAGE_TIERS.map((tier) => {
+      {tiers.map((tier) => {
         const totalCents = fullPriceForTier(tier);
         const gradYear = gradYearForTier(tier);
         const plans = SUBSCRIPTION_PLANS[tier.id];
@@ -22,9 +28,11 @@ export function SubscriptionPlans() {
           <div key={tier.id} className="flex flex-col gap-4">
             <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-border/60 pb-3">
               <div>
-                <span className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-                  {tier.gradeLabel} &middot; Class of {gradYear}
-                </span>
+                {showGradYear && (
+                  <span className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+                    {tier.gradeLabel} &middot; Class of {gradYear}
+                  </span>
+                )}
                 <h3 className="font-heading text-lg font-bold">{tier.name}</h3>
               </div>
               <p className="text-sm text-muted-foreground">
