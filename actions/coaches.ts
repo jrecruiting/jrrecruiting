@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
+import { scheduleOutboxFlush } from "@/lib/email/send";
 
 export async function approveCoach(coachProfileId: string) {
   const session = await requireRole("ADMIN");
@@ -15,15 +16,22 @@ export async function approveCoach(coachProfileId: string) {
       verifiedByAdminId: session.user.id,
       rejectionReason: null,
     },
+    include: { user: { select: { id: true, email: true, name: true } } },
   });
 
-  await prisma.notification.create({
-    data: {
-      userId: coachProfile.userId,
-      type: "COACH_APPROVED",
-      payload: {},
-    },
-  });
+  await prisma.$transaction([
+    prisma.notification.create({
+      data: { userId: coachProfile.userId, type: "COACH_APPROVED", payload: {} },
+    }),
+    prisma.emailOutbox.create({
+      data: {
+        toEmail: coachProfile.user.email,
+        templateKey: "coach-approved",
+        payload: { coachName: coachProfile.user.name },
+      },
+    }),
+  ]);
+  scheduleOutboxFlush();
 
   revalidatePath("/admin/coaches");
 }
@@ -39,15 +47,22 @@ export async function rejectCoach(coachProfileId: string, reason: string) {
       verifiedByAdminId: session.user.id,
       rejectionReason: reason || null,
     },
+    include: { user: { select: { id: true, email: true, name: true } } },
   });
 
-  await prisma.notification.create({
-    data: {
-      userId: coachProfile.userId,
-      type: "COACH_REJECTED",
-      payload: {},
-    },
-  });
+  await prisma.$transaction([
+    prisma.notification.create({
+      data: { userId: coachProfile.userId, type: "COACH_REJECTED", payload: {} },
+    }),
+    prisma.emailOutbox.create({
+      data: {
+        toEmail: coachProfile.user.email,
+        templateKey: "coach-rejected",
+        payload: { coachName: coachProfile.user.name, reason: reason || undefined },
+      },
+    }),
+  ]);
+  scheduleOutboxFlush();
 
   revalidatePath("/admin/coaches");
 }

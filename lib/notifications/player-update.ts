@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { scheduleOutboxFlush } from "@/lib/email/send";
 
 /**
  * Fans a player-profile update out to every coach who starred that player
@@ -37,4 +38,6 @@ export async function recordPlayerUpdate(playerId: string) {
       })),
     }),
   ]);
+
+  scheduleOutboxFlush();
 }

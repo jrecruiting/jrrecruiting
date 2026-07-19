@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
+import { scheduleOutboxFlush } from "@/lib/email/send";
 
 export async function searchUnclaimedPlayers(query: string) {
   await requireRole("PARENT");
@@ -47,7 +48,10 @@ export async function resolveClaim(claimId: string, approve: boolean) {
 
   const claim = await prisma.claimRequest.findUnique({
     where: { id: claimId },
-    include: { player: { select: { firstName: true, lastName: true } } },
+    include: {
+      player: { select: { firstName: true, lastName: true } },
+      requester: { select: { email: true } },
+    },
   });
   if (!claim) notFound();
 
@@ -77,7 +81,16 @@ export async function resolveClaim(claimId: string, approve: boolean) {
         payload: { playerId: claim.playerId, playerName },
       },
     });
+
+    await tx.emailOutbox.create({
+      data: {
+        toEmail: claim.requester.email,
+        templateKey: approve ? "claim-approved" : "claim-rejected",
+        payload: { playerName },
+      },
+    });
   });
+  scheduleOutboxFlush();
 
   revalidatePath("/admin/claims");
 }

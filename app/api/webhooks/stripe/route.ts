@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
+import { scheduleOutboxFlush } from "@/lib/email/send";
 
 export async function POST(req: Request) {
   if (!stripe || !process.env.STRIPE_WEBHOOK_SECRET) {
@@ -27,6 +28,17 @@ export async function POST(req: Request) {
     });
 
     if (payment && playerId) {
+      const player = await prisma.player.findUnique({
+        where: { id: playerId },
+        select: {
+          firstName: true,
+          lastName: true,
+          parentId: true,
+          parent: { select: { email: true } },
+        },
+      });
+      const playerName = player ? `${player.firstName} ${player.lastName}` : "Your athlete";
+
       await prisma.$transaction([
         prisma.payment.update({
           where: { id: payment.id },
@@ -41,7 +53,30 @@ export async function POST(req: Request) {
           where: { id: playerId },
           data: { listingStatus: "ACTIVE", publishedAt: new Date() },
         }),
+        ...(player?.parentId
+          ? [
+              prisma.notification.create({
+                data: {
+                  userId: player.parentId,
+                  type: "LISTING_PAID" as const,
+                  payload: { playerId, playerName },
+                },
+              }),
+            ]
+          : []),
+        ...(player?.parent?.email
+          ? [
+              prisma.emailOutbox.create({
+                data: {
+                  toEmail: player.parent.email,
+                  templateKey: "listing-paid",
+                  payload: { playerName },
+                },
+              }),
+            ]
+          : []),
       ]);
+      scheduleOutboxFlush();
     }
   }
 
