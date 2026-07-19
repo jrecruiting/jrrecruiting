@@ -21,6 +21,7 @@ function buildPlayerData(data: ReturnType<typeof parsePlayerForm>) {
     lastName: data.lastName,
     dob: new Date(data.dob),
     gender: data.gender,
+    playerType: data.playerType,
     gradYear: data.gradYear,
     country: data.country.toUpperCase(),
     state: data.state ? data.state.toUpperCase() : null,

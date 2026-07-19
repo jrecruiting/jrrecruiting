@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Plus } from "@phosphor-icons/react/dist/ssr";
+import { playerTypeLabel } from "@/lib/player-types";
 
 const statusVariant: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
   ACTIVE: "default",
@@ -43,6 +44,7 @@ export default async function AdminPlayersPage() {
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Sport</TableHead>
+              <TableHead>Type</TableHead>
               <TableHead>Gender</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Grad Year</TableHead>
@@ -53,7 +55,7 @@ export default async function AdminPlayersPage() {
           <TableBody>
             {players.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="py-10 text-center text-muted-foreground">
+                <TableCell colSpan={8} className="py-10 text-center text-muted-foreground">
                   No players yet. Add the first profile to get started.
                 </TableCell>
               </TableRow>
@@ -71,6 +73,7 @@ export default async function AdminPlayersPage() {
                 <TableCell>
                   {player.sports.map((s) => s.sport.name).join(", ") || "—"}
                 </TableCell>
+                <TableCell>{playerTypeLabel(player.playerType)}</TableCell>
                 <TableCell>{player.gender === "MALE" ? "Boy" : "Girl"}</TableCell>
                 <TableCell>
                   {[player.city, player.state, player.country].filter(Boolean).join(", ")}

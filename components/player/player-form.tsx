@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { PlayerFormState } from "@/actions/players";
+import { PLAYER_TYPES } from "@/lib/player-types";
 
 type SportOption = { id: string; name: string };
 
@@ -22,6 +23,7 @@ type PlayerDefaults = {
   lastName?: string;
   dob?: string;
   gender?: "MALE" | "FEMALE";
+  playerType?: "HIGH_SCHOOL" | "JUCO" | "TRANSFER";
   gradYear?: number;
   country?: string;
   state?: string | null;
@@ -81,6 +83,25 @@ export function PlayerForm({
             <SelectContent>
               <SelectItem value="MALE">Boy</SelectItem>
               <SelectItem value="FEMALE">Girl</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="playerType">Player type</Label>
+          <Select name="playerType" defaultValue={defaultValues?.playerType}>
+            <SelectTrigger id="playerType" className="w-full">
+              <SelectValue placeholder="Select player type">
+                {(value: string | null) =>
+                  PLAYER_TYPES.find((t) => t.value === value)?.label ?? "Select player type"
+                }
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {PLAYER_TYPES.map((t) => (
+                <SelectItem key={t.value} value={t.value}>
+                  {t.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

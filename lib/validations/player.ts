@@ -17,6 +17,7 @@ export const playerFormSchema = z.object({
   lastName: z.string().trim().min(1, "Last name is required").max(60),
   dob: z.string().refine((val) => !Number.isNaN(Date.parse(val)), "Enter a valid date"),
   gender: z.enum(["MALE", "FEMALE"], { message: "Select a gender" }),
+  playerType: z.enum(["HIGH_SCHOOL", "JUCO", "TRANSFER"], { message: "Select a player type" }),
   gradYear: z.coerce.number().int().min(2024).max(2035),
   country: z.string().trim().min(2, "Country is required").max(2),
   state: optionalString(2),

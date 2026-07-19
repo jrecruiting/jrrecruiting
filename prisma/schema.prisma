@@ -112,6 +112,12 @@ enum Gender {
   FEMALE
 }
 
+enum PlayerType {
+  HIGH_SCHOOL
+  JUCO
+  TRANSFER
+}
+
 enum ListingStatus {
   DRAFT
   PENDING_PAYMENT
@@ -132,6 +138,7 @@ model Player {
   lastName        String
   dob             DateTime
   gender          Gender
+  playerType      PlayerType @default(HIGH_SCHOOL)
   gradYear        Int
   country         String
   state           String?
@@ -158,6 +165,7 @@ model Player {
 
   @@index([country, state])
   @@index([gender, gradYear])
+  @@index([playerType])
   @@index([listingStatus])
   @@map("players")
 }

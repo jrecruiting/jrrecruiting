@@ -5,6 +5,7 @@ import { recordProfileView } from "@/lib/notifications/profile-view";
 import { QuickStarButton } from "@/components/coach/quick-star-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { playerTypeLabel } from "@/lib/player-types";
 
 export default async function CoachPlayerProfilePage({
   params,
@@ -41,6 +42,7 @@ export default async function CoachPlayerProfilePage({
             &middot; {[player.city, player.state, player.country].filter(Boolean).join(", ")}
           </p>
           <div className="mt-2 flex flex-wrap gap-1.5">
+            <Badge variant="secondary">{playerTypeLabel(player.playerType)}</Badge>
             {player.sports.map((s) => (
               <Badge key={s.id} variant="secondary">
                 {s.sport.name}

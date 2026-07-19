@@ -49,6 +49,7 @@ export default async function EditPlayerPage({
           lastName: player.lastName,
           dob: player.dob.toISOString().slice(0, 10),
           gender: player.gender,
+          playerType: player.playerType,
           gradYear: player.gradYear,
           country: player.country,
           state: player.state,
