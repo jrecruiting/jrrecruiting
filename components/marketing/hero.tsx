@@ -46,7 +46,7 @@ export function Hero() {
         >
           Great athletes get
           <br />
-          overlooked. <span className="text-gold">Not on our watch.</span>
+          overlooked all the time. <span className="text-gold">We are here to change that now.</span>
         </motion.h1>
 
         <motion.p
