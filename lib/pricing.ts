@@ -24,8 +24,82 @@ export function priceForTier(tier: PackageTier) {
   return { annualRateCents, totalCents };
 }
 
+/** Undiscounted total ($800/yr x years) — what subscription plans pay in exchange for spreading payment out. */
+export function fullPriceForTier(tier: PackageTier) {
+  return BASE_ANNUAL_RATE_CENTS * tier.years;
+}
+
+// ── Subscription (installment) plans ────────────────────────────────
+// Each tier offers two financing options that pay off the *full,
+// undiscounted* price (no early-signup discount) via an upfront
+// percentage plus a fixed monthly charge. Billing stops once the
+// balance is paid off — the final installment is reduced so the total
+// collected exactly equals the full price.
+
+export type SubscriptionPlan = {
+  upfrontPercent: 20 | 30;
+  monthlyCents: number;
+};
+
+export const SUBSCRIPTION_PLANS: Record<PackageTier["id"], SubscriptionPlan[]> = {
+  senior: [
+    { upfrontPercent: 20, monthlyCents: 9_995 },
+    { upfrontPercent: 30, monthlyCents: 7_995 },
+  ],
+  junior: [
+    { upfrontPercent: 20, monthlyCents: 6_995 },
+    { upfrontPercent: 30, monthlyCents: 5_995 },
+  ],
+  sophomore: [
+    { upfrontPercent: 20, monthlyCents: 5_995 },
+    { upfrontPercent: 30, monthlyCents: 5_495 },
+  ],
+  freshman: [
+    { upfrontPercent: 20, monthlyCents: 5_995 },
+    { upfrontPercent: 30, monthlyCents: 4_995 },
+  ],
+};
+
+export type InstallmentSchedule = {
+  totalCents: number;
+  upfrontCents: number;
+  monthlyCents: number;
+  /** Number of full-price monthly charges before the final (reduced) one. */
+  fullInstallments: number;
+  /** The last, smaller charge that closes the balance to exactly zero. */
+  finalInstallmentCents: number;
+  /** Total number of monthly charges, including the final reduced one. */
+  totalInstallments: number;
+};
+
+export function calculateInstallmentSchedule(
+  tier: PackageTier,
+  plan: SubscriptionPlan
+): InstallmentSchedule {
+  const totalCents = fullPriceForTier(tier);
+  const upfrontCents = Math.round((totalCents * plan.upfrontPercent) / 100);
+  const remainingCents = totalCents - upfrontCents;
+
+  const totalInstallments = Math.ceil(remainingCents / plan.monthlyCents);
+  const fullInstallments = totalInstallments - 1;
+  const finalInstallmentCents = remainingCents - fullInstallments * plan.monthlyCents;
+
+  return {
+    totalCents,
+    upfrontCents,
+    monthlyCents: plan.monthlyCents,
+    fullInstallments,
+    finalInstallmentCents,
+    totalInstallments,
+  };
+}
+
 export function formatCents(cents: number) {
-  return `$${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  const hasCents = cents % 100 !== 0;
+  return `$${(cents / 100).toLocaleString("en-US", {
+    minimumFractionDigits: hasCents ? 2 : 0,
+    maximumFractionDigits: 2,
+  })}`;
 }
 
 /**
