@@ -1,9 +1,9 @@
-import { requireVerifiedCoach } from "@/lib/permissions";
+import { requireRole } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { NotificationList } from "@/components/notifications/notification-list";
 
 export default async function CoachNotificationsPage() {
-  const session = await requireVerifiedCoach();
+  const session = await requireRole("COACH");
   const notifications = await prisma.notification.findMany({
     where: { userId: session.user.id },
     orderBy: { createdAt: "desc" },

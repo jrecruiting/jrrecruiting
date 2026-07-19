@@ -1,12 +1,14 @@
 import Link from "next/link";
-import { requireVerifiedCoach } from "@/lib/permissions";
+import { requireRole } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { getSports } from "@/lib/data/sports";
 import { searchParamsSchema } from "@/lib/validations/search";
 import { buildPlayerWhere } from "@/lib/search/build-where";
 import { playerTypeLabel } from "@/lib/player-types";
+import { maskLastName } from "@/lib/coach-visibility";
 import { QuickStarButton } from "@/components/coach/quick-star-button";
 import { FilterSidebar } from "@/components/search/filter-sidebar";
+import { VerificationBanner } from "@/components/coach/verification-banner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,7 +20,9 @@ export default async function CoachSearchPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const session = await requireVerifiedCoach();
+  const session = await requireRole("COACH");
+  const isVerified = session.user.coachVerificationStatus === "APPROVED";
+
   const rawParams = await searchParams;
   const flatParams = Object.fromEntries(
     Object.entries(rawParams).map(([k, v]) => [k, Array.isArray(v) ? v[0] : v])
@@ -66,46 +70,61 @@ export default async function CoachSearchPage({
           </p>
         </div>
 
+        {!isVerified && <VerificationBanner />}
+
         {players.length === 0 ? (
           <p className="text-muted-foreground">
             No players match these filters. Try broadening your search.
           </p>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {players.map((player) => (
-              <Card key={player.id} className="border-border/60">
-                <CardContent className="flex flex-col gap-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <Link
-                        href={`/players/${player.id}`}
-                        className="font-heading text-base font-semibold hover:text-gold"
-                      >
-                        {player.firstName} {player.lastName}
-                      </Link>
-                      <p className="text-xs text-muted-foreground">
-                        {player.sports
-                          .map((s) => `${s.sport.name}${s.position ? ` · ${s.position}` : ""}`)
-                          .join(", ") || "No sport set"}
-                      </p>
+            {players.map((player) => {
+              const displayLastName = isVerified
+                ? player.lastName
+                : maskLastName(player.lastName);
+              const displayLocation = [
+                isVerified ? player.city : null,
+                player.state,
+                player.country,
+              ]
+                .filter(Boolean)
+                .join(", ");
+
+              return (
+                <Card key={player.id} className="border-border/60">
+                  <CardContent className="flex flex-col gap-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <Link
+                          href={`/players/${player.id}`}
+                          className="font-heading text-base font-semibold hover:text-gold"
+                        >
+                          {player.firstName} {displayLastName}
+                        </Link>
+                        <p className="text-xs text-muted-foreground">
+                          {player.sports
+                            .map((s) => `${s.sport.name}${s.position ? ` · ${s.position}` : ""}`)
+                            .join(", ") || "No sport set"}
+                        </p>
+                      </div>
+                      <QuickStarButton
+                        playerId={player.id}
+                        initialStarred={starredIds.has(player.id)}
+                        className="-mr-2 -mt-2 shrink-0"
+                      />
                     </div>
-                    <QuickStarButton
-                      playerId={player.id}
-                      initialStarred={starredIds.has(player.id)}
-                      className="-mr-2 -mt-2 shrink-0"
-                    />
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    <Badge variant="secondary">{playerTypeLabel(player.playerType)}</Badge>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {player.gender === "MALE" ? "Boy" : "Girl"} &middot; Class of{" "}
-                    {player.gradYear} &middot;{" "}
-                    {[player.city, player.state, player.country].filter(Boolean).join(", ")}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
+                    <div className="flex flex-wrap gap-1.5">
+                      <Badge variant="secondary">{playerTypeLabel(player.playerType)}</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {player.gender === "MALE" ? "Boy" : "Girl"} &middot; Class of{" "}
+                      {player.gradYear}
+                      {displayLocation ? ` · ${displayLocation}` : ""}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
 

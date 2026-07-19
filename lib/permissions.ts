@@ -9,11 +9,3 @@ export async function requireRole(...roles: Role[]) {
   }
   return session;
 }
-
-export async function requireVerifiedCoach() {
-  const session = await requireRole("COACH");
-  if (session.user.coachVerificationStatus !== "APPROVED") {
-    redirect("/coach/dashboard/account/verification-pending");
-  }
-  return session;
-}

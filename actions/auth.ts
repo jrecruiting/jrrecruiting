@@ -74,7 +74,9 @@ export async function signUp(
     },
   });
 
-  const redirectTo = data.role === "COACH" ? "/coach/dashboard/account/verification-pending" : "/dashboard";
+  // Coaches can browse/search immediately with reduced info; full detail
+  // unlocks once an admin verifies them (see lib/coach-visibility.ts).
+  const redirectTo = data.role === "COACH" ? "/search" : "/dashboard";
 
   try {
     await signIn("credentials", {
