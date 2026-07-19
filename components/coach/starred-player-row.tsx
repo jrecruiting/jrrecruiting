@@ -4,6 +4,17 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { setNotifyOnUpdate, unstarPlayer } from "@/actions/stars";
 import { toast } from "sonner";
 
@@ -29,6 +40,13 @@ export function StarredPlayerRow({
     });
   }
 
+  function handleUnstar() {
+    startTransition(async () => {
+      await unstarPlayer(playerId);
+      toast.success(`${name} removed from your starred players.`);
+    });
+  }
+
   return (
     <div className="flex items-center justify-between gap-4 px-4 py-3">
       <div>
@@ -46,19 +64,34 @@ export function StarredPlayerRow({
           />
           Email on update
         </label>
-        <Button
-          variant="outline"
-          size="sm"
-          className="border-border/60"
-          disabled={isPending}
-          onClick={() =>
-            startTransition(async () => {
-              await unstarPlayer(playerId);
-            })
-          }
-        >
-          Unstar
-        </Button>
+
+        <AlertDialog>
+          <AlertDialogTrigger
+            render={
+              <Button variant="outline" size="sm" className="border-border/60" disabled={isPending}>
+                Unstar
+              </Button>
+            }
+          />
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Unstar {name}?</AlertDialogTitle>
+              <AlertDialogDescription>
+                You&apos;ll stop getting notified about updates to this profile unless you
+                star it again.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive text-white hover:bg-destructive/90"
+                onClick={handleUnstar}
+              >
+                Unstar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
