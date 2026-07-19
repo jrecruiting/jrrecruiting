@@ -44,14 +44,18 @@ export type SubscriptionPlan = {
 export const SUBSCRIPTION_PLANS: Record<PackageTier["id"], SubscriptionPlan[]> = {
   senior: [
     { upfrontPercent: 20, monthlyCents: 9_995 },
-    { upfrontPercent: 30, monthlyCents: 7_995 },
+    // Rounded up from $79.95 to $80.00 — divides the $560 balance into
+    // 7 clean, equal payments instead of 7 payments + a $0.35 final one.
+    { upfrontPercent: 30, monthlyCents: 8_000 },
   ],
   junior: [
     { upfrontPercent: 20, monthlyCents: 6_995 },
     { upfrontPercent: 30, monthlyCents: 5_995 },
   ],
   sophomore: [
-    { upfrontPercent: 20, monthlyCents: 5_995 },
+    // Rounded up from $59.95 to $60.00 — divides the $1,920 balance into
+    // 32 clean, equal payments instead of 32 payments + a $1.60 final one.
+    { upfrontPercent: 20, monthlyCents: 6_000 },
     { upfrontPercent: 30, monthlyCents: 5_495 },
   ],
   freshman: [

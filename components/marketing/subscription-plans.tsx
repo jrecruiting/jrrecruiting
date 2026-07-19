@@ -53,8 +53,10 @@ export function SubscriptionPlans() {
                       </div>
                       <p className="text-sm text-muted-foreground">
                         then {formatCents(schedule.monthlyCents)}/mo for{" "}
-                        {schedule.fullInstallments} month
-                        {schedule.fullInstallments === 1 ? "" : "s"}
+                        {closeEnough ? schedule.totalInstallments : schedule.fullInstallments} month
+                        {(closeEnough ? schedule.totalInstallments : schedule.fullInstallments) === 1
+                          ? ""
+                          : "s"}
                         {!closeEnough && (
                           <>, plus a final payment of {formatCents(schedule.finalInstallmentCents)}</>
                         )}
