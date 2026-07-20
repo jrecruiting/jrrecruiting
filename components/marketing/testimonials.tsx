@@ -3,22 +3,21 @@
 import { motion } from "motion/react";
 import { Quotes } from "@phosphor-icons/react";
 
-// Placeholder quotes — swap in real parent/coach testimonials before launch.
 const testimonials = [
   {
     quote:
-      "We had no idea how to get in front of college coaches until we built a profile here. Within weeks she had real interest.",
-    attribution: "Parent of a 2027 Softball Recruit",
+      "Javier gave me the chance to showcase my talent nationwide. I'll always be grateful—he helped land me at Penn State University.",
+    attribution: "2019 Transfer Player",
   },
   {
     quote:
-      "Being able to filter by state, position, and grad year saves me hours every week during the recruiting season.",
-    attribution: "NCAA D2 Baseball Coach",
+      "One of my players was told he'd never play college ball. J.R. Recruiting found him a Division 1 school that wanted him.",
+    attribution: "High School Football Coach",
   },
   {
     quote:
-      "The update notifications are what sold me — I star a player and I actually hear about it when something changes.",
-    attribution: "NAIA Soccer Coach",
+      "We were skeptical of recruiting services, but Javier's transparency turned zero offers into twelve—and a scholarship to Rocky Mountain College.",
+    attribution: "Parent from 2025 Class",
   },
 ];
 

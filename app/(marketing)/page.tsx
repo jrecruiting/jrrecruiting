@@ -24,7 +24,7 @@ export default function HomePage() {
             size="lg"
             className="bg-gold text-gold-foreground hover:bg-gold/90"
             nativeButton={false}
-            render={<Link href="/sign-up">Create a Free Profile</Link>}
+            render={<Link href="/sign-up">Get Started Now</Link>}
           />
         </div>
       </section>

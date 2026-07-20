@@ -65,7 +65,10 @@ export default function TermsPage() {
             one-time fee or payment plan shown at checkout. Payments are
             processed securely by Stripe; we do not store your full card
             details. Fees are generally non-refundable once a profile is
-            published, except where required by law or at our discretion.
+            published, except where required by law or at our discretion. If
+            you believe there is a mistake on the fee that was charged,
+            please let us know and we will look into it to determine the
+            possibility of a refund.
           </p>
         </section>
 

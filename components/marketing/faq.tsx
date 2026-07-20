@@ -29,7 +29,7 @@ const faqs = [
   {
     question: "Will I know when a coach looks at my athlete's profile?",
     answer:
-      "Yes. Parents get a notification whenever a verified coach views their athlete's profile, so you always know who's interested.",
+      "Yes. Parents see exactly when a college coach views their child's profile, in real time.",
   },
 ];
 
