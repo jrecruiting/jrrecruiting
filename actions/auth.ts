@@ -15,9 +15,9 @@ export async function signInWithCredentials(
   _prevState: string | undefined,
   formData: FormData
 ): Promise<string | undefined> {
-  const email = formData.get("email");
+  const email = formData.get("email") as string;
   const password = formData.get("password");
-  const callbackUrl = (formData.get("callbackUrl") as string) || "/";
+  const explicitCallbackUrl = formData.get("callbackUrl") as string;
 
   const ip = await getClientIp();
   const { success } = await rateLimit(`sign-in:${ip}`, { limit: 10, windowMs: 15 * 60 * 1000 });
@@ -25,11 +25,23 @@ export async function signInWithCredentials(
     return "Too many sign-in attempts. Please try again in a few minutes.";
   }
 
+  // A specific destination (e.g. bounced here from a protected page) is
+  // always honored. Otherwise land the user somewhere role-appropriate
+  // instead of the public homepage, which looks identical whether you're
+  // signed in or not.
+  let redirectTo = explicitCallbackUrl || "/";
+  if (redirectTo === "/") {
+    const user = await prisma.user.findUnique({ where: { email }, select: { role: true } });
+    if (user?.role === "COACH") redirectTo = "/search";
+    else if (user?.role === "PARENT") redirectTo = "/dashboard";
+    else if (user?.role === "ADMIN") redirectTo = "/admin";
+  }
+
   try {
     await signIn("credentials", {
       email,
       password,
-      redirectTo: callbackUrl,
+      redirectTo,
     });
   } catch (error) {
     if (error instanceof AuthError) {
