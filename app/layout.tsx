@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Sora, Geist_Mono } from "next/font/google";
+import { MotionConfig } from "motion/react";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
@@ -18,13 +19,31 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const APP_URL = process.env.AUTH_URL || "http://localhost:3000";
+const SITE_NAME = "J.R. Recruiting";
+const DEFAULT_TITLE = "JR Recruiting | Connect Student-Athletes with College Coaches";
+const DEFAULT_DESCRIPTION =
+  "JR Recruiting helps student-athletes get discovered by college coaches with searchable, verified player profiles by state, country, and sport.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(APP_URL),
   title: {
-    default: "JR Recruiting | Connect Student-Athletes with College Coaches",
+    default: DEFAULT_TITLE,
     template: "%s | JR Recruiting",
   },
-  description:
-    "JR Recruiting helps student-athletes get discovered by college coaches with searchable, verified player profiles by state, country, and sport.",
+  description: DEFAULT_DESCRIPTION,
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
+    url: "/",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
+  },
 };
 
 export default function RootLayout({
@@ -39,7 +58,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        {children}
+        <MotionConfig reducedMotion="user">{children}</MotionConfig>
         <Toaster richColors position="top-right" />
       </body>
     </html>

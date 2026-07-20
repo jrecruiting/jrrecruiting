@@ -38,6 +38,7 @@ model User {
   profileViews   ProfileViewEvent[]
   payments       Payment[]
   createdPlayers Player[]           @relation("AdminAuthoredPlayers")
+  passwordResetTokens PasswordResetToken[]
 
   @@map("users")
 }
@@ -346,4 +347,29 @@ model Payment {
 
   @@index([playerId, status])
   @@map("payments")
+}
+
+// ── Password reset ──────────────────────────────────────────
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+// ── Rate limiting ───────────────────────────────────────────
+
+model RateLimit {
+  key         String   @id
+  count       Int      @default(0)
+  windowStart DateTime @default(now())
+
+  @@map("rate_limits")
 }

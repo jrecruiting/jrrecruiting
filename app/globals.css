@@ -90,9 +90,9 @@
   --sidebar-ring: oklch(0.55 0.09 258);
 }
 
-/* Marketing "editorial dark" theme — near-black canvas, bold white type,
-   gold as the primary accent. Applied only to the (marketing) route group
-   via a `.dark` wrapper; admin/auth keep the light navy/gold tokens above. */
+/* "Editorial dark" theme — near-black canvas, bold white type, gold as the
+   primary accent. Applied site-wide via `.dark` on the root <html> element
+   (see app/layout.tsx); the light tokens above are currently unused. */
 .dark {
   --background: oklch(0.08 0.006 30);
   --foreground: oklch(0.98 0.002 30);

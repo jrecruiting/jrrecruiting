@@ -24,7 +24,7 @@ const faqs = [
   {
     question: "How much does it cost to list an athlete?",
     answer:
-      "Listing includes a one-time fee per athlete profile. Reach out through our contact page for current pricing.",
+      "Listing is a one-time fee starting at $800, with discounts for signing up earlier in your athlete's high school career and a monthly payment plan available. See our pricing page for the full breakdown.",
   },
   {
     question: "Will I know when a coach looks at my athlete's profile?",

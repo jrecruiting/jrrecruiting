@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import { PricingCategoryTabs } from "@/components/marketing/pricing-category-tabs";
+
+export const metadata: Metadata = {
+  title: "Pricing",
+  description:
+    "One-time listing packages for High School, JUCO, and Transfer athletes, with early-signup discounts and monthly payment plan options.",
+};
 
 export default function PricingPage() {
   return (

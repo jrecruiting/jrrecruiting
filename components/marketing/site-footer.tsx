@@ -20,12 +20,21 @@ const columns = [
       { href: "/sign-in", label: "Sign In" },
     ],
   },
+  {
+    title: "Legal & Support",
+    links: [
+      { href: "/terms", label: "Terms of Service" },
+      { href: "/privacy", label: "Privacy Policy" },
+      { href: "/content-removal", label: "Content Removal" },
+      { href: "https://support.stripe.com/", label: "Stripe Billing Support", external: true },
+    ],
+  },
 ];
 
 export function SiteFooter() {
   return (
     <footer className="border-t border-border/60 bg-background">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 md:grid-cols-[1.3fr_1fr_1fr]">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 sm:grid-cols-2 md:grid-cols-[1.2fr_1fr_1fr_1fr]">
         <div className="flex flex-col gap-4">
           <Logo size="md" />
           <p className="max-w-xs text-sm text-muted-foreground">
@@ -39,15 +48,27 @@ export function SiteFooter() {
             <span className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
               {col.title}
             </span>
-            {col.links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-sm text-foreground/80 transition-colors hover:text-gold"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {col.links.map((link) =>
+              link.external ? (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-foreground/80 transition-colors hover:text-gold"
+                >
+                  {link.label}
+                </a>
+              ) : (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-sm text-foreground/80 transition-colors hover:text-gold"
+                >
+                  {link.label}
+                </Link>
+              )
+            )}
           </div>
         ))}
       </div>

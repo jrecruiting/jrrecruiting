@@ -21,6 +21,7 @@ export function ParentNav() {
             <Link
               key={item.href}
               href={item.href}
+              aria-label={item.label}
               className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               <item.icon className="h-4 w-4" aria-hidden />
@@ -30,6 +31,7 @@ export function ParentNav() {
           <form action={signOutAction}>
             <button
               type="submit"
+              aria-label="Sign Out"
               className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               <SignOut className="h-4 w-4" aria-hidden />
