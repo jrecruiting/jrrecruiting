@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "motion/react";
 import { Quotes } from "@phosphor-icons/react";
+import { Button } from "@/components/ui/button";
 
 const testimonials = [
   {
@@ -52,6 +54,14 @@ export function Testimonials() {
               </figcaption>
             </motion.figure>
           ))}
+        </div>
+        <div className="mt-10 flex justify-center">
+          <Button
+            variant="outline"
+            className="border-foreground/20 bg-transparent hover:bg-foreground/5"
+            nativeButton={false}
+            render={<Link href="/testimonials">Read More Testimonials</Link>}
+          />
         </div>
       </div>
     </section>

@@ -3,7 +3,16 @@ import type { MetadataRoute } from "next";
 const APP_URL = process.env.AUTH_URL || "http://localhost:3000";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const routes = ["", "/how-it-works", "/pricing", "/about", "/contact", "/sign-in", "/sign-up"];
+  const routes = [
+    "",
+    "/how-it-works",
+    "/pricing",
+    "/about",
+    "/testimonials",
+    "/contact",
+    "/sign-in",
+    "/sign-up",
+  ];
 
   return routes.map((route) => ({
     url: `${APP_URL}${route}`,
