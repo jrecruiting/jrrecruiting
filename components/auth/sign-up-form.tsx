@@ -9,7 +9,13 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export function SignUpForm({ initialRole }: { initialRole: "PARENT" | "COACH" }) {
+export function SignUpForm({
+  initialRole,
+  lockRole = false,
+}: {
+  initialRole: "PARENT" | "COACH";
+  lockRole?: boolean;
+}) {
   const [role, setRole] = useState<"PARENT" | "COACH">(initialRole);
   const [error, formAction, isPending] = useActionState(signUp, undefined);
 
@@ -17,19 +23,27 @@ export function SignUpForm({ initialRole }: { initialRole: "PARENT" | "COACH" })
     <div className="flex min-h-[calc(100dvh-4rem)] items-center justify-center bg-secondary/20 px-4 py-12">
       <Card className="w-full max-w-md border-border/60">
         <CardHeader>
-          <CardTitle className="font-heading text-2xl">Create Your Account</CardTitle>
+          <CardTitle className="font-heading text-2xl">
+            {lockRole
+              ? role === "COACH"
+                ? "Create Your Coach Account"
+                : "Create Your Parent Account"
+              : "Create Your Account"}
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <Tabs value={role} onValueChange={(v) => setRole(v as "PARENT" | "COACH")} className="mb-6">
-            <TabsList className="w-full">
-              <TabsTrigger value="PARENT" className="flex-1">
-                I&apos;m a Parent
-              </TabsTrigger>
-              <TabsTrigger value="COACH" className="flex-1">
-                I&apos;m a Coach
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+          {!lockRole && (
+            <Tabs value={role} onValueChange={(v) => setRole(v as "PARENT" | "COACH")} className="mb-6">
+              <TabsList className="w-full">
+                <TabsTrigger value="PARENT" className="flex-1">
+                  I&apos;m a Parent
+                </TabsTrigger>
+                <TabsTrigger value="COACH" className="flex-1">
+                  I&apos;m a Coach
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          )}
 
           <form action={formAction} className="flex flex-col gap-4">
             <input type="hidden" name="role" value={role} />
