@@ -47,6 +47,13 @@ export default function AboutPage() {
           Built by people who know recruiting is more than a highlight reel
         </h1>
         <p className="mt-4 text-balance text-muted-foreground">
+          I was a high school coach for many years and saw first hand many
+          talented athletes not having the opportunity to play football at a
+          college level. I took it upon myself to help them with their
+          recruiting and it turned out that it became a passion of mine. I
+          took great pride and have joy for the opportunity to help players.
+        </p>
+        <p className="mt-4 text-balance text-muted-foreground">
           Too many talented athletes get missed simply because the right
           coach never saw the right profile at the right time. We built J.R.
           Recruiting to close that gap &mdash; giving every athlete a
