@@ -3,8 +3,7 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { tierForPlayer, priceForTier, formatCents } from "@/lib/pricing";
-import { PaymentButton } from "@/components/parent/payment-button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PaymentOptions } from "@/components/parent/payment-options";
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "@phosphor-icons/react/dist/ssr";
 
@@ -72,18 +71,7 @@ export default async function PlayerPaymentPage({
         </p>
       )}
 
-      <Card className="border-border/60">
-        <CardHeader>
-          <CardTitle className="text-base">Listing fee &mdash; {tier.name}</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">One-time athlete profile listing</span>
-            <span className="font-heading text-2xl font-bold">{priceLabel}</span>
-          </div>
-          <PaymentButton playerId={playerId} priceLabel={priceLabel} />
-        </CardContent>
-      </Card>
+      <PaymentOptions playerId={playerId} tier={tier} priceLabel={priceLabel} />
     </div>
   );
 }

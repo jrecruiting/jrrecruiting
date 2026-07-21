@@ -7,6 +7,7 @@ import {
   HandCoins,
   ArrowsClockwise,
   PencilSimple,
+  CalendarCheck,
   SignOut,
 } from "@phosphor-icons/react/dist/ssr";
 
@@ -17,6 +18,7 @@ const navItems = [
   { href: "/admin/coaches", label: "Coach Verification", icon: ShieldCheck },
   { href: "/admin/claims", label: "Claims", icon: ArrowsClockwise },
   { href: "/admin/payments", label: "Payments", icon: HandCoins },
+  { href: "/admin/payment-plans", label: "Payment Plans", icon: CalendarCheck },
 ];
 
 export function AdminNav() {

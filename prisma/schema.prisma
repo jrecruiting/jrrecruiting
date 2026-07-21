@@ -42,6 +42,7 @@ model User {
   passwordResetTokens PasswordResetToken[]
   editRequests         PlayerEditRequest[]
   resolvedEditRequests PlayerEditRequest[] @relation("EditRequestResolvedBy")
+  paymentPlanSubscriptions PaymentPlanSubscription[]
 
   @@map("users")
 }
@@ -170,6 +171,7 @@ model Player {
   claimRequests ClaimRequest[]
   payments      Payment[]
   editRequests  PlayerEditRequest[]
+  paymentPlanSubscription PaymentPlanSubscription?
 
   @@index([country, state])
   @@index([gender, gradYear])
@@ -380,6 +382,42 @@ model Payment {
 
   @@index([playerId, status])
   @@map("payments")
+}
+
+enum PaymentPlanStatus {
+  ACTIVE
+  PAST_DUE
+  COMPLETED
+  CANCELED
+}
+
+// One row per player's monthly payment plan. Tracks the underlying Stripe
+// Subscription Schedule (upfront deposit + N regular installments + one
+// final, differently-sized installment, then billing stops automatically).
+model PaymentPlanSubscription {
+  id                      String            @id @default(cuid())
+  playerId                String            @unique
+  player                  Player            @relation(fields: [playerId], references: [id])
+  parentId                String
+  parent                  User              @relation(fields: [parentId], references: [id])
+  stripeCheckoutSessionId String            @unique
+  stripeSubscriptionId    String?           @unique
+  stripeScheduleId        String?
+  tierId                  String
+  upfrontPercent          Int
+  totalCents              Int
+  upfrontCents            Int
+  monthlyCents            Int
+  finalInstallmentCents   Int
+  totalInstallments       Int
+  installmentsPaid        Int               @default(0)
+  status                  PaymentPlanStatus @default(ACTIVE)
+  lastPaymentError        String?
+  createdAt               DateTime          @default(now())
+  completedAt             DateTime?
+
+  @@index([status])
+  @@map("payment_plan_subscriptions")
 }
 
 // ── Password reset ──────────────────────────────────────────
