@@ -13,7 +13,7 @@ export default async function SignUpPage({
   searchParams: Promise<{ role?: string }>;
 }) {
   const { role } = await searchParams;
-  const requestedRole = role === "coach" ? "COACH" : role === "parent" ? "PARENT" : undefined;
+  const initialRole = role === "coach" ? "COACH" : "PARENT";
 
-  return <SignUpForm initialRole={requestedRole ?? "PARENT"} lockRole={requestedRole !== undefined} />;
+  return <SignUpForm initialRole={initialRole} />;
 }

@@ -1,22 +1,14 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState } from "react";
 import Link from "next/link";
 import { signUp } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export function SignUpForm({
-  initialRole,
-  lockRole = false,
-}: {
-  initialRole: "PARENT" | "COACH";
-  lockRole?: boolean;
-}) {
-  const [role, setRole] = useState<"PARENT" | "COACH">(initialRole);
+export function SignUpForm({ initialRole }: { initialRole: "PARENT" | "COACH" }) {
   const [error, formAction, isPending] = useActionState(signUp, undefined);
 
   return (
@@ -24,29 +16,12 @@ export function SignUpForm({
       <Card className="w-full max-w-md border-border/60">
         <CardHeader>
           <CardTitle className="font-heading text-2xl">
-            {lockRole
-              ? role === "COACH"
-                ? "Create Your Coach Account"
-                : "Create Your Parent Account"
-              : "Create Your Account"}
+            {initialRole === "COACH" ? "Create Your Coach Account" : "Create Your Parent Account"}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {!lockRole && (
-            <Tabs value={role} onValueChange={(v) => setRole(v as "PARENT" | "COACH")} className="mb-6">
-              <TabsList className="w-full">
-                <TabsTrigger value="PARENT" className="flex-1">
-                  I&apos;m a Parent
-                </TabsTrigger>
-                <TabsTrigger value="COACH" className="flex-1">
-                  I&apos;m a Coach
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          )}
-
           <form action={formAction} className="flex flex-col gap-4">
-            <input type="hidden" name="role" value={role} />
+            <input type="hidden" name="role" value={initialRole} />
 
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="name">Full name</Label>
@@ -69,11 +44,11 @@ export function SignUpForm({
               <p className="text-xs text-muted-foreground">At least 8 characters.</p>
             </div>
 
-            {role === "COACH" && (
+            {initialRole === "COACH" && (
               <>
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="organization">College / organization</Label>
-                  <Input id="organization" name="organization" required={role === "COACH"} />
+                  <Input id="organization" name="organization" required />
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="title">Title (optional)</Label>
