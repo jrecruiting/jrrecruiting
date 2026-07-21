@@ -28,7 +28,7 @@ export function PlayerPhoto({
           src={`/api/blob/photo?pathname=${encodeURIComponent(pathname)}`}
           alt={alt}
           fill
-          className="object-cover"
+          className="object-cover object-top"
           unoptimized
         />
       ) : (
