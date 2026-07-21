@@ -65,6 +65,7 @@ export default async function EditAthletePage({
         sports={sports}
         action={boundUpdate}
         submitLabel="Save Changes"
+        requireConsentDialog
         defaultValues={{
           firstName: player.firstName,
           lastName: player.lastName,

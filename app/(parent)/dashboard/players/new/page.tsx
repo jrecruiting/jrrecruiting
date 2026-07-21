@@ -14,7 +14,12 @@ export default async function NewAthletePage() {
           next step before the profile goes live for coaches.
         </p>
       </div>
-      <PlayerForm sports={sports} action={createPlayerParent} submitLabel="Continue to Payment" />
+      <PlayerForm
+        sports={sports}
+        action={createPlayerParent}
+        submitLabel="Continue to Payment"
+        requireConsentDialog
+      />
     </div>
   );
 }

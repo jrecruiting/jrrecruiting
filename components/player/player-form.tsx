@@ -16,6 +16,7 @@ import {
 import type { PlayerFormState } from "@/actions/players";
 import { PLAYER_TYPES } from "@/lib/player-types";
 import { PhotoUpload } from "@/components/player/photo-upload";
+import { PhotoConsentCheckbox } from "@/components/player/photo-consent-checkbox";
 
 type SportOption = { id: string; name: string };
 
@@ -48,11 +49,13 @@ export function PlayerForm({
   action,
   defaultValues,
   submitLabel,
+  requireConsentDialog = false,
 }: {
   sports: SportOption[];
   action: (state: PlayerFormState, formData: FormData) => Promise<PlayerFormState>;
   defaultValues?: PlayerDefaults;
   submitLabel: string;
+  requireConsentDialog?: boolean;
 }) {
   const [state, formAction, isPending] = useActionState(action, undefined);
 
@@ -281,11 +284,15 @@ export function PlayerForm({
       </div>
 
       <div className="flex items-center gap-2">
-        <Checkbox
-          id="photoConsent"
-          name="photoConsent"
-          defaultChecked={defaultValues?.photoConsent}
-        />
+        {requireConsentDialog ? (
+          <PhotoConsentCheckbox defaultChecked={defaultValues?.photoConsent} />
+        ) : (
+          <Checkbox
+            id="photoConsent"
+            name="photoConsent"
+            defaultChecked={defaultValues?.photoConsent}
+          />
+        )}
         <Label htmlFor="photoConsent" className="text-sm font-normal">
           I have the right to publish this player&apos;s photo
         </Label>
