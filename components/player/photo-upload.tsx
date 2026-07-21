@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { upload } from "@vercel/blob/client";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { UploadSimple, X, Spinner } from "@phosphor-icons/react";
@@ -45,12 +44,27 @@ export function PhotoUpload({
     setUploading(true);
     setProgress(0);
     try {
-      const blob = await upload(file.name, file, {
-        access: "private",
-        handleUploadUrl: "/api/blob/upload",
-        onUploadProgress: ({ percentage }) => setProgress(percentage),
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const result = await new Promise<{ pathname: string }>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/api/blob/upload");
+        xhr.upload.addEventListener("progress", (e) => {
+          if (e.lengthComputable) setProgress(Math.round((e.loaded / e.total) * 100));
+        });
+        xhr.addEventListener("load", () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve(JSON.parse(xhr.responseText));
+          } else {
+            reject(new Error(xhr.responseText));
+          }
+        });
+        xhr.addEventListener("error", () => reject(new Error("Network error")));
+        xhr.send(formData);
       });
-      setPathname(blob.pathname);
+
+      setPathname(result.pathname);
     } catch {
       setError("Upload failed. Please try again.");
     } finally {

@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
-import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
+import { put } from "@vercel/blob";
 import { auth } from "@/lib/auth";
+
+const MAX_SIZE_BYTES = 5 * 1024 * 1024;
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
 export async function POST(request: Request): Promise<NextResponse> {
   const session = await auth();
@@ -8,30 +11,23 @@ export async function POST(request: Request): Promise<NextResponse> {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = (await request.json()) as HandleUploadBody;
-
-  try {
-    const jsonResponse = await handleUpload({
-      body,
-      request,
-      onBeforeGenerateToken: async () => {
-        return {
-          allowedContentTypes: ["image/jpeg", "image/png", "image/webp", "image/gif"],
-          maximumSizeInBytes: 5 * 1024 * 1024, // 5MB
-          addRandomSuffix: true,
-        };
-      },
-      onUploadCompleted: async () => {
-        // No server-side bookkeeping needed here -- the resulting blob URL
-        // is submitted with the rest of the player form and saved there.
-      },
-    });
-
-    return NextResponse.json(jsonResponse);
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Upload failed" },
-      { status: 400 }
-    );
+  const formData = await request.formData();
+  const file = formData.get("file");
+  if (!(file instanceof File)) {
+    return NextResponse.json({ error: "No file provided" }, { status: 400 });
   }
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    return NextResponse.json({ error: "Unsupported file type" }, { status: 400 });
+  }
+  if (file.size > MAX_SIZE_BYTES) {
+    return NextResponse.json({ error: "File too large" }, { status: 400 });
+  }
+
+  const blob = await put(`player-photos/${file.name}`, file, {
+    access: "private",
+    addRandomSuffix: true,
+    contentType: file.type,
+  });
+
+  return NextResponse.json({ pathname: blob.pathname });
 }
