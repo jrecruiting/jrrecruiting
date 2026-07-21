@@ -17,6 +17,7 @@ export function buildPlayerData(data: PlayerFormValues) {
     gradYear: data.gradYear,
     country: data.country.toUpperCase(),
     state: data.state ? data.state.toUpperCase() : null,
+    schoolName: data.schoolName || null,
     heightIn: hasHeight ? (data.heightFeet ?? 0) * 12 + (data.heightInches ?? 0) : null,
     weightLb: data.weightLb ?? null,
     gpa: data.gpa ?? null,

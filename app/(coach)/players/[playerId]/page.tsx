@@ -34,6 +34,7 @@ export default async function CoachPlayerProfilePage({
 
   const video = player.media.find((m) => m.type === "VIDEO");
   const displayLastName = isVerified ? player.lastName : maskLastName(player.lastName);
+  const displaySchool = isVerified ? player.schoolName : null;
   const displayLocation = [isVerified ? player.city : null, player.state, player.country]
     .filter(Boolean)
     .join(", ");
@@ -55,6 +56,7 @@ export default async function CoachPlayerProfilePage({
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
               {player.gender === "MALE" ? "Boy" : "Girl"} &middot; Class of {player.gradYear}
+              {displaySchool ? ` · ${displaySchool}` : ""}
               {displayLocation ? ` · ${displayLocation}` : ""}
             </p>
             <div className="mt-2 flex flex-wrap gap-1.5">

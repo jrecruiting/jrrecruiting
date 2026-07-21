@@ -27,6 +27,7 @@ type PlayerDefaults = {
   gradYear?: number;
   country?: string;
   state?: string | null;
+  schoolName?: string | null;
   heightFeet?: number | null;
   heightInches?: number | null;
   weightLb?: number | null;
@@ -194,7 +195,7 @@ export function PlayerForm({
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-3">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="sportId">Sport</Label>
           <Select name="sportId" defaultValue={defaultValues?.sportId}>
@@ -213,6 +214,14 @@ export function PlayerForm({
               ))}
             </SelectContent>
           </Select>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="schoolName">Name of school</Label>
+          <Input
+            id="schoolName"
+            name="schoolName"
+            defaultValue={defaultValues?.schoolName ?? ""}
+          />
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="position">Position</Label>

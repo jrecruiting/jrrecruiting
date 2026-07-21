@@ -77,6 +77,7 @@ export default async function EditPlayerPage({
           gradYear: player.gradYear,
           country: player.country,
           state: player.state,
+          schoolName: player.schoolName,
           heightFeet: player.heightIn != null ? Math.floor(player.heightIn / 12) : null,
           heightInches: player.heightIn != null ? player.heightIn % 12 : null,
           weightLb: player.weightLb,

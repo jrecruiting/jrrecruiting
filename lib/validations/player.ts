@@ -20,6 +20,7 @@ export const playerFormSchema = z.object({
   gradYear: z.coerce.number().int().min(2024).max(2035),
   country: z.string().trim().min(2, "Country is required").max(2),
   state: optionalString(2),
+  schoolName: optionalString(150),
   heightFeet: optionalInt(3, 8),
   heightInches: optionalInt(0, 11),
   weightLb: optionalInt(40, 400),

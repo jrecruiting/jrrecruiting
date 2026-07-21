@@ -148,6 +148,7 @@ model Player {
   country         String
   state           String?
   city            String?
+  schoolName      String?
   heightIn        Int?
   weightLb        Int?
   gpa             Decimal? @db.Decimal(3, 2)
