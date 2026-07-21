@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import type { PlayerFormState } from "@/actions/players";
 import { PLAYER_TYPES } from "@/lib/player-types";
+import { PhotoUpload } from "@/components/player/photo-upload";
 
 type SportOption = { id: string; name: string };
 
@@ -204,16 +205,8 @@ export function PlayerForm({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="primaryPhotoUrl">Photo URL</Label>
-        <Input
-          id="primaryPhotoUrl"
-          name="primaryPhotoUrl"
-          placeholder="https://..."
-          defaultValue={defaultValues?.primaryPhotoUrl ?? ""}
-        />
-        <p className="text-xs text-muted-foreground">
-          Paste a hosted image URL for now. Direct upload support is coming.
-        </p>
+        <Label>Photo</Label>
+        <PhotoUpload name="primaryPhotoUrl" defaultValue={defaultValues?.primaryPhotoUrl} />
       </div>
 
       <div className="flex flex-col gap-1.5">
