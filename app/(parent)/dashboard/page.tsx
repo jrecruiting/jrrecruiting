@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { PlayerPhoto } from "@/components/player/player-photo";
 import { Plus, Eye } from "@phosphor-icons/react/dist/ssr";
 
 const statusVariant: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
@@ -71,17 +72,24 @@ export default async function ParentDashboardPage() {
             <Card key={player.id} className="border-border/60">
               <CardContent className="flex flex-col gap-3">
                 <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <Link
-                      href={`/dashboard/players/${player.id}/edit`}
-                      className="font-heading text-lg font-semibold hover:text-gold"
-                    >
-                      {player.firstName} {player.lastName}
-                    </Link>
-                    <p className="text-sm text-muted-foreground">
-                      {player.sports.map((s) => s.sport.name).join(", ") || "No sport set"}{" "}
-                      &middot; Class of {player.gradYear}
-                    </p>
+                  <div className="flex items-start gap-3">
+                    <PlayerPhoto
+                      pathname={player.primaryPhotoUrl}
+                      alt={`${player.firstName} ${player.lastName}`}
+                      size="sm"
+                    />
+                    <div>
+                      <Link
+                        href={`/dashboard/players/${player.id}/edit`}
+                        className="font-heading text-lg font-semibold hover:text-gold"
+                      >
+                        {player.firstName} {player.lastName}
+                      </Link>
+                      <p className="text-sm text-muted-foreground">
+                        {player.sports.map((s) => s.sport.name).join(", ") || "No sport set"}{" "}
+                        &middot; Class of {player.gradYear}
+                      </p>
+                    </div>
                   </div>
                   <Badge variant={statusVariant[player.listingStatus] ?? "outline"}>
                     {statusLabel[player.listingStatus] ?? player.listingStatus}

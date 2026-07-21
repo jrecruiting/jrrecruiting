@@ -7,6 +7,7 @@ import { buildPlayerWhere } from "@/lib/search/build-where";
 import { playerTypeLabel } from "@/lib/player-types";
 import { maskLastName } from "@/lib/coach-visibility";
 import { QuickStarButton } from "@/components/coach/quick-star-button";
+import { PlayerPhoto } from "@/components/player/player-photo";
 import { FilterSidebar } from "@/components/search/filter-sidebar";
 import { VerificationBanner } from "@/components/coach/verification-banner";
 import { Card, CardContent } from "@/components/ui/card";
@@ -94,18 +95,25 @@ export default async function CoachSearchPage({
                 <Card key={player.id} className="border-border/60">
                   <CardContent className="flex flex-col gap-2">
                     <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <Link
-                          href={`/players/${player.id}`}
-                          className="font-heading text-base font-semibold hover:text-gold"
-                        >
-                          {player.firstName} {displayLastName}
-                        </Link>
-                        <p className="text-xs text-muted-foreground">
-                          {player.sports
-                            .map((s) => `${s.sport.name}${s.position ? ` · ${s.position}` : ""}`)
-                            .join(", ") || "No sport set"}
-                        </p>
+                      <div className="flex items-start gap-3">
+                        <PlayerPhoto
+                          pathname={isVerified ? player.primaryPhotoUrl : null}
+                          alt={`${player.firstName} ${displayLastName}`}
+                          size="sm"
+                        />
+                        <div>
+                          <Link
+                            href={`/players/${player.id}`}
+                            className="font-heading text-base font-semibold hover:text-gold"
+                          >
+                            {player.firstName} {displayLastName}
+                          </Link>
+                          <p className="text-xs text-muted-foreground">
+                            {player.sports
+                              .map((s) => `${s.sport.name}${s.position ? ` · ${s.position}` : ""}`)
+                              .join(", ") || "No sport set"}
+                          </p>
+                        </div>
                       </div>
                       <QuickStarButton
                         playerId={player.id}
