@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { LISTING_FEE_LABEL } from "@/lib/stripe";
+import { tierForPlayer, priceForTier, formatCents } from "@/lib/pricing";
 import { PaymentButton } from "@/components/parent/payment-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,10 @@ export default async function PlayerPaymentPage({
 
   const player = await prisma.player.findUnique({ where: { id: playerId } });
   if (!player || player.parentId !== session!.user.id) notFound();
+
+  const tier = tierForPlayer(player);
+  const { totalCents } = priceForTier(tier);
+  const priceLabel = formatCents(totalCents);
 
   if (player.listingStatus === "ACTIVE") {
     return (
@@ -70,14 +74,14 @@ export default async function PlayerPaymentPage({
 
       <Card className="border-border/60">
         <CardHeader>
-          <CardTitle className="text-base">Listing fee</CardTitle>
+          <CardTitle className="text-base">Listing fee &mdash; {tier.name}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">One-time athlete profile listing</span>
-            <span className="font-heading text-2xl font-bold">{LISTING_FEE_LABEL}</span>
+            <span className="font-heading text-2xl font-bold">{priceLabel}</span>
           </div>
-          <PaymentButton playerId={playerId} />
+          <PaymentButton playerId={playerId} priceLabel={priceLabel} />
         </CardContent>
       </Card>
     </div>

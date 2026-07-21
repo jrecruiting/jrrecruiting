@@ -4,7 +4,8 @@ import { notFound, redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { requireRole } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
-import { stripe, LISTING_FEE_CENTS } from "@/lib/stripe";
+import { stripe } from "@/lib/stripe";
+import { tierForPlayer, priceForTier } from "@/lib/pricing";
 
 export type CheckoutState = { error?: string } | undefined;
 
@@ -29,6 +30,9 @@ export async function createListingCheckoutSession(
     };
   }
 
+  const tier = tierForPlayer(player);
+  const { totalCents } = priceForTier(tier);
+
   const headersList = await headers();
   const origin = headersList.get("origin") ?? process.env.AUTH_URL ?? "http://localhost:3000";
 
@@ -39,9 +43,9 @@ export async function createListingCheckoutSession(
       {
         price_data: {
           currency: "usd",
-          unit_amount: LISTING_FEE_CENTS,
+          unit_amount: totalCents,
           product_data: {
-            name: `J.R. Recruiting listing — ${player.firstName} ${player.lastName}`,
+            name: `J.R. Recruiting listing — ${player.firstName} ${player.lastName} (${tier.name})`,
           },
         },
         quantity: 1,
@@ -61,7 +65,7 @@ export async function createListingCheckoutSession(
       playerId,
       parentId: session.user.id,
       stripeCheckoutSessionId: checkoutSession.id,
-      amountCents: LISTING_FEE_CENTS,
+      amountCents: totalCents,
       status: "PENDING",
     },
   });

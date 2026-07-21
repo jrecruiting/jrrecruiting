@@ -160,3 +160,28 @@ export function currentSeniorGradYear(referenceDate = new Date()) {
 export function gradYearForTier(tier: PackageTier, referenceDate = new Date()) {
   return currentSeniorGradYear(referenceDate) + (tier.years - 1);
 }
+
+/**
+ * Determines which package tier a given player's listing fee should be
+ * priced at, matching the tiers shown on the public pricing page. JUCO and
+ * Transfer players always get their flat package; High School players are
+ * priced by years of eligibility remaining until their grad year, clamped
+ * to the tiers we actually offer (Senior..Freshman) so an out-of-range grad
+ * year still resolves to a sensible tier instead of failing to match.
+ */
+export function tierForPlayer(
+  player: { playerType: "HIGH_SCHOOL" | "JUCO" | "TRANSFER"; gradYear: number },
+  referenceDate = new Date()
+): PackageTier {
+  if (player.playerType === "JUCO") {
+    return FLAT_PACKAGE_TIERS.find((t) => t.id === "juco")!;
+  }
+  if (player.playerType === "TRANSFER") {
+    return FLAT_PACKAGE_TIERS.find((t) => t.id === "transfer")!;
+  }
+
+  const yearsRemaining = player.gradYear - currentSeniorGradYear(referenceDate) + 1;
+  const maxYears = Math.max(...PACKAGE_TIERS.map((t) => t.years));
+  const clamped = Math.min(Math.max(yearsRemaining, 1), maxYears);
+  return PACKAGE_TIERS.find((t) => t.years === clamped) ?? PACKAGE_TIERS[PACKAGE_TIERS.length - 1];
+}
