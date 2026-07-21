@@ -2,7 +2,13 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { priceForTier, formatCents, gradYearForTier, type PackageTier } from "@/lib/pricing";
+import {
+  priceForTier,
+  formatCents,
+  gradYearForTier,
+  signUpHrefForTier,
+  type PackageTier,
+} from "@/lib/pricing";
 
 export function OneTimePricingGrid({
   tiers,
@@ -65,7 +71,7 @@ export function OneTimePricingGrid({
                 <Button
                   className="mt-auto bg-gold text-gold-foreground hover:bg-gold/90"
                   nativeButton={false}
-                  render={<Link href="/sign-up">Get Started</Link>}
+                  render={<Link href={signUpHrefForTier(tier)}>Get Started</Link>}
                 />
               </CardContent>
             </Card>

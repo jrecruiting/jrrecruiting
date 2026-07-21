@@ -44,6 +44,12 @@ export const FLAT_PACKAGE_TIERS: PackageTier[] = FLAT_PACKAGE_CATEGORIES.map((ca
   discountPercent: 0,
 }));
 
+// JUCO/Transfer athletes are often old enough to sign themselves up, not
+// just a parent, so their "Get Started" links flag that on the sign-up page.
+export function signUpHrefForTier(tier: PackageTier) {
+  return tier.id === "juco" || tier.id === "transfer" ? "/sign-up?audience=player" : "/sign-up";
+}
+
 export function priceForTier(tier: PackageTier) {
   const annualRateCents = Math.round(BASE_ANNUAL_RATE_CENTS * (1 - tier.discountPercent / 100));
   const totalCents = annualRateCents * tier.years;

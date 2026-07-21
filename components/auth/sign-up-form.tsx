@@ -8,7 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export function SignUpForm({ initialRole }: { initialRole: "PARENT" | "COACH" }) {
+export function SignUpForm({
+  initialRole,
+  playerAudience = false,
+}: {
+  initialRole: "PARENT" | "COACH";
+  playerAudience?: boolean;
+}) {
   const [error, formAction, isPending] = useActionState(signUp, undefined);
 
   return (
@@ -16,7 +22,11 @@ export function SignUpForm({ initialRole }: { initialRole: "PARENT" | "COACH" })
       <Card className="w-full max-w-md border-border/60">
         <CardHeader>
           <CardTitle className="font-heading text-2xl">
-            {initialRole === "COACH" ? "Create Your Coach Account" : "Create Your Parent Account"}
+            {initialRole === "COACH"
+              ? "Create Your Coach Account"
+              : playerAudience
+                ? "Create Your Parent/Player Account"
+                : "Create Your Parent Account"}
           </CardTitle>
         </CardHeader>
         <CardContent>

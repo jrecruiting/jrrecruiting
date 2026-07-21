@@ -10,10 +10,10 @@ export const metadata: Metadata = {
 export default async function SignUpPage({
   searchParams,
 }: {
-  searchParams: Promise<{ role?: string }>;
+  searchParams: Promise<{ role?: string; audience?: string }>;
 }) {
-  const { role } = await searchParams;
+  const { role, audience } = await searchParams;
   const initialRole = role === "coach" ? "COACH" : "PARENT";
 
-  return <SignUpForm initialRole={initialRole} />;
+  return <SignUpForm initialRole={initialRole} playerAudience={audience === "player"} />;
 }

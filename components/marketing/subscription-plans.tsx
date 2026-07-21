@@ -7,6 +7,7 @@ import {
   calculateInstallmentSchedule,
   formatCents,
   gradYearForTier,
+  signUpHrefForTier,
   type PackageTier,
 } from "@/lib/pricing";
 
@@ -73,7 +74,7 @@ export function SubscriptionPlans({
                         variant="outline"
                         className="mt-1 border-border/60"
                         nativeButton={false}
-                        render={<Link href="/sign-up">Choose This Plan</Link>}
+                        render={<Link href={signUpHrefForTier(tier)}>Choose This Plan</Link>}
                       />
                     </CardContent>
                   </Card>
