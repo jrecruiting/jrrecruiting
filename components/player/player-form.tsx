@@ -22,14 +22,13 @@ type SportOption = { id: string; name: string };
 type PlayerDefaults = {
   firstName?: string;
   lastName?: string;
-  dob?: string;
   gender?: "MALE" | "FEMALE";
   playerType?: "HIGH_SCHOOL" | "JUCO" | "TRANSFER";
   gradYear?: number;
   country?: string;
   state?: string | null;
-  city?: string | null;
-  heightIn?: number | null;
+  heightFeet?: number | null;
+  heightInches?: number | null;
   weightLb?: number | null;
   gpa?: string | number | null;
   bio?: string | null;
@@ -68,10 +67,6 @@ export function PlayerForm({
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="lastName">Last name</Label>
           <Input id="lastName" name="lastName" required defaultValue={defaultValues?.lastName} />
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="dob">Date of birth</Label>
-          <Input id="dob" name="dob" type="date" required defaultValue={defaultValues?.dob} />
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="gender">Gender</Label>
@@ -139,21 +134,39 @@ export function PlayerForm({
             defaultValue={defaultValues?.state ?? ""}
           />
         </div>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="city">City</Label>
-          <Input id="city" name="city" defaultValue={defaultValues?.city ?? ""} />
-        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="heightIn">Height (in)</Label>
-          <Input
-            id="heightIn"
-            name="heightIn"
-            type="number"
-            defaultValue={defaultValues?.heightIn ?? undefined}
-          />
+          <Label>Height</Label>
+          <div className="flex gap-2">
+            <div className="flex flex-1 items-center gap-1.5">
+              <Input
+                id="heightFeet"
+                name="heightFeet"
+                type="number"
+                min={3}
+                max={8}
+                placeholder="ft"
+                aria-label="Height, feet"
+                defaultValue={defaultValues?.heightFeet ?? undefined}
+              />
+              <span className="text-sm text-muted-foreground">ft</span>
+            </div>
+            <div className="flex flex-1 items-center gap-1.5">
+              <Input
+                id="heightInches"
+                name="heightInches"
+                type="number"
+                min={0}
+                max={11}
+                placeholder="in"
+                aria-label="Height, inches"
+                defaultValue={defaultValues?.heightInches ?? undefined}
+              />
+              <span className="text-sm text-muted-foreground">in</span>
+            </div>
+          </div>
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="weightLb">Weight (lb)</Label>

@@ -138,7 +138,7 @@ model Player {
 
   firstName       String
   lastName        String
-  dob             DateTime
+  dob             DateTime?
   gender          Gender
   playerType      PlayerType @default(HIGH_SCHOOL)
   gradYear        Int

@@ -16,17 +16,17 @@ function parsePlayerForm(formData: FormData) {
 }
 
 function buildPlayerData(data: ReturnType<typeof parsePlayerForm>) {
+  const hasHeight = data.heightFeet != null || data.heightInches != null;
+
   return {
     firstName: data.firstName,
     lastName: data.lastName,
-    dob: new Date(data.dob),
     gender: data.gender,
     playerType: data.playerType,
     gradYear: data.gradYear,
     country: data.country.toUpperCase(),
     state: data.state ? data.state.toUpperCase() : null,
-    city: data.city || null,
-    heightIn: data.heightIn ?? null,
+    heightIn: hasHeight ? (data.heightFeet ?? 0) * 12 + (data.heightInches ?? 0) : null,
     weightLb: data.weightLb ?? null,
     gpa: data.gpa ?? null,
     bio: data.bio || null,
