@@ -151,6 +151,9 @@ model Player {
   bio             String?  @db.Text
   primaryPhotoUrl String?
   photoConsent    Boolean  @default(false)
+  instagramHandle String?
+  xHandle         String?
+  cellPhone       String?
 
   listingStatus ListingStatus @default(DRAFT)
   publishedAt   DateTime?

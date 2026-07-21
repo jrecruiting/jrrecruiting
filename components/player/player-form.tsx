@@ -37,6 +37,9 @@ type PlayerDefaults = {
   sportId?: string;
   position?: string | null;
   videoUrl?: string;
+  instagramHandle?: string | null;
+  xHandle?: string | null;
+  cellPhone?: string | null;
 };
 
 export function PlayerForm({
@@ -230,6 +233,37 @@ export function PlayerForm({
           placeholder="https://youtube.com/... or hudl.com/..."
           defaultValue={defaultValues?.videoUrl ?? ""}
         />
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="instagramHandle">Instagram</Label>
+          <Input
+            id="instagramHandle"
+            name="instagramHandle"
+            placeholder="username"
+            defaultValue={defaultValues?.instagramHandle ?? ""}
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="xHandle">X (Twitter)</Label>
+          <Input
+            id="xHandle"
+            name="xHandle"
+            placeholder="username"
+            defaultValue={defaultValues?.xHandle ?? ""}
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="cellPhone">Cell number</Label>
+          <Input
+            id="cellPhone"
+            name="cellPhone"
+            type="tel"
+            placeholder="(555) 555-5555"
+            defaultValue={defaultValues?.cellPhone ?? ""}
+          />
+        </div>
       </div>
 
       <div className="flex flex-col gap-1.5">

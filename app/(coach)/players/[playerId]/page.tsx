@@ -116,13 +116,49 @@ export default async function CoachPlayerProfilePage({
               </CardContent>
             </Card>
           )}
+
+          {(player.instagramHandle || player.xHandle || player.cellPhone) && (
+            <Card className="border-border/60">
+              <CardContent className="grid gap-4 sm:grid-cols-3">
+                {player.instagramHandle && (
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                      Instagram
+                    </p>
+                    <p className="font-medium">@{player.instagramHandle}</p>
+                  </div>
+                )}
+                {player.xHandle && (
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                      X (Twitter)
+                    </p>
+                    <p className="font-medium">@{player.xHandle}</p>
+                  </div>
+                )}
+                {player.cellPhone && (
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                      Cell
+                    </p>
+                    <p className="font-medium">{player.cellPhone}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </>
       ) : (
-        (player.bio || video) && (
+        (player.bio ||
+          video ||
+          player.instagramHandle ||
+          player.xHandle ||
+          player.cellPhone) && (
           <Card className="border-dashed border-border/60 bg-card/40">
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Bio and highlight video unlock once your coach account is verified.
+                Bio, highlight video, and contact info unlock once your coach account is
+                verified.
               </p>
             </CardContent>
           </Card>

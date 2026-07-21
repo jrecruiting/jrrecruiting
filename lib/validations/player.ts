@@ -32,6 +32,9 @@ export const playerFormSchema = z.object({
   sportId: z.string().min(1, "Select a sport"),
   position: optionalString(60),
   videoUrl: optionalUrl(),
+  instagramHandle: optionalString(30),
+  xHandle: optionalString(15),
+  cellPhone: optionalString(20),
 });
 
 export type PlayerFormValues = z.infer<typeof playerFormSchema>;

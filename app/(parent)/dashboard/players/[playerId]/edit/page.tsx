@@ -64,6 +64,9 @@ export default async function EditAthletePage({
           sportId: primarySport?.sportId,
           position: primarySport?.position,
           videoUrl: primaryVideo?.url,
+          instagramHandle: player.instagramHandle,
+          xHandle: player.xHandle,
+          cellPhone: player.cellPhone,
         }}
       />
     </div>

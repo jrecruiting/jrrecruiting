@@ -32,6 +32,9 @@ function buildPlayerData(data: ReturnType<typeof parsePlayerForm>) {
     bio: data.bio || null,
     primaryPhotoUrl: data.primaryPhotoUrl || null,
     photoConsent: Boolean(data.photoConsent),
+    instagramHandle: data.instagramHandle || null,
+    xHandle: data.xHandle || null,
+    cellPhone: data.cellPhone || null,
   };
 }
 
