@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useImperativeHandle, useRef, useState, type Ref } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { UploadSimple, X, Spinner } from "@phosphor-icons/react";
@@ -8,12 +8,18 @@ import { UploadSimple, X, Spinner } from "@phosphor-icons/react";
 const MAX_SIZE_BYTES = 5 * 1024 * 1024;
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
+export type PhotoUploadHandle = {
+  clear: () => void;
+};
+
 export function PhotoUpload({
   name = "primaryPhotoUrl",
   defaultValue,
+  ref,
 }: {
   name?: string;
   defaultValue?: string | null;
+  ref?: Ref<PhotoUploadHandle>;
 }) {
   // Stores the blob's pathname (not a directly-fetchable URL, since photos
   // are private -- viewing one always goes through /api/blob/photo so we
@@ -24,6 +30,10 @@ export function PhotoUpload({
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useImperativeHandle(ref, () => ({
+    clear: () => setPathname(null),
+  }));
 
   const previewSrc = pathname
     ? `/api/blob/photo?pathname=${encodeURIComponent(pathname)}`

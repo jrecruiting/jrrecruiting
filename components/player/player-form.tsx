@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import type { PlayerFormState } from "@/actions/players";
 import { PLAYER_TYPES } from "@/lib/player-types";
-import { PhotoUpload } from "@/components/player/photo-upload";
+import { PhotoUpload, type PhotoUploadHandle } from "@/components/player/photo-upload";
 import { PhotoConsentCheckbox } from "@/components/player/photo-consent-checkbox";
 
 type SportOption = { id: string; name: string };
@@ -58,6 +58,7 @@ export function PlayerForm({
   requireConsentDialog?: boolean;
 }) {
   const [state, formAction, isPending] = useActionState(action, undefined);
+  const photoUploadRef = useRef<PhotoUploadHandle>(null);
 
   return (
     <form action={formAction} className="flex max-w-2xl flex-col gap-6">
@@ -234,7 +235,11 @@ export function PlayerForm({
 
       <div className="flex flex-col gap-1.5">
         <Label>Photo</Label>
-        <PhotoUpload name="primaryPhotoUrl" defaultValue={defaultValues?.primaryPhotoUrl} />
+        <PhotoUpload
+          ref={photoUploadRef}
+          name="primaryPhotoUrl"
+          defaultValue={defaultValues?.primaryPhotoUrl}
+        />
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -285,7 +290,10 @@ export function PlayerForm({
 
       <div className="flex items-center gap-2">
         {requireConsentDialog ? (
-          <PhotoConsentCheckbox defaultChecked={defaultValues?.photoConsent} />
+          <PhotoConsentCheckbox
+            defaultChecked={defaultValues?.photoConsent}
+            onClearPhoto={() => photoUploadRef.current?.clear()}
+          />
         ) : (
           <Checkbox
             id="photoConsent"
