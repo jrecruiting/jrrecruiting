@@ -25,14 +25,21 @@ const statusLabel: Record<string, string> = {
 
 export default async function ParentDashboardPage() {
   const session = await auth();
-  const players = await prisma.player.findMany({
-    where: { parentId: session!.user.id },
-    include: {
-      sports: { include: { sport: true } },
-      _count: { select: { profileViews: true, stars: true } },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  const [players, pendingEdits] = await Promise.all([
+    prisma.player.findMany({
+      where: { parentId: session!.user.id },
+      include: {
+        sports: { include: { sport: true } },
+        _count: { select: { profileViews: true, stars: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.playerEditRequest.findMany({
+      where: { player: { parentId: session!.user.id }, status: "PENDING" },
+      select: { playerId: true },
+    }),
+  ]);
+  const pendingPlayerIds = new Set(pendingEdits.map((e) => e.playerId));
 
   return (
     <div className="flex flex-col gap-6">
@@ -91,9 +98,16 @@ export default async function ParentDashboardPage() {
                       </p>
                     </div>
                   </div>
-                  <Badge variant={statusVariant[player.listingStatus] ?? "outline"}>
-                    {statusLabel[player.listingStatus] ?? player.listingStatus}
-                  </Badge>
+                  <div className="flex flex-col items-end gap-1">
+                    <Badge variant={statusVariant[player.listingStatus] ?? "outline"}>
+                      {statusLabel[player.listingStatus] ?? player.listingStatus}
+                    </Badge>
+                    {pendingPlayerIds.has(player.id) && (
+                      <Badge variant="outline" className="border-gold/60 text-gold">
+                        Edit pending review
+                      </Badge>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-4 text-xs text-muted-foreground">

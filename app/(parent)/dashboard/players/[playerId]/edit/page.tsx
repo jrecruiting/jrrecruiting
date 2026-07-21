@@ -5,6 +5,7 @@ import { getSports } from "@/lib/data/sports";
 import { updatePlayerParent, deletePlayerParent } from "@/actions/players";
 import { PlayerForm } from "@/components/player/player-form";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default async function EditAthletePage({
   params,
@@ -14,12 +15,16 @@ export default async function EditAthletePage({
   const { playerId } = await params;
   const session = await auth();
 
-  const [player, sports] = await Promise.all([
+  const [player, sports, pendingEdit] = await Promise.all([
     prisma.player.findUnique({
       where: { id: playerId },
       include: { sports: true, media: true },
     }),
     getSports(),
+    prisma.playerEditRequest.findFirst({
+      where: { playerId, status: "PENDING" },
+      orderBy: { createdAt: "desc" },
+    }),
   ]);
 
   if (!player || player.parentId !== session!.user.id) notFound();
@@ -42,6 +47,20 @@ export default async function EditAthletePage({
           </Button>
         </form>
       </div>
+
+      {pendingEdit && (
+        <Card className="border-gold/50 bg-gold/5">
+          <CardContent>
+            <p className="text-sm">
+              You have changes submitted on {pendingEdit.createdAt.toLocaleDateString()} that
+              are waiting on admin review. The profile coaches see still reflects the current
+              approved version until those changes are approved. Submitting the form below will
+              update your pending request with the latest changes.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       <PlayerForm
         sports={sports}
         action={boundUpdate}

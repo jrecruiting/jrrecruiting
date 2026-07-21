@@ -6,69 +6,9 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/permissions";
 import { recordPlayerUpdate } from "@/lib/notifications/player-update";
-import { playerFormSchema } from "@/lib/validations/player";
+import { parsePlayerForm, buildPlayerData, upsertSportAndVideo, guessVideoProvider } from "@/lib/player-data";
 
 export type PlayerFormState = { error?: string } | undefined;
-
-function parsePlayerForm(formData: FormData) {
-  const raw = Object.fromEntries(formData.entries());
-  return playerFormSchema.parse(raw);
-}
-
-function buildPlayerData(data: ReturnType<typeof parsePlayerForm>) {
-  const hasHeight = data.heightFeet != null || data.heightInches != null;
-
-  return {
-    firstName: data.firstName,
-    lastName: data.lastName,
-    gender: data.gender,
-    playerType: data.playerType,
-    gradYear: data.gradYear,
-    country: data.country.toUpperCase(),
-    state: data.state ? data.state.toUpperCase() : null,
-    heightIn: hasHeight ? (data.heightFeet ?? 0) * 12 + (data.heightInches ?? 0) : null,
-    weightLb: data.weightLb ?? null,
-    gpa: data.gpa ?? null,
-    bio: data.bio || null,
-    primaryPhotoUrl: data.primaryPhotoUrl || null,
-    photoConsent: Boolean(data.photoConsent),
-    instagramHandle: data.instagramHandle || null,
-    xHandle: data.xHandle || null,
-    cellPhone: data.cellPhone || null,
-  };
-}
-
-async function upsertSportAndVideo(
-  playerId: string,
-  data: ReturnType<typeof parsePlayerForm>
-) {
-  await prisma.playerSport.upsert({
-    where: { playerId_sportId: { playerId, sportId: data.sportId } },
-    update: { position: data.position || null },
-    create: {
-      playerId,
-      sportId: data.sportId,
-      position: data.position || null,
-      isPrimary: true,
-    },
-  });
-
-  if (data.videoUrl) {
-    const existing = await prisma.mediaAsset.findFirst({
-      where: { playerId, type: "VIDEO", url: data.videoUrl },
-    });
-    if (!existing) {
-      await prisma.mediaAsset.create({
-        data: {
-          playerId,
-          type: "VIDEO",
-          provider: guessVideoProvider(data.videoUrl),
-          url: data.videoUrl,
-        },
-      });
-    }
-  }
-}
 
 // ── Admin ────────────────────────────────────────────────
 
@@ -214,9 +154,25 @@ export async function updatePlayerParent(
 
   try {
     const data = parsePlayerForm(formData);
-    await prisma.player.update({ where: { id: playerId }, data: buildPlayerData(data) });
-    await upsertSportAndVideo(playerId, data);
-    await recordPlayerUpdate(playerId);
+
+    // Parent edits are staged for admin review rather than applied directly,
+    // so coaches watching this player aren't notified until an admin approves
+    // the change. Resubmitting while a request is still pending replaces it
+    // rather than piling up duplicates.
+    const existing = await prisma.playerEditRequest.findFirst({
+      where: { playerId, status: "PENDING" },
+    });
+
+    if (existing) {
+      await prisma.playerEditRequest.update({
+        where: { id: existing.id },
+        data: { proposedData: data, submittedBy: session.user.id, createdAt: new Date() },
+      });
+    } else {
+      await prisma.playerEditRequest.create({
+        data: { playerId, submittedBy: session.user.id, proposedData: data },
+      });
+    }
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { error: error.issues[0]?.message ?? "Please check the form for errors." };
@@ -235,11 +191,4 @@ export async function deletePlayerParent(playerId: string) {
   await prisma.player.delete({ where: { id: playerId } });
   revalidatePath("/dashboard");
   redirect("/dashboard");
-}
-
-function guessVideoProvider(url: string): "YOUTUBE" | "HUDL" | "VIMEO" | "OTHER" {
-  if (/youtube\.com|youtu\.be/.test(url)) return "YOUTUBE";
-  if (/hudl\.com/.test(url)) return "HUDL";
-  if (/vimeo\.com/.test(url)) return "VIMEO";
-  return "OTHER";
 }

@@ -40,6 +40,8 @@ model User {
   payments       Payment[]
   createdPlayers Player[]           @relation("AdminAuthoredPlayers")
   passwordResetTokens PasswordResetToken[]
+  editRequests         PlayerEditRequest[]
+  resolvedEditRequests PlayerEditRequest[] @relation("EditRequestResolvedBy")
 
   @@map("users")
 }
@@ -167,6 +169,7 @@ model Player {
   profileViews  ProfileViewEvent[]
   claimRequests ClaimRequest[]
   payments      Payment[]
+  editRequests  PlayerEditRequest[]
 
   @@index([country, state])
   @@index([gender, gradYear])
@@ -252,6 +255,30 @@ model ClaimRequest {
   @@map("claim_requests")
 }
 
+enum EditRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model PlayerEditRequest {
+  id              String            @id @default(cuid())
+  playerId        String
+  player          Player            @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  submittedBy     String
+  submitter       User              @relation(fields: [submittedBy], references: [id])
+  proposedData    Json
+  status          EditRequestStatus @default(PENDING)
+  createdAt       DateTime          @default(now())
+  resolvedAt      DateTime?
+  resolvedBy      String?
+  resolver        User?             @relation("EditRequestResolvedBy", fields: [resolvedBy], references: [id])
+  rejectionReason String?
+
+  @@index([status])
+  @@map("player_edit_requests")
+}
+
 // ── Coach engagement ────────────────────────────────────
 
 model Star {
@@ -290,6 +317,8 @@ enum NotificationType {
   LISTING_PAID
   CLAIM_APPROVED
   CLAIM_REJECTED
+  EDIT_APPROVED
+  EDIT_REJECTED
 }
 
 model Notification {

@@ -6,12 +6,14 @@ import {
   ShieldCheck,
   HandCoins,
   ArrowsClockwise,
+  PencilSimple,
   SignOut,
 } from "@phosphor-icons/react/dist/ssr";
 
 const navItems = [
   { href: "/admin", label: "Overview", icon: Gauge },
   { href: "/admin/players", label: "Players", icon: UsersThree },
+  { href: "/admin/edit-requests", label: "Edit Requests", icon: PencilSimple },
   { href: "/admin/coaches", label: "Coach Verification", icon: ShieldCheck },
   { href: "/admin/claims", label: "Claims", icon: ArrowsClockwise },
   { href: "/admin/payments", label: "Payments", icon: HandCoins },

@@ -4,6 +4,8 @@ import { CoachApprovedEmail } from "./coach-approved";
 import { CoachRejectedEmail } from "./coach-rejected";
 import { ClaimApprovedEmail } from "./claim-approved";
 import { ClaimRejectedEmail } from "./claim-rejected";
+import { EditApprovedEmail } from "./edit-approved";
+import { EditRejectedEmail } from "./edit-rejected";
 import { ListingPaidEmail } from "./listing-paid";
 import { ContactInquiryEmail } from "./contact-inquiry";
 import { PasswordResetEmail } from "./password-reset";
@@ -14,6 +16,8 @@ export type EmailTemplateKey =
   | "coach-rejected"
   | "claim-approved"
   | "claim-rejected"
+  | "edit-approved"
+  | "edit-rejected"
   | "listing-paid"
   | "contact-inquiry"
   | "password-reset";
@@ -58,6 +62,16 @@ export function renderEmailTemplate(
       return {
         subject: "Update on your claim request",
         react: <ClaimRejectedEmail playerName={payload.playerName as string} />,
+      };
+    case "edit-approved":
+      return {
+        subject: `${payload.playerName as string}'s profile update was approved`,
+        react: <EditApprovedEmail playerName={payload.playerName as string} />,
+      };
+    case "edit-rejected":
+      return {
+        subject: `Update on your ${payload.playerName as string} profile edit`,
+        react: <EditRejectedEmail playerName={payload.playerName as string} />,
       };
     case "listing-paid":
       return {

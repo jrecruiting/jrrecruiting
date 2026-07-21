@@ -1,9 +1,11 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSports } from "@/lib/data/sports";
 import { updatePlayerAdmin, deletePlayerAdmin } from "@/actions/players";
 import { PlayerForm } from "@/components/player/player-form";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default async function EditPlayerPage({
   params,
@@ -12,12 +14,16 @@ export default async function EditPlayerPage({
 }) {
   const { playerId } = await params;
 
-  const [player, sports] = await Promise.all([
+  const [player, sports, pendingEdit] = await Promise.all([
     prisma.player.findUnique({
       where: { id: playerId },
       include: { sports: true, media: true },
     }),
     getSports(),
+    prisma.playerEditRequest.findFirst({
+      where: { playerId, status: "PENDING" },
+      orderBy: { createdAt: "desc" },
+    }),
   ]);
 
   if (!player) notFound();
@@ -40,6 +46,25 @@ export default async function EditPlayerPage({
           </Button>
         </form>
       </div>
+
+      {pendingEdit && (
+        <Card className="border-gold/50 bg-gold/5">
+          <CardContent className="flex items-center justify-between gap-4">
+            <p className="text-sm">
+              The parent submitted changes on {pendingEdit.createdAt.toLocaleDateString()} that
+              are waiting on your review. Editing here directly still applies immediately.
+            </p>
+            <Button
+              size="sm"
+              variant="outline"
+              className="shrink-0 border-border/60"
+              nativeButton={false}
+              render={<Link href="/admin/edit-requests">Review</Link>}
+            />
+          </CardContent>
+        </Card>
+      )}
+
       <PlayerForm
         sports={sports}
         action={boundUpdate}
