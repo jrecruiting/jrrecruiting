@@ -14,6 +14,15 @@ import {
 
 export type CheckoutState = { error?: string } | undefined;
 
+/** Unix timestamp exactly one calendar month from now, used as the trial_end
+ * that defers the first recurring installment charge until then — the
+ * upfront deposit still bills immediately as a separate invoice item. */
+function oneMonthFromNow(): number {
+  const d = new Date();
+  d.setMonth(d.getMonth() + 1);
+  return Math.floor(d.getTime() / 1000);
+}
+
 export async function createListingCheckoutSession(
   playerId: string,
   _prevState: CheckoutState,
@@ -136,6 +145,7 @@ export async function createPaymentPlanCheckoutSession(
         quantity: 1,
       },
     ],
+    subscription_data: { trial_end: oneMonthFromNow() },
     success_url: `${origin}/dashboard/players/${playerId}/payment?success=1`,
     cancel_url: `${origin}/dashboard/players/${playerId}/payment?canceled=1`,
     metadata: { playerId, parentId: session.user.id, kind: "payment_plan" },

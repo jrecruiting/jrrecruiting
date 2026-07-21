@@ -30,7 +30,8 @@ function PlanOption({ playerId, tier, plan }: { playerId: string; tier: PackageT
           <span className="text-sm text-muted-foreground">up front</span>
         </div>
         <p className="text-sm text-muted-foreground">
-          then {formatCents(schedule.monthlyCents)}/mo for {monthCount} month{monthCount === 1 ? "" : "s"}
+          then, starting one month from today, {formatCents(schedule.monthlyCents)}/mo for {monthCount}{" "}
+          month{monthCount === 1 ? "" : "s"}
           {!closeEnough && (
             <>, plus a final payment of {formatCents(schedule.finalInstallmentCents)}</>
           )}

@@ -58,10 +58,12 @@ async function activateListing(playerId: string) {
 
 /**
  * Converts the subscription Stripe auto-created at Checkout into a
- * Subscription Schedule with an exact number of remaining cycles: the
- * regular monthly amount for every installment after the one already
- * charged at checkout, then one final, differently-sized installment,
- * after which Stripe cancels the subscription automatically.
+ * Subscription Schedule with an exact number of cycles: the existing trial
+ * phase (deposit already billed as a one-time invoice item, recurring price
+ * deferred until trial_end) is preserved exactly as-is, followed by the
+ * regular monthly amount for every remaining installment, then one final,
+ * differently-sized installment, after which Stripe cancels the
+ * subscription automatically.
  */
 async function attachInstallmentSchedule(
   stripeClient: NonNullable<typeof stripe>,
@@ -70,8 +72,8 @@ async function attachInstallmentSchedule(
   fullInstallments: number
 ) {
   const schedule = await stripeClient.subscriptionSchedules.create({ from_subscription: subscriptionId });
-  const currentPhase = schedule.phases[0];
-  const priceField = currentPhase.items[0].price;
+  const trialPhase = schedule.phases[0];
+  const priceField = trialPhase.items[0].price;
   const monthlyPriceId = typeof priceField === "string" ? priceField : priceField.id;
   const monthlyPrice = await stripeClient.prices.retrieve(monthlyPriceId);
   if (monthlyPrice.deleted) {
@@ -92,9 +94,17 @@ async function attachInstallmentSchedule(
     proration_behavior: "none",
     phases: [
       {
+        // Reproduce the trial phase exactly: end_date must equal trial_end
+        // (not a `duration`) or Stripe leaves a billable gap between the
+        // trial ending and the next phase starting.
+        items: [{ price: monthlyPriceId, quantity: 1 }],
+        start_date: trialPhase.start_date,
+        end_date: trialPhase.end_date,
+        trial_end: trialPhase.end_date,
+      },
+      {
         items: [{ price: monthlyPriceId, quantity: 1 }],
         duration: { interval: "month", interval_count: Math.max(fullInstallments, 1) },
-        start_date: currentPhase.start_date,
       },
       {
         items: [{ price: finalPrice.id, quantity: 1 }],
@@ -148,7 +158,10 @@ export async function POST(req: Request) {
           data: {
             stripeSubscriptionId: subscriptionId,
             stripeScheduleId: scheduleId,
-            installmentsPaid: 1,
+            // Only the deposit has been charged so far (billed immediately
+            // as a one-time invoice item); the first real installment isn't
+            // due until the trial ends one month from now.
+            installmentsPaid: 0,
             status: "ACTIVE",
           },
         });
@@ -184,8 +197,8 @@ export async function POST(req: Request) {
       const plan = await prisma.paymentPlanSubscription.findUnique({
         where: { stripeSubscriptionId: subId },
       });
-      // The checkout-time invoice is already counted (installmentsPaid: 1
-      // set in checkout.session.completed above) — skip double-counting it.
+      // The checkout-time invoice only contains the deposit (billing_reason
+      // "subscription_create") -- not a real installment, so skip it here.
       if (plan && invoice.billing_reason !== "subscription_create") {
         await prisma.paymentPlanSubscription.update({
           where: { id: plan.id },
