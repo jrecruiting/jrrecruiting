@@ -369,7 +369,7 @@ enum PaymentStatus {
 model Payment {
   id                      String        @id @default(cuid())
   playerId                String
-  player                  Player        @relation(fields: [playerId], references: [id])
+  player                  Player        @relation(fields: [playerId], references: [id], onDelete: Cascade)
   parentId                String
   parent                  User          @relation(fields: [parentId], references: [id])
   stripeCheckoutSessionId String        @unique
@@ -397,7 +397,7 @@ enum PaymentPlanStatus {
 model PaymentPlanSubscription {
   id                      String            @id @default(cuid())
   playerId                String            @unique
-  player                  Player            @relation(fields: [playerId], references: [id])
+  player                  Player            @relation(fields: [playerId], references: [id], onDelete: Cascade)
   parentId                String
   parent                  User              @relation(fields: [parentId], references: [id])
   stripeCheckoutSessionId String            @unique
