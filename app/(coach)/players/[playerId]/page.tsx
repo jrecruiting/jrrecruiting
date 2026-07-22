@@ -42,10 +42,14 @@ export default async function CoachPlayerProfilePage({
   const sortedSports = player.sports
     .slice()
     .sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary));
-  const hasAnySportDetails = sortedSports.some(
-    (s) => s.bio || (Array.isArray(s.stats) && s.stats.length > 0)
+  // Only one Bio is ever shown to coaches -- the general profile bio if set,
+  // otherwise the primary sport's bio as a fallback -- so a player with both
+  // never shows duplicate "Bio" sections.
+  const displayBio = player.bio || sortedSports[0]?.bio || null;
+  const hasAnySportStats = sortedSports.some(
+    (s) => Array.isArray(s.stats) && s.stats.length > 0
   );
-  const hasAnyBio = Boolean(player.bio) || hasAnySportDetails;
+  const hasAnyBio = Boolean(displayBio) || hasAnySportStats;
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
@@ -100,37 +104,34 @@ export default async function CoachPlayerProfilePage({
 
       {isVerified ? (
         <>
-          {player.bio && (
+          {displayBio && (
             <Card className="border-border/60">
               <CardContent>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">Bio</p>
-                <p className="mt-1 text-sm">{player.bio}</p>
+                <p className="mt-1 text-sm">{displayBio}</p>
               </CardContent>
             </Card>
           )}
 
           {sortedSports.map((s) => {
             const stats = Array.isArray(s.stats) ? (s.stats as { label: string; value: string }[]) : [];
-            if (!s.bio && stats.length === 0) return null;
+            if (stats.length === 0) return null;
             return (
               <Card key={s.id} className="border-border/60">
                 <CardContent className="flex flex-col gap-3">
                   <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                    {s.sport.name} bio & stats
+                    {s.sport.name} stats
                   </p>
-                  {s.bio && <p className="text-sm">{s.bio}</p>}
-                  {stats.length > 0 && (
-                    <div className="grid gap-3 sm:grid-cols-3">
-                      {stats.map((stat, i) => (
-                        <div key={i}>
-                          <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                            {stat.label}
-                          </p>
-                          <p className="font-medium">{stat.value}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    {stats.map((stat, i) => (
+                      <div key={i}>
+                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                          {stat.label}
+                        </p>
+                        <p className="font-medium">{stat.value}</p>
+                      </div>
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
             );

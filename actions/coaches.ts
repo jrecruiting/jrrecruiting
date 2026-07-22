@@ -36,6 +36,18 @@ export async function approveCoach(coachProfileId: string) {
   revalidatePath("/admin/coaches");
 }
 
+export async function deleteCoach(userId: string) {
+  await requireRole("ADMIN");
+
+  // Deletes the underlying account (cascades to the coach profile, stars,
+  // notifications, and sessions), not just the coach profile -- otherwise
+  // the account would be left in a broken, profile-less state and could
+  // still sign in.
+  await prisma.user.delete({ where: { id: userId } });
+
+  revalidatePath("/admin/coaches");
+}
+
 export async function rejectCoach(coachProfileId: string, reason: string) {
   const session = await requireRole("ADMIN");
 

@@ -3,6 +3,7 @@ import { approveCoach, rejectCoach } from "@/actions/coaches";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { DeleteCoachButton } from "@/components/admin/delete-coach-button";
 
 const statusVariant: Record<string, "default" | "secondary" | "destructive"> = {
   PENDING: "secondary",
@@ -60,6 +61,7 @@ export default async function AdminCoachesPage() {
                         </form>
                       </>
                     )}
+                    <DeleteCoachButton userId={coach.userId} coachName={coach.user.name} />
                   </div>
                 </CardContent>
               </Card>
