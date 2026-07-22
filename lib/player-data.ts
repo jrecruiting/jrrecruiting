@@ -1,21 +1,37 @@
 import { prisma } from "@/lib/prisma";
-import { playerFormSchema, type PlayerFormValues } from "@/lib/validations/player";
+import {
+  createPlayerFormSchema,
+  updatePlayerFormSchema,
+  sportDetailsFormSchema,
+  type CreatePlayerFormValues,
+  type UpdatePlayerFormValues,
+  type SportDetailsFormValues,
+} from "@/lib/validations/player";
 
-export function parsePlayerForm(formData: FormData): PlayerFormValues {
-  const raw = Object.fromEntries(formData.entries());
-
-  // Sports are submitted as repeated same-name fields (one pair per sport
-  // row in the form), so they need to be zipped back into an array before
-  // validation instead of collapsing to the last entry like a plain object
-  // spread would.
-  const sportIds = formData.getAll("sportId").map(String);
-  const positions = formData.getAll("position").map(String);
-  const sports = sportIds.map((sportId, i) => ({ sportId, position: positions[i] ?? "" }));
-
-  return playerFormSchema.parse({ ...raw, sports });
+export function parseCreatePlayerForm(formData: FormData): CreatePlayerFormValues {
+  return createPlayerFormSchema.parse(Object.fromEntries(formData.entries()));
 }
 
-export function buildPlayerData(data: PlayerFormValues) {
+export function parseUpdatePlayerForm(formData: FormData): UpdatePlayerFormValues {
+  return updatePlayerFormSchema.parse(Object.fromEntries(formData.entries()));
+}
+
+export function parseSportDetailsForm(formData: FormData): SportDetailsFormValues {
+  const raw = Object.fromEntries(formData.entries());
+
+  // Stats are submitted as repeated same-name fields (one label/value pair
+  // per stat row), so they need to be zipped back into an array before
+  // validation instead of collapsing to the last entry.
+  const labels = formData.getAll("statLabel").map(String);
+  const values = formData.getAll("statValue").map(String);
+  const stats = labels
+    .map((label, i) => ({ label: label.trim(), value: (values[i] ?? "").trim() }))
+    .filter((s) => s.label && s.value);
+
+  return sportDetailsFormSchema.parse({ ...raw, stats });
+}
+
+export function buildPlayerData(data: UpdatePlayerFormValues) {
   const hasHeight = data.heightFeet != null || data.heightInches != null;
 
   return {
@@ -30,7 +46,6 @@ export function buildPlayerData(data: PlayerFormValues) {
     heightIn: hasHeight ? (data.heightFeet ?? 0) * 12 + (data.heightInches ?? 0) : null,
     weightLb: data.weightLb ?? null,
     gpa: data.gpa ?? null,
-    bio: data.bio || null,
     primaryPhotoUrl: data.primaryPhotoUrl || null,
     photoConsent: Boolean(data.photoConsent),
     instagramHandle: data.instagramHandle || null,
@@ -39,44 +54,21 @@ export function buildPlayerData(data: PlayerFormValues) {
   };
 }
 
-export async function syncPlayerSportsAndVideo(playerId: string, data: PlayerFormValues) {
-  const submittedSportIds = data.sports.map((s) => s.sportId);
+export async function syncVideo(playerId: string, videoUrl: string | undefined) {
+  if (!videoUrl) return;
 
-  // Drop any sport the parent/admin removed from this profile.
-  await prisma.playerSport.deleteMany({
-    where: { playerId, sportId: { notIn: submittedSportIds } },
+  const existing = await prisma.mediaAsset.findFirst({
+    where: { playerId, type: "VIDEO", url: videoUrl },
   });
-
-  // The first sport entered is treated as primary; upsert preserves each
-  // sport's existing stats JSON (not editable from this form) and just
-  // updates position/isPrimary.
-  for (const [index, sport] of data.sports.entries()) {
-    await prisma.playerSport.upsert({
-      where: { playerId_sportId: { playerId, sportId: sport.sportId } },
-      update: { position: sport.position || null, isPrimary: index === 0 },
-      create: {
+  if (!existing) {
+    await prisma.mediaAsset.create({
+      data: {
         playerId,
-        sportId: sport.sportId,
-        position: sport.position || null,
-        isPrimary: index === 0,
+        type: "VIDEO",
+        provider: guessVideoProvider(videoUrl),
+        url: videoUrl,
       },
     });
-  }
-
-  if (data.videoUrl) {
-    const existing = await prisma.mediaAsset.findFirst({
-      where: { playerId, type: "VIDEO", url: data.videoUrl },
-    });
-    if (!existing) {
-      await prisma.mediaAsset.create({
-        data: {
-          playerId,
-          type: "VIDEO",
-          provider: guessVideoProvider(data.videoUrl),
-          url: data.videoUrl,
-        },
-      });
-    }
   }
 }
 

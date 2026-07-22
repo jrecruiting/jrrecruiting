@@ -4,7 +4,7 @@ import { buildPlayerData } from "@/lib/player-data";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import type { PlayerFormValues } from "@/lib/validations/player";
+import type { UpdatePlayerFormValues } from "@/lib/validations/player";
 
 const FIELD_LABELS: Record<string, string> = {
   firstName: "First name",
@@ -17,7 +17,6 @@ const FIELD_LABELS: Record<string, string> = {
   heightIn: "Height",
   weightLb: "Weight",
   gpa: "GPA",
-  bio: "Bio",
   primaryPhotoUrl: "Photo",
   photoConsent: "Photo consent",
   instagramHandle: "Instagram",
@@ -34,19 +33,14 @@ function formatValue(key: string, value: unknown): string {
 }
 
 export default async function AdminEditRequestsPage() {
-  const [requests, sports] = await Promise.all([
-    prisma.playerEditRequest.findMany({
-      orderBy: { createdAt: "desc" },
-      include: {
-        player: { include: { sports: { include: { sport: true } }, media: true } },
-        submitter: true,
-      },
-      take: 100,
-    }),
-    prisma.sport.findMany(),
-  ]);
-
-  const sportName = (id: string) => sports.find((s) => s.id === id)?.name ?? id;
+  const requests = await prisma.playerEditRequest.findMany({
+    orderBy: { createdAt: "desc" },
+    include: {
+      player: { include: { media: true } },
+      submitter: true,
+    },
+    take: 100,
+  });
 
   const statusVariant: Record<string, "default" | "secondary" | "destructive"> = {
     PENDING: "secondary",
@@ -63,24 +57,9 @@ export default async function AdminEditRequestsPage() {
       ) : (
         <div className="flex flex-col gap-4">
           {requests.map((request) => {
-            const proposed = request.proposedData as unknown as PlayerFormValues;
-            // Requests submitted before multi-sport support stored a single
-            // sportId/position pair instead of a sports array; normalize so
-            // older, already-resolved requests still render in this history.
-            const legacyProposed = request.proposedData as unknown as {
-              sportId?: string;
-              position?: string;
-            };
-            const proposedSports =
-              proposed.sports ??
-              (legacyProposed.sportId
-                ? [{ sportId: legacyProposed.sportId, position: legacyProposed.position }]
-                : []);
+            const proposed = request.proposedData as unknown as UpdatePlayerFormValues;
             const proposedRow = buildPlayerData(proposed) as unknown as Record<string, unknown>;
             const currentPlayer = request.player as unknown as Record<string, unknown>;
-            const currentSports = request.player.sports
-              .slice()
-              .sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary));
             const currentVideo = request.player.media.find((m) => m.type === "VIDEO");
 
             const rows: { label: string; before: string; after: string }[] = [];
@@ -89,20 +68,6 @@ export default async function AdminEditRequestsPage() {
               const before = formatValue(key, currentPlayer[key]);
               const after = formatValue(key, proposedRow[key]);
               if (before !== after) rows.push({ label: FIELD_LABELS[key], before, after });
-            }
-
-            const beforeSport = currentSports.length
-              ? currentSports
-                  .map((s) => `${s.sport.name}${s.position ? ` · ${s.position}` : ""}`)
-                  .join(", ")
-              : "—";
-            const afterSport = proposedSports.length
-              ? proposedSports
-                  .map((s) => `${sportName(s.sportId)}${s.position ? ` · ${s.position}` : ""}`)
-                  .join(", ")
-              : "—";
-            if (beforeSport !== afterSport) {
-              rows.push({ label: "Sports", before: beforeSport, after: afterSport });
             }
 
             const beforeVideo = currentVideo?.url ?? "—";

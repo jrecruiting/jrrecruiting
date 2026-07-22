@@ -6,7 +6,13 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/permissions";
 import { recordPlayerUpdate } from "@/lib/notifications/player-update";
-import { parsePlayerForm, buildPlayerData, syncPlayerSportsAndVideo, guessVideoProvider } from "@/lib/player-data";
+import {
+  parseCreatePlayerForm,
+  parseUpdatePlayerForm,
+  buildPlayerData,
+  syncVideo,
+  guessVideoProvider,
+} from "@/lib/player-data";
 
 export type PlayerFormState = { error?: string } | undefined;
 
@@ -20,7 +26,7 @@ export async function createPlayerAdmin(
 
   let playerId: string;
   try {
-    const data = parsePlayerForm(formData);
+    const data = parseCreatePlayerForm(formData);
 
     const player = await prisma.player.create({
       data: {
@@ -30,11 +36,7 @@ export async function createPlayerAdmin(
         listingStatus: "ACTIVE",
         publishedAt: new Date(),
         sports: {
-          create: data.sports.map((sport, index) => ({
-            sportId: sport.sportId,
-            position: sport.position || null,
-            isPrimary: index === 0,
-          })),
+          create: { sportId: data.sportId, position: data.position || null, isPrimary: true },
         },
         media: data.videoUrl
           ? {
@@ -67,9 +69,9 @@ export async function updatePlayerAdmin(
   await requireRole("ADMIN");
 
   try {
-    const data = parsePlayerForm(formData);
+    const data = parseUpdatePlayerForm(formData);
     await prisma.player.update({ where: { id: playerId }, data: buildPlayerData(data) });
-    await syncPlayerSportsAndVideo(playerId, data);
+    await syncVideo(playerId, data.videoUrl);
     await recordPlayerUpdate(playerId);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -100,7 +102,7 @@ export async function createPlayerParent(
 
   let playerId: string;
   try {
-    const data = parsePlayerForm(formData);
+    const data = parseCreatePlayerForm(formData);
 
     const player = await prisma.player.create({
       data: {
@@ -109,11 +111,7 @@ export async function createPlayerParent(
         isAdminAuthored: false,
         listingStatus: "DRAFT",
         sports: {
-          create: data.sports.map((sport, index) => ({
-            sportId: sport.sportId,
-            position: sport.position || null,
-            isPrimary: index === 0,
-          })),
+          create: { sportId: data.sportId, position: data.position || null, isPrimary: true },
         },
         media: data.videoUrl
           ? {
@@ -138,7 +136,7 @@ export async function createPlayerParent(
   redirect(`/dashboard/players/${playerId}/payment`);
 }
 
-async function requireOwnedPlayer(playerId: string, parentId: string) {
+export async function requireOwnedPlayer(playerId: string, parentId: string) {
   const player = await prisma.player.findUnique({ where: { id: playerId } });
   if (!player || player.parentId !== parentId) notFound();
   return player;
@@ -153,7 +151,7 @@ export async function updatePlayerParent(
   await requireOwnedPlayer(playerId, session.user.id);
 
   try {
-    const data = parsePlayerForm(formData);
+    const data = parseUpdatePlayerForm(formData);
 
     // Parent edits are staged for admin review rather than applied directly,
     // so coaches watching this player aren't notified until an admin approves

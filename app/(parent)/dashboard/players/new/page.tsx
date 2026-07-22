@@ -16,6 +16,7 @@ export default async function NewAthletePage() {
       </div>
       <PlayerForm
         sports={sports}
+        showSportField
         action={createPlayerParent}
         submitLabel="Continue to Payment"
         requireConsentDialog

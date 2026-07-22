@@ -152,7 +152,6 @@ model Player {
   heightIn        Int?
   weightLb        Int?
   gpa             Decimal? @db.Decimal(3, 2)
-  bio             String?  @db.Text
   primaryPhotoUrl String?
   photoConsent    Boolean  @default(false)
   instagramHandle String?
@@ -199,6 +198,7 @@ model PlayerSport {
   sport     Sport    @relation(fields: [sportId], references: [id])
   position  String?
   isPrimary Boolean  @default(false)
+  bio       String?  @db.Text
   stats     Json?
   updatedAt DateTime @updatedAt
 

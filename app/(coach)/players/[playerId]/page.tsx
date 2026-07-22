@@ -39,6 +39,12 @@ export default async function CoachPlayerProfilePage({
   const displayLocation = [isVerified ? player.city : null, player.state, player.country]
     .filter(Boolean)
     .join(", ");
+  const sortedSports = player.sports
+    .slice()
+    .sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary));
+  const hasAnySportDetails = sortedSports.some(
+    (s) => s.bio || (Array.isArray(s.stats) && s.stats.length > 0)
+  );
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
@@ -62,7 +68,7 @@ export default async function CoachPlayerProfilePage({
             </p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               <Badge variant="secondary">{playerTypeLabel(player.playerType)}</Badge>
-              {player.sports.map((s) => (
+              {sortedSports.map((s) => (
                 <Badge key={s.id} variant="secondary">
                   {s.sport.name}
                   {s.position ? ` · ${s.position}` : ""}
@@ -93,14 +99,32 @@ export default async function CoachPlayerProfilePage({
 
       {isVerified ? (
         <>
-          {player.bio && (
-            <Card className="border-border/60">
-              <CardContent>
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">Bio</p>
-                <p className="mt-1 text-sm">{player.bio}</p>
-              </CardContent>
-            </Card>
-          )}
+          {sortedSports.map((s) => {
+            const stats = Array.isArray(s.stats) ? (s.stats as { label: string; value: string }[]) : [];
+            if (!s.bio && stats.length === 0) return null;
+            return (
+              <Card key={s.id} className="border-border/60">
+                <CardContent className="flex flex-col gap-3">
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                    {s.sport.name} bio & stats
+                  </p>
+                  {s.bio && <p className="text-sm">{s.bio}</p>}
+                  {stats.length > 0 && (
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      {stats.map((stat, i) => (
+                        <div key={i}>
+                          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                            {stat.label}
+                          </p>
+                          <p className="font-medium">{stat.value}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
 
           {video && (
             <Card className="border-border/60">
@@ -152,7 +176,7 @@ export default async function CoachPlayerProfilePage({
           )}
         </>
       ) : (
-        (player.bio ||
+        (hasAnySportDetails ||
           video ||
           player.instagramHandle ||
           player.xHandle ||

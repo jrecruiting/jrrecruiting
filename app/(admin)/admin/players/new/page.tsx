@@ -8,7 +8,12 @@ export default async function NewPlayerPage() {
   return (
     <div className="flex flex-col gap-6">
       <h1 className="font-heading text-2xl font-bold tracking-tight">Add Player</h1>
-      <PlayerForm sports={sports} action={createPlayerAdmin} submitLabel="Create Player" />
+      <PlayerForm
+        sports={sports}
+        showSportField
+        action={createPlayerAdmin}
+        submitLabel="Create Player"
+      />
     </div>
   );
 }

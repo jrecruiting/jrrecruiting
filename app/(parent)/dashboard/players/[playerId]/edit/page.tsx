@@ -3,7 +3,10 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getSports } from "@/lib/data/sports";
 import { updatePlayerParent, deletePlayerParent } from "@/actions/players";
+import { addPlayerSportParent, removePlayerSportParent } from "@/actions/player-sports";
 import { PlayerForm } from "@/components/player/player-form";
+import { PlayerSportsList } from "@/components/player/player-sports-list";
+import { AddSportForm } from "@/components/player/add-sport-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -18,7 +21,7 @@ export default async function EditAthletePage({
   const [player, sports, pendingEdit] = await Promise.all([
     prisma.player.findUnique({
       where: { id: playerId },
-      include: { sports: true, media: true },
+      include: { sports: { include: { sport: true } }, media: true },
     }),
     getSports(),
     prisma.playerEditRequest.findFirst({
@@ -33,9 +36,12 @@ export default async function EditAthletePage({
     .slice()
     .sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary));
   const primaryVideo = player.media.find((m) => m.type === "VIDEO");
+  const addedSportIds = new Set(player.sports.map((s) => s.sportId));
+  const availableSports = sports.filter((s) => !addedSportIds.has(s.id));
 
   const boundUpdate = updatePlayerParent.bind(null, playerId);
   const boundDelete = deletePlayerParent.bind(null, playerId);
+  const boundAddSport = addPlayerSportParent.bind(null, playerId);
 
   return (
     <div className="flex flex-col gap-6">
@@ -64,7 +70,6 @@ export default async function EditAthletePage({
       )}
 
       <PlayerForm
-        sports={sports}
         action={boundUpdate}
         submitLabel="Save Changes"
         requireConsentDialog
@@ -81,16 +86,35 @@ export default async function EditAthletePage({
           heightInches: player.heightIn != null ? player.heightIn % 12 : null,
           weightLb: player.weightLb,
           gpa: player.gpa?.toString(),
-          bio: player.bio,
           primaryPhotoUrl: player.primaryPhotoUrl,
           photoConsent: player.photoConsent,
-          sports: sortedSports.map((s) => ({ sportId: s.sportId, position: s.position })),
           videoUrl: primaryVideo?.url,
           instagramHandle: player.instagramHandle,
           xHandle: player.xHandle,
           cellPhone: player.cellPhone,
         }}
       />
+
+      <div className="flex max-w-2xl flex-col gap-4 border-t border-border/60 pt-6">
+        <h2 className="font-heading text-lg font-semibold">Sports</h2>
+        <p className="text-sm text-muted-foreground">
+          Each sport gets its own position, bio, and stats, added and edited here right
+          away -- these don&apos;t need admin approval like the rest of the profile.
+        </p>
+        <PlayerSportsList
+          playerId={playerId}
+          editBasePath="/dashboard/players"
+          sports={sortedSports.map((s) => ({
+            sportId: s.sportId,
+            sportName: s.sport.name,
+            position: s.position,
+            bio: s.bio,
+            isPrimary: s.isPrimary,
+          }))}
+          removeAction={removePlayerSportParent}
+        />
+        <AddSportForm action={boundAddSport} availableSports={availableSports} />
+      </div>
     </div>
   );
 }

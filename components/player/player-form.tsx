@@ -1,10 +1,9 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
@@ -17,7 +16,6 @@ import type { PlayerFormState } from "@/actions/players";
 import { PLAYER_TYPES } from "@/lib/player-types";
 import { PhotoUpload, type PhotoUploadHandle } from "@/components/player/photo-upload";
 import { PhotoConsentCheckbox } from "@/components/player/photo-consent-checkbox";
-import { Plus, X } from "@phosphor-icons/react/dist/ssr";
 
 type SportOption = { id: string; name: string };
 
@@ -34,32 +32,26 @@ type PlayerDefaults = {
   heightInches?: number | null;
   weightLb?: number | null;
   gpa?: string | number | null;
-  bio?: string | null;
   primaryPhotoUrl?: string | null;
   photoConsent?: boolean;
-  sports?: { sportId: string; position?: string | null }[];
+  sportId?: string;
+  position?: string | null;
   videoUrl?: string;
   instagramHandle?: string | null;
   xHandle?: string | null;
   cellPhone?: string | null;
 };
 
-type SportRow = { key: string; sportId?: string; position?: string | null };
-
-let sportRowCounter = 0;
-function newSportRowKey() {
-  sportRowCounter += 1;
-  return `sport-${sportRowCounter}`;
-}
-
 export function PlayerForm({
-  sports,
+  sports = [],
+  showSportField = false,
   action,
   defaultValues,
   submitLabel,
   requireConsentDialog = false,
 }: {
-  sports: SportOption[];
+  sports?: SportOption[];
+  showSportField?: boolean;
   action: (state: PlayerFormState, formData: FormData) => Promise<PlayerFormState>;
   defaultValues?: PlayerDefaults;
   submitLabel: string;
@@ -67,20 +59,6 @@ export function PlayerForm({
 }) {
   const [state, formAction, isPending] = useActionState(action, undefined);
   const photoUploadRef = useRef<PhotoUploadHandle>(null);
-  const [sportRows, setSportRows] = useState<SportRow[]>(() => {
-    const initial: { sportId?: string; position?: string | null }[] = defaultValues?.sports?.length
-      ? defaultValues.sports
-      : [{ sportId: undefined, position: undefined }];
-    return initial.map((s) => ({ key: newSportRowKey(), sportId: s.sportId, position: s.position }));
-  });
-
-  function addSportRow() {
-    setSportRows((rows) => [...rows, { key: newSportRowKey() }]);
-  }
-
-  function removeSportRow(key: string) {
-    setSportRows((rows) => (rows.length > 1 ? rows.filter((r) => r.key !== key) : rows));
-  }
 
   return (
     <form action={formAction} className="flex max-w-2xl flex-col gap-6">
@@ -230,62 +208,33 @@ export function PlayerForm({
         />
       </div>
 
-      <div className="flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <Label>Sports</Label>
-          <Button type="button" variant="outline" size="sm" onClick={addSportRow}>
-            <Plus className="h-3.5 w-3.5" weight="bold" aria-hidden />
-            Add Another Sport
-          </Button>
-        </div>
-
-        {sportRows.map((row, index) => (
-          <div
-            key={row.key}
-            className="grid grid-cols-[1fr_1fr_auto] items-end gap-3 rounded-lg border border-border/60 p-3"
-          >
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor={`sportId-${row.key}`}>
-                {index === 0 ? "Primary sport" : "Sport"}
-              </Label>
-              <Select name="sportId" defaultValue={row.sportId}>
-                <SelectTrigger id={`sportId-${row.key}`} className="w-full">
-                  <SelectValue placeholder="Select sport">
-                    {(value: string | null) =>
-                      sports.find((sport) => sport.id === value)?.name ?? "Select sport"
-                    }
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {sports.map((sport) => (
-                    <SelectItem key={sport.id} value={sport.id}>
-                      {sport.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor={`position-${row.key}`}>Position</Label>
-              <Input
-                id={`position-${row.key}`}
-                name="position"
-                defaultValue={row.position ?? ""}
-              />
-            </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              disabled={sportRows.length === 1}
-              onClick={() => removeSportRow(row.key)}
-              aria-label="Remove sport"
-            >
-              <X className="h-4 w-4" aria-hidden />
-            </Button>
+      {showSportField && (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="sportId">Sport</Label>
+            <Select name="sportId" defaultValue={defaultValues?.sportId}>
+              <SelectTrigger id="sportId" className="w-full">
+                <SelectValue placeholder="Select sport">
+                  {(value: string | null) =>
+                    sports.find((sport) => sport.id === value)?.name ?? "Select sport"
+                  }
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {sports.map((sport) => (
+                  <SelectItem key={sport.id} value={sport.id}>
+                    {sport.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        ))}
-      </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="position">Position</Label>
+            <Input id="position" name="position" defaultValue={defaultValues?.position ?? ""} />
+          </div>
+        </div>
+      )}
 
       <div className="flex flex-col gap-1.5">
         <Label>Photo</Label>
@@ -335,11 +284,6 @@ export function PlayerForm({
             defaultValue={defaultValues?.cellPhone ?? ""}
           />
         </div>
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="bio">Bio</Label>
-        <Textarea id="bio" name="bio" rows={5} defaultValue={defaultValues?.bio ?? ""} />
       </div>
 
       <div className="flex items-center gap-2">

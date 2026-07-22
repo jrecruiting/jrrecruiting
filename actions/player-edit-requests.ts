@@ -6,8 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/permissions";
 import { recordPlayerUpdate } from "@/lib/notifications/player-update";
 import { scheduleOutboxFlush } from "@/lib/email/send";
-import { buildPlayerData, syncPlayerSportsAndVideo } from "@/lib/player-data";
-import type { PlayerFormValues } from "@/lib/validations/player";
+import { buildPlayerData, syncVideo } from "@/lib/player-data";
+import type { UpdatePlayerFormValues } from "@/lib/validations/player";
 
 export async function resolveEditRequest(requestId: string, approve: boolean) {
   const session = await requireRole("ADMIN");
@@ -22,7 +22,7 @@ export async function resolveEditRequest(requestId: string, approve: boolean) {
   if (!request) notFound();
 
   const playerName = `${request.player.firstName} ${request.player.lastName}`;
-  const data = request.proposedData as unknown as PlayerFormValues;
+  const data = request.proposedData as unknown as UpdatePlayerFormValues;
 
   await prisma.$transaction(async (tx) => {
     await tx.playerEditRequest.update({
@@ -56,7 +56,7 @@ export async function resolveEditRequest(requestId: string, approve: boolean) {
   });
 
   if (approve) {
-    await syncPlayerSportsAndVideo(request.playerId, data);
+    await syncVideo(request.playerId, data.videoUrl);
     await recordPlayerUpdate(request.playerId);
   }
 
