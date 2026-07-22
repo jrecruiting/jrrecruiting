@@ -46,6 +46,7 @@ export function buildPlayerData(data: UpdatePlayerFormValues) {
     heightIn: hasHeight ? (data.heightFeet ?? 0) * 12 + (data.heightInches ?? 0) : null,
     weightLb: data.weightLb ?? null,
     gpa: data.gpa ?? null,
+    bio: data.bio || null,
     primaryPhotoUrl: data.primaryPhotoUrl || null,
     photoConsent: Boolean(data.photoConsent),
     instagramHandle: data.instagramHandle || null,

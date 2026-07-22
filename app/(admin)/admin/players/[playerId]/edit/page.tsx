@@ -89,6 +89,7 @@ export default async function EditPlayerPage({
           heightInches: player.heightIn != null ? player.heightIn % 12 : null,
           weightLb: player.weightLb,
           gpa: player.gpa?.toString(),
+          bio: player.bio,
           primaryPhotoUrl: player.primaryPhotoUrl,
           photoConsent: player.photoConsent,
           videoUrl: primaryVideo?.url,

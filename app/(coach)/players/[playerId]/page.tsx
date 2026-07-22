@@ -45,6 +45,7 @@ export default async function CoachPlayerProfilePage({
   const hasAnySportDetails = sortedSports.some(
     (s) => s.bio || (Array.isArray(s.stats) && s.stats.length > 0)
   );
+  const hasAnyBio = Boolean(player.bio) || hasAnySportDetails;
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
@@ -99,6 +100,15 @@ export default async function CoachPlayerProfilePage({
 
       {isVerified ? (
         <>
+          {player.bio && (
+            <Card className="border-border/60">
+              <CardContent>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Bio</p>
+                <p className="mt-1 text-sm">{player.bio}</p>
+              </CardContent>
+            </Card>
+          )}
+
           {sortedSports.map((s) => {
             const stats = Array.isArray(s.stats) ? (s.stats as { label: string; value: string }[]) : [];
             if (!s.bio && stats.length === 0) return null;
@@ -176,7 +186,7 @@ export default async function CoachPlayerProfilePage({
           )}
         </>
       ) : (
-        (hasAnySportDetails ||
+        (hasAnyBio ||
           video ||
           player.instagramHandle ||
           player.xHandle ||

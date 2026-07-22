@@ -17,6 +17,7 @@ const FIELD_LABELS: Record<string, string> = {
   heightIn: "Height",
   weightLb: "Weight",
   gpa: "GPA",
+  bio: "Bio",
   primaryPhotoUrl: "Photo",
   photoConsent: "Photo consent",
   instagramHandle: "Instagram",

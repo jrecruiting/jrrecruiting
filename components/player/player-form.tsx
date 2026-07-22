@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -32,6 +33,7 @@ type PlayerDefaults = {
   heightInches?: number | null;
   weightLb?: number | null;
   gpa?: string | number | null;
+  bio?: string | null;
   primaryPhotoUrl?: string | null;
   photoConsent?: boolean;
   sportId?: string;
@@ -284,6 +286,11 @@ export function PlayerForm({
             defaultValue={defaultValues?.cellPhone ?? ""}
           />
         </div>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="bio">Bio</Label>
+        <Textarea id="bio" name="bio" rows={5} defaultValue={defaultValues?.bio ?? ""} />
       </div>
 
       <div className="flex items-center gap-2">

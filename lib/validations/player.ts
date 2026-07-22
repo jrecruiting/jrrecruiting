@@ -25,6 +25,7 @@ const basePlayerFields = {
   heightInches: optionalInt(0, 11),
   weightLb: optionalInt(40, 400),
   gpa: z.preprocess(emptyToUndefined, z.coerce.number().min(0).max(5).optional()),
+  bio: optionalString(2000),
   // Blob pathname (e.g. "player-photos/xyz.png"), not a full URL -- photos
   // are private and only ever resolved through /api/blob/photo.
   primaryPhotoUrl: optionalString(300),
