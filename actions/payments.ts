@@ -10,6 +10,9 @@ import {
   priceForTier,
   SUBSCRIPTION_PLANS,
   calculateInstallmentSchedule,
+  isValidPromoCode,
+  PROMO_ONE_TIME_CENTS,
+  PROMO_PLAN_TOTAL_CENTS,
 } from "@/lib/pricing";
 
 export type CheckoutState = { error?: string } | undefined;
@@ -26,7 +29,7 @@ function oneMonthFromNow(): number {
 export async function createListingCheckoutSession(
   playerId: string,
   _prevState: CheckoutState,
-  _formData: FormData
+  formData: FormData
 ): Promise<CheckoutState> {
   const session = await requireRole("PARENT");
 
@@ -45,7 +48,8 @@ export async function createListingCheckoutSession(
   }
 
   const tier = tierForPlayer(player);
-  const { totalCents } = priceForTier(tier);
+  const promoApplied = isValidPromoCode(formData.get("promoCode")?.toString(), tier);
+  const totalCents = promoApplied ? PROMO_ONE_TIME_CENTS : priceForTier(tier).totalCents;
 
   const headersList = await headers();
   const origin = headersList.get("origin") ?? process.env.AUTH_URL ?? "http://localhost:3000";
@@ -59,7 +63,7 @@ export async function createListingCheckoutSession(
           currency: "usd",
           unit_amount: totalCents,
           product_data: {
-            name: `J.R. Recruiting listing — ${player.firstName} ${player.lastName} (${tier.name})`,
+            name: `J.R. Recruiting listing — ${player.firstName} ${player.lastName} (${tier.name})${promoApplied ? " — promo applied" : ""}`,
           },
         },
         quantity: 1,
@@ -117,11 +121,16 @@ export async function createPaymentPlanCheckoutSession(
     return { error: "Invalid payment plan selected." };
   }
 
-  const schedule = calculateInstallmentSchedule(tier, plan);
+  const promoApplied = isValidPromoCode(formData.get("promoCode")?.toString(), tier);
+  const schedule = calculateInstallmentSchedule(
+    tier,
+    plan,
+    promoApplied ? PROMO_PLAN_TOTAL_CENTS : undefined
+  );
 
   const headersList = await headers();
   const origin = headersList.get("origin") ?? process.env.AUTH_URL ?? "http://localhost:3000";
-  const playerLabel = `${player.firstName} ${player.lastName} (${tier.name})`;
+  const playerLabel = `${player.firstName} ${player.lastName} (${tier.name})${promoApplied ? " — promo applied" : ""}`;
 
   const checkoutSession = await stripe.checkout.sessions.create({
     mode: "subscription",

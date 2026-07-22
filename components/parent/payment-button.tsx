@@ -4,12 +4,21 @@ import { useActionState } from "react";
 import { createListingCheckoutSession } from "@/actions/payments";
 import { Button } from "@/components/ui/button";
 
-export function PaymentButton({ playerId, priceLabel }: { playerId: string; priceLabel: string }) {
+export function PaymentButton({
+  playerId,
+  priceLabel,
+  promoCode,
+}: {
+  playerId: string;
+  priceLabel: string;
+  promoCode?: string;
+}) {
   const boundAction = createListingCheckoutSession.bind(null, playerId);
   const [state, formAction, isPending] = useActionState(boundAction, undefined);
 
   return (
     <form action={formAction} className="flex flex-col gap-2">
+      {promoCode && <input type="hidden" name="promoCode" value={promoCode} />}
       <Button
         type="submit"
         disabled={isPending}

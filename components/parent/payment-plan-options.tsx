@@ -8,14 +8,29 @@ import {
   SUBSCRIPTION_PLANS,
   calculateInstallmentSchedule,
   formatCents,
+  PROMO_PLAN_TOTAL_CENTS,
   type PackageTier,
   type SubscriptionPlan,
 } from "@/lib/pricing";
 
-function PlanOption({ playerId, tier, plan }: { playerId: string; tier: PackageTier; plan: SubscriptionPlan }) {
+function PlanOption({
+  playerId,
+  tier,
+  plan,
+  promoCode,
+}: {
+  playerId: string;
+  tier: PackageTier;
+  plan: SubscriptionPlan;
+  promoCode?: string;
+}) {
   const boundAction = createPaymentPlanCheckoutSession.bind(null, playerId);
   const [state, formAction, isPending] = useActionState(boundAction, undefined);
-  const schedule = calculateInstallmentSchedule(tier, plan);
+  const schedule = calculateInstallmentSchedule(
+    tier,
+    plan,
+    promoCode ? PROMO_PLAN_TOTAL_CENTS : undefined
+  );
   const closeEnough = Math.abs(schedule.finalInstallmentCents - schedule.monthlyCents) < 100;
   const monthCount = closeEnough ? schedule.totalInstallments : schedule.fullInstallments;
 
@@ -38,6 +53,7 @@ function PlanOption({ playerId, tier, plan }: { playerId: string; tier: PackageT
         </p>
         <form action={formAction} className="flex flex-col gap-2">
           <input type="hidden" name="upfrontPercent" value={plan.upfrontPercent} />
+          {promoCode && <input type="hidden" name="promoCode" value={promoCode} />}
           <Button
             type="submit"
             disabled={isPending}
@@ -56,14 +72,22 @@ function PlanOption({ playerId, tier, plan }: { playerId: string; tier: PackageT
   );
 }
 
-export function PaymentPlanOptions({ playerId, tier }: { playerId: string; tier: PackageTier }) {
+export function PaymentPlanOptions({
+  playerId,
+  tier,
+  promoCode,
+}: {
+  playerId: string;
+  tier: PackageTier;
+  promoCode?: string;
+}) {
   const plans = SUBSCRIPTION_PLANS[tier.id];
 
   return (
     <div className="flex flex-col gap-4">
       <div className="grid gap-4 sm:grid-cols-2">
         {plans.map((plan) => (
-          <PlanOption key={plan.upfrontPercent} playerId={playerId} tier={tier} plan={plan} />
+          <PlanOption key={plan.upfrontPercent} playerId={playerId} tier={tier} plan={plan} promoCode={promoCode} />
         ))}
       </div>
       <p className="text-xs text-muted-foreground">

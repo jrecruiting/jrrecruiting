@@ -120,9 +120,10 @@ export type InstallmentSchedule = {
 
 export function calculateInstallmentSchedule(
   tier: PackageTier,
-  plan: SubscriptionPlan
+  plan: SubscriptionPlan,
+  totalCentsOverride?: number
 ): InstallmentSchedule {
-  const totalCents = fullPriceForTier(tier);
+  const totalCents = totalCentsOverride ?? fullPriceForTier(tier);
   const upfrontCents = Math.round((totalCents * plan.upfrontPercent) / 100);
   const remainingCents = totalCents - upfrontCents;
 
@@ -138,6 +139,18 @@ export function calculateInstallmentSchedule(
     finalInstallmentCents,
     totalInstallments,
   };
+}
+
+// ── Promo code ───────────────────────────────────────────
+// Single hardcoded promo for Seniors: drops the one-time listing fee to
+// $500 (from the standard $800 Senior rate) or the payment-plan total to
+// $600. Only valid for the Senior tier.
+export const PROMO_CODE = "SENIOR500";
+export const PROMO_ONE_TIME_CENTS = 50_000;
+export const PROMO_PLAN_TOTAL_CENTS = 60_000;
+
+export function isValidPromoCode(code: string | null | undefined, tier: PackageTier): boolean {
+  return tier.id === "senior" && !!code && code.trim().toUpperCase() === PROMO_CODE;
 }
 
 export function formatCents(cents: number) {
