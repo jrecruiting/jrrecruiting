@@ -119,6 +119,22 @@ export default async function EditPlayerPage({
         />
         <AddSportForm action={boundAddSport} availableSports={availableSports} />
       </div>
+
+      <div className="flex max-w-2xl flex-col gap-3 border-t border-border/60 pt-6">
+        <h2 className="font-heading text-lg font-semibold">Play a Different Sport?</h2>
+        <p className="text-sm text-muted-foreground">
+          If {player.firstName}{" "}
+          plays a sport that deserves its own listing -- separate from this one, so coaches
+          searching that sport find it directly -- create a new profile for it, pre-filled with{" "}
+          {player.firstName}&apos;s info.
+        </p>
+        <Button
+          variant="outline"
+          className="w-fit border-border/60"
+          nativeButton={false}
+          render={<Link href={`/admin/players/${playerId}/new-sport-profile`}>Create Profile for Another Sport</Link>}
+        />
+      </div>
     </div>
   );
 }
