@@ -64,6 +64,18 @@ export default async function AdminEditRequestsPage() {
         <div className="flex flex-col gap-4">
           {requests.map((request) => {
             const proposed = request.proposedData as unknown as PlayerFormValues;
+            // Requests submitted before multi-sport support stored a single
+            // sportId/position pair instead of a sports array; normalize so
+            // older, already-resolved requests still render in this history.
+            const legacyProposed = request.proposedData as unknown as {
+              sportId?: string;
+              position?: string;
+            };
+            const proposedSports =
+              proposed.sports ??
+              (legacyProposed.sportId
+                ? [{ sportId: legacyProposed.sportId, position: legacyProposed.position }]
+                : []);
             const proposedRow = buildPlayerData(proposed) as unknown as Record<string, unknown>;
             const currentPlayer = request.player as unknown as Record<string, unknown>;
             const currentSports = request.player.sports
@@ -84,8 +96,8 @@ export default async function AdminEditRequestsPage() {
                   .map((s) => `${s.sport.name}${s.position ? ` · ${s.position}` : ""}`)
                   .join(", ")
               : "—";
-            const afterSport = proposed.sports.length
-              ? proposed.sports
+            const afterSport = proposedSports.length
+              ? proposedSports
                   .map((s) => `${sportName(s.sportId)}${s.position ? ` · ${s.position}` : ""}`)
                   .join(", ")
               : "—";
