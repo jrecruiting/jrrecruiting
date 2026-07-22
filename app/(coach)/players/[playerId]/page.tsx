@@ -9,6 +9,7 @@ import { VerificationBanner } from "@/components/coach/verification-banner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { playerTypeLabel } from "@/lib/player-types";
+import { formatHeight } from "@/lib/player-data";
 
 export default async function CoachPlayerProfilePage({
   params,
@@ -77,7 +78,7 @@ export default async function CoachPlayerProfilePage({
         <CardContent className="grid gap-4 sm:grid-cols-3">
           <div>
             <p className="text-xs uppercase tracking-wide text-muted-foreground">Height</p>
-            <p className="font-medium">{player.heightIn ? `${player.heightIn} in` : "—"}</p>
+            <p className="font-medium">{player.heightIn ? formatHeight(player.heightIn) : "—"}</p>
           </div>
           <div>
             <p className="text-xs uppercase tracking-wide text-muted-foreground">Weight</p>

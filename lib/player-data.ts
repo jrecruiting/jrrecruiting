@@ -65,3 +65,10 @@ export function guessVideoProvider(url: string): "YOUTUBE" | "HUDL" | "VIMEO" | 
   if (/vimeo\.com/.test(url)) return "VIMEO";
   return "OTHER";
 }
+
+/** Formats total inches (as stored) into feet'inches" for display, e.g. 74 -> 6'2". */
+export function formatHeight(heightIn: number): string {
+  const feet = Math.floor(heightIn / 12);
+  const inches = heightIn % 12;
+  return `${feet}'${inches}"`;
+}
