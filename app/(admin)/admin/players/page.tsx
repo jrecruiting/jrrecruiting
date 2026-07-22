@@ -24,7 +24,10 @@ const statusVariant: Record<string, "default" | "secondary" | "outline" | "destr
 export default async function AdminPlayersPage() {
   const players = await prisma.player.findMany({
     orderBy: { createdAt: "desc" },
-    include: { sports: { include: { sport: true } } },
+    include: {
+      sports: { include: { sport: true } },
+      _count: { select: { profileViews: true } },
+    },
     take: 100,
   });
 
@@ -49,13 +52,14 @@ export default async function AdminPlayersPage() {
               <TableHead>Location</TableHead>
               <TableHead>Grad Year</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Coach Views</TableHead>
               <TableHead className="text-right">Source</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {players.length === 0 && (
               <TableRow>
-                <TableCell colSpan={8} className="py-10 text-center text-muted-foreground">
+                <TableCell colSpan={9} className="py-10 text-center text-muted-foreground">
                   No players yet. Add the first profile to get started.
                 </TableCell>
               </TableRow>
@@ -83,6 +87,18 @@ export default async function AdminPlayersPage() {
                   <Badge variant={statusVariant[player.listingStatus] ?? "outline"}>
                     {player.listingStatus.replace("_", " ")}
                   </Badge>
+                </TableCell>
+                <TableCell>
+                  {player._count.profileViews > 0 ? (
+                    <Link
+                      href={`/admin/profile-views?playerId=${player.id}`}
+                      className="text-gold hover:underline"
+                    >
+                      {player._count.profileViews}
+                    </Link>
+                  ) : (
+                    <span className="text-muted-foreground">0</span>
+                  )}
                 </TableCell>
                 <TableCell className="text-right text-muted-foreground">
                   {player.isAdminAuthored ? "Admin" : "Parent"}
