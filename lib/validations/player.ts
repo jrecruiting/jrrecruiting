@@ -12,6 +12,18 @@ const optionalString = (max: number) =>
 const optionalUrl = () =>
   z.preprocess(emptyToUndefined, z.string().trim().url("Enter a valid URL").optional());
 
+const sportEntrySchema = z.object({
+  sportId: z.string().min(1, "Select a sport"),
+  position: optionalString(60),
+});
+
+const sportsSchema = z
+  .array(sportEntrySchema)
+  .min(1, "Add at least one sport")
+  .refine((entries) => new Set(entries.map((e) => e.sportId)).size === entries.length, {
+    message: "Each sport can only be added once",
+  });
+
 export const playerFormSchema = z.object({
   firstName: z.string().trim().min(1, "First name is required").max(60),
   lastName: z.string().trim().min(1, "Last name is required").max(60),
@@ -30,8 +42,7 @@ export const playerFormSchema = z.object({
   // are private and only ever resolved through /api/blob/photo.
   primaryPhotoUrl: optionalString(300),
   photoConsent: z.coerce.boolean().optional(),
-  sportId: z.string().min(1, "Select a sport"),
-  position: optionalString(60),
+  sports: sportsSchema,
   videoUrl: optionalUrl(),
   instagramHandle: optionalString(30),
   xHandle: optionalString(15),

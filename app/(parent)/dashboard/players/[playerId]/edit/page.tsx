@@ -29,7 +29,9 @@ export default async function EditAthletePage({
 
   if (!player || player.parentId !== session!.user.id) notFound();
 
-  const primarySport = player.sports.find((s) => s.isPrimary) ?? player.sports[0];
+  const sortedSports = player.sports
+    .slice()
+    .sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary));
   const primaryVideo = player.media.find((m) => m.type === "VIDEO");
 
   const boundUpdate = updatePlayerParent.bind(null, playerId);
@@ -82,8 +84,7 @@ export default async function EditAthletePage({
           bio: player.bio,
           primaryPhotoUrl: player.primaryPhotoUrl,
           photoConsent: player.photoConsent,
-          sportId: primarySport?.sportId,
-          position: primarySport?.position,
+          sports: sortedSports.map((s) => ({ sportId: s.sportId, position: s.position })),
           videoUrl: primaryVideo?.url,
           instagramHandle: player.instagramHandle,
           xHandle: player.xHandle,

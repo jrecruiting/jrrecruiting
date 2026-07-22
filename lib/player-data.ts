@@ -3,7 +3,16 @@ import { playerFormSchema, type PlayerFormValues } from "@/lib/validations/playe
 
 export function parsePlayerForm(formData: FormData): PlayerFormValues {
   const raw = Object.fromEntries(formData.entries());
-  return playerFormSchema.parse(raw);
+
+  // Sports are submitted as repeated same-name fields (one pair per sport
+  // row in the form), so they need to be zipped back into an array before
+  // validation instead of collapsing to the last entry like a plain object
+  // spread would.
+  const sportIds = formData.getAll("sportId").map(String);
+  const positions = formData.getAll("position").map(String);
+  const sports = sportIds.map((sportId, i) => ({ sportId, position: positions[i] ?? "" }));
+
+  return playerFormSchema.parse({ ...raw, sports });
 }
 
 export function buildPlayerData(data: PlayerFormValues) {
@@ -30,17 +39,29 @@ export function buildPlayerData(data: PlayerFormValues) {
   };
 }
 
-export async function upsertSportAndVideo(playerId: string, data: PlayerFormValues) {
-  await prisma.playerSport.upsert({
-    where: { playerId_sportId: { playerId, sportId: data.sportId } },
-    update: { position: data.position || null },
-    create: {
-      playerId,
-      sportId: data.sportId,
-      position: data.position || null,
-      isPrimary: true,
-    },
+export async function syncPlayerSportsAndVideo(playerId: string, data: PlayerFormValues) {
+  const submittedSportIds = data.sports.map((s) => s.sportId);
+
+  // Drop any sport the parent/admin removed from this profile.
+  await prisma.playerSport.deleteMany({
+    where: { playerId, sportId: { notIn: submittedSportIds } },
   });
+
+  // The first sport entered is treated as primary; upsert preserves each
+  // sport's existing stats JSON (not editable from this form) and just
+  // updates position/isPrimary.
+  for (const [index, sport] of data.sports.entries()) {
+    await prisma.playerSport.upsert({
+      where: { playerId_sportId: { playerId, sportId: sport.sportId } },
+      update: { position: sport.position || null, isPrimary: index === 0 },
+      create: {
+        playerId,
+        sportId: sport.sportId,
+        position: sport.position || null,
+        isPrimary: index === 0,
+      },
+    });
+  }
 
   if (data.videoUrl) {
     const existing = await prisma.mediaAsset.findFirst({

@@ -66,8 +66,9 @@ export default async function AdminEditRequestsPage() {
             const proposed = request.proposedData as unknown as PlayerFormValues;
             const proposedRow = buildPlayerData(proposed) as unknown as Record<string, unknown>;
             const currentPlayer = request.player as unknown as Record<string, unknown>;
-            const primarySport =
-              request.player.sports.find((s) => s.isPrimary) ?? request.player.sports[0];
+            const currentSports = request.player.sports
+              .slice()
+              .sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary));
             const currentVideo = request.player.media.find((m) => m.type === "VIDEO");
 
             const rows: { label: string; before: string; after: string }[] = [];
@@ -78,12 +79,18 @@ export default async function AdminEditRequestsPage() {
               if (before !== after) rows.push({ label: FIELD_LABELS[key], before, after });
             }
 
-            const beforeSport = primarySport
-              ? `${primarySport.sport.name}${primarySport.position ? ` · ${primarySport.position}` : ""}`
+            const beforeSport = currentSports.length
+              ? currentSports
+                  .map((s) => `${s.sport.name}${s.position ? ` · ${s.position}` : ""}`)
+                  .join(", ")
               : "—";
-            const afterSport = `${sportName(proposed.sportId)}${proposed.position ? ` · ${proposed.position}` : ""}`;
+            const afterSport = proposed.sports.length
+              ? proposed.sports
+                  .map((s) => `${sportName(s.sportId)}${s.position ? ` · ${s.position}` : ""}`)
+                  .join(", ")
+              : "—";
             if (beforeSport !== afterSport) {
-              rows.push({ label: "Sport / position", before: beforeSport, after: afterSport });
+              rows.push({ label: "Sports", before: beforeSport, after: afterSport });
             }
 
             const beforeVideo = currentVideo?.url ?? "—";

@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/permissions";
 import { recordPlayerUpdate } from "@/lib/notifications/player-update";
 import { scheduleOutboxFlush } from "@/lib/email/send";
-import { buildPlayerData, upsertSportAndVideo } from "@/lib/player-data";
+import { buildPlayerData, syncPlayerSportsAndVideo } from "@/lib/player-data";
 import type { PlayerFormValues } from "@/lib/validations/player";
 
 export async function resolveEditRequest(requestId: string, approve: boolean) {
@@ -56,7 +56,7 @@ export async function resolveEditRequest(requestId: string, approve: boolean) {
   });
 
   if (approve) {
-    await upsertSportAndVideo(request.playerId, data);
+    await syncPlayerSportsAndVideo(request.playerId, data);
     await recordPlayerUpdate(request.playerId);
   }
 

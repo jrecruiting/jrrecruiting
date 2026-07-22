@@ -6,7 +6,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/permissions";
 import { recordPlayerUpdate } from "@/lib/notifications/player-update";
-import { parsePlayerForm, buildPlayerData, upsertSportAndVideo, guessVideoProvider } from "@/lib/player-data";
+import { parsePlayerForm, buildPlayerData, syncPlayerSportsAndVideo, guessVideoProvider } from "@/lib/player-data";
 
 export type PlayerFormState = { error?: string } | undefined;
 
@@ -30,11 +30,11 @@ export async function createPlayerAdmin(
         listingStatus: "ACTIVE",
         publishedAt: new Date(),
         sports: {
-          create: {
-            sportId: data.sportId,
-            position: data.position || null,
-            isPrimary: true,
-          },
+          create: data.sports.map((sport, index) => ({
+            sportId: sport.sportId,
+            position: sport.position || null,
+            isPrimary: index === 0,
+          })),
         },
         media: data.videoUrl
           ? {
@@ -69,7 +69,7 @@ export async function updatePlayerAdmin(
   try {
     const data = parsePlayerForm(formData);
     await prisma.player.update({ where: { id: playerId }, data: buildPlayerData(data) });
-    await upsertSportAndVideo(playerId, data);
+    await syncPlayerSportsAndVideo(playerId, data);
     await recordPlayerUpdate(playerId);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -109,11 +109,11 @@ export async function createPlayerParent(
         isAdminAuthored: false,
         listingStatus: "DRAFT",
         sports: {
-          create: {
-            sportId: data.sportId,
-            position: data.position || null,
-            isPrimary: true,
-          },
+          create: data.sports.map((sport, index) => ({
+            sportId: sport.sportId,
+            position: sport.position || null,
+            isPrimary: index === 0,
+          })),
         },
         media: data.videoUrl
           ? {
