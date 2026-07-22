@@ -9,7 +9,7 @@ import { prisma } from "@/lib/prisma";
 import { signUpSchema, forgotPasswordSchema, resetPasswordSchema } from "@/lib/validations/auth";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { scheduleOutboxFlush } from "@/lib/email/send";
-import { APP_URL } from "@/lib/email/resend";
+import { APP_URL, ADMIN_EMAIL } from "@/lib/email/resend";
 
 export async function signInWithCredentials(
   _prevState: string | undefined,
@@ -101,6 +101,21 @@ export async function signUp(
           : undefined,
     },
   });
+
+  if (data.role === "COACH") {
+    await prisma.emailOutbox.create({
+      data: {
+        toEmail: ADMIN_EMAIL,
+        templateKey: "new-coach-signup",
+        payload: {
+          coachName: data.name,
+          coachEmail: data.email,
+          organization: data.organization || "",
+        },
+      },
+    });
+    scheduleOutboxFlush();
+  }
 
   // Coaches can browse/search immediately with reduced info; full detail
   // unlocks once an admin verifies them (see lib/coach-visibility.ts).

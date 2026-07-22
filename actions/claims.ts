@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { scheduleOutboxFlush } from "@/lib/email/send";
+import { ADMIN_EMAIL } from "@/lib/email/resend";
 
 export async function searchUnclaimedPlayers(query: string) {
   await requireRole("PARENT");
@@ -39,6 +40,19 @@ export async function requestClaim(playerId: string, note: string) {
   await prisma.claimRequest.create({
     data: { playerId, requestedBy: session.user.id, note: note || null },
   });
+
+  await prisma.emailOutbox.create({
+    data: {
+      toEmail: ADMIN_EMAIL,
+      templateKey: "new-claim-request",
+      payload: {
+        playerName: `${player.firstName} ${player.lastName}`,
+        requesterName: session.user.name,
+        requesterEmail: session.user.email,
+      },
+    },
+  });
+  scheduleOutboxFlush();
 
   revalidatePath("/dashboard/claim");
 }

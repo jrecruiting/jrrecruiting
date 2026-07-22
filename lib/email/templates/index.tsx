@@ -9,6 +9,8 @@ import { EditRejectedEmail } from "./edit-rejected";
 import { ListingPaidEmail } from "./listing-paid";
 import { ContactInquiryEmail } from "./contact-inquiry";
 import { PasswordResetEmail } from "./password-reset";
+import { NewClaimRequestEmail } from "./new-claim-request";
+import { NewCoachSignupEmail } from "./new-coach-signup";
 
 export type EmailTemplateKey =
   | "player-updated"
@@ -20,7 +22,9 @@ export type EmailTemplateKey =
   | "edit-rejected"
   | "listing-paid"
   | "contact-inquiry"
-  | "password-reset";
+  | "password-reset"
+  | "new-claim-request"
+  | "new-coach-signup";
 
 export function renderEmailTemplate(
   templateKey: string,
@@ -93,6 +97,28 @@ export function renderEmailTemplate(
       return {
         subject: "Reset your J.R. Recruiting password",
         react: <PasswordResetEmail resetUrl={payload.resetUrl as string} />,
+      };
+    case "new-claim-request":
+      return {
+        subject: `New claim request for ${payload.playerName as string}`,
+        react: (
+          <NewClaimRequestEmail
+            playerName={payload.playerName as string}
+            requesterName={payload.requesterName as string}
+            requesterEmail={payload.requesterEmail as string}
+          />
+        ),
+      };
+    case "new-coach-signup":
+      return {
+        subject: `New coach account pending approval: ${payload.coachName as string}`,
+        react: (
+          <NewCoachSignupEmail
+            coachName={payload.coachName as string}
+            coachEmail={payload.coachEmail as string}
+            organization={payload.organization as string}
+          />
+        ),
       };
     default:
       return null;

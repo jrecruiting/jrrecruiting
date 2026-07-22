@@ -5,8 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { contactSchema } from "@/lib/validations/contact";
 import { scheduleOutboxFlush } from "@/lib/email/send";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
-
-const ADMIN_EMAIL = "j.r.recruiting13@gmail.com";
+import { ADMIN_EMAIL } from "@/lib/email/resend";
 
 export type ContactFormState =
   | { status: "idle" }
