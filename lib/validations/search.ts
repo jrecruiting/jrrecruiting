@@ -8,6 +8,10 @@ export const searchParamsSchema = z.object({
   state: z.preprocess(emptyToUndefined, z.string().trim().max(2).optional()),
   sportId: z.preprocess(emptyToUndefined, z.string().optional()),
   position: z.preprocess(emptyToUndefined, z.string().trim().max(60).optional()),
+  projection: z.preprocess(
+    emptyToUndefined,
+    z.enum(["FBS", "FCS", "D2", "D3", "NAIA"]).optional()
+  ),
   gender: z.preprocess(emptyToUndefined, z.enum(["MALE", "FEMALE"]).optional()),
   playerType: z.preprocess(
     emptyToUndefined,

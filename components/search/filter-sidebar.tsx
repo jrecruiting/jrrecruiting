@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { PLAYER_TYPES } from "@/lib/player-types";
+import { PLAYER_PROJECTIONS } from "@/lib/player-projections";
 import { currentSeniorGradYear } from "@/lib/pricing";
 
 const ANY = "any";
@@ -86,6 +87,30 @@ export function FilterSidebar({ sports }: { sports: { id: string; name: string }
             {sports.map((sport) => (
               <SelectItem key={sport.id} value={sport.id}>
                 {sport.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="filter-projection">Player Projection</Label>
+        <Select
+          value={searchParams.get("projection") ?? ANY}
+          onValueChange={(v) => updateParams({ projection: v ?? undefined })}
+        >
+          <SelectTrigger id="filter-projection" className="w-full">
+            <SelectValue placeholder="Any projection">
+              {(value: string | null) =>
+                PLAYER_PROJECTIONS.find((p) => p.value === value)?.label ?? "Any projection"
+              }
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ANY}>Any projection</SelectItem>
+            {PLAYER_PROJECTIONS.map((p) => (
+              <SelectItem key={p.value} value={p.value}>
+                {p.label}
               </SelectItem>
             ))}
           </SelectContent>

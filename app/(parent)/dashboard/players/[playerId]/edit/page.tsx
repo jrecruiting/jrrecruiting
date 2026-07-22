@@ -110,6 +110,7 @@ export default async function EditAthletePage({
             sportId: s.sportId,
             sportName: s.sport.name,
             position: s.position,
+            projection: s.projection,
             bio: s.bio,
             isPrimary: s.isPrimary,
           }))}

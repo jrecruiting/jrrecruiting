@@ -77,6 +77,7 @@ export default async function CoachPlayerProfilePage({
                 <Badge key={s.id} variant="secondary">
                   {s.sport.name}
                   {s.position ? ` · ${s.position}` : ""}
+                  {s.projection ? ` · ${s.projection}` : ""}
                 </Badge>
               ))}
             </div>

@@ -12,13 +12,14 @@ export function buildPlayerWhere(params: SearchParamsValues): Prisma.PlayerWhere
   if (params.playerType) where.playerType = params.playerType;
   if (params.gradYear) where.gradYear = params.gradYear;
 
-  if (params.sportId || params.position) {
+  if (params.sportId || params.position || params.projection) {
     where.sports = {
       some: {
         ...(params.sportId ? { sportId: params.sportId } : {}),
         ...(params.position
           ? { position: { contains: params.position, mode: "insensitive" } }
           : {}),
+        ...(params.projection ? { projection: params.projection } : {}),
       },
     };
   }

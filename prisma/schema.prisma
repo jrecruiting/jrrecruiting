@@ -30,18 +30,18 @@ model User {
   accounts Account[]
   sessions Session[]
 
-  players        Player[]           @relation("ParentPlayers")
-  coachProfile   CoachProfile?
-  stars          Star[]
-  notifications  Notification[]
-  claimRequests  ClaimRequest[]
-  resolvedClaims ClaimRequest[]     @relation("ClaimResolvedBy")
-  profileViews   ProfileViewEvent[]
-  payments       Payment[]
-  createdPlayers Player[]           @relation("AdminAuthoredPlayers")
-  passwordResetTokens PasswordResetToken[]
-  editRequests         PlayerEditRequest[]
-  resolvedEditRequests PlayerEditRequest[] @relation("EditRequestResolvedBy")
+  players                  Player[]                  @relation("ParentPlayers")
+  coachProfile             CoachProfile?
+  stars                    Star[]
+  notifications            Notification[]
+  claimRequests            ClaimRequest[]
+  resolvedClaims           ClaimRequest[]            @relation("ClaimResolvedBy")
+  profileViews             ProfileViewEvent[]
+  payments                 Payment[]
+  createdPlayers           Player[]                  @relation("AdminAuthoredPlayers")
+  passwordResetTokens      PasswordResetToken[]
+  editRequests             PlayerEditRequest[]
+  resolvedEditRequests     PlayerEditRequest[]       @relation("EditRequestResolvedBy")
   paymentPlanSubscriptions PaymentPlanSubscription[]
 
   @@map("users")
@@ -123,6 +123,16 @@ enum PlayerType {
   TRANSFER
 }
 
+// College level a player projects to compete at for a given sport --
+// per-sport since a multi-sport athlete can project differently in each.
+enum PlayerProjection {
+  FBS
+  FCS
+  D2
+  D3
+  NAIA
+}
+
 enum ListingStatus {
   DRAFT
   PENDING_PAYMENT
@@ -151,10 +161,10 @@ model Player {
   schoolName      String?
   heightIn        Int?
   weightLb        Int?
-  gpa             Decimal? @db.Decimal(3, 2)
-  bio             String?  @db.Text
+  gpa             Decimal?   @db.Decimal(3, 2)
+  bio             String?    @db.Text
   primaryPhotoUrl String?
-  photoConsent    Boolean  @default(false)
+  photoConsent    Boolean    @default(false)
   instagramHandle String?
   xHandle         String?
   cellPhone       String?
@@ -165,13 +175,13 @@ model Player {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  sports        PlayerSport[]
-  media         MediaAsset[]
-  stars         Star[]
-  profileViews  ProfileViewEvent[]
-  claimRequests ClaimRequest[]
-  payments      Payment[]
-  editRequests  PlayerEditRequest[]
+  sports                  PlayerSport[]
+  media                   MediaAsset[]
+  stars                   Star[]
+  profileViews            ProfileViewEvent[]
+  claimRequests           ClaimRequest[]
+  payments                Payment[]
+  editRequests            PlayerEditRequest[]
   paymentPlanSubscription PaymentPlanSubscription?
 
   @@index([country, state])
@@ -192,19 +202,21 @@ model Sport {
 }
 
 model PlayerSport {
-  id        String   @id @default(cuid())
-  playerId  String
-  player    Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
-  sportId   String
-  sport     Sport    @relation(fields: [sportId], references: [id])
-  position  String?
-  isPrimary Boolean  @default(false)
-  bio       String?  @db.Text
-  stats     Json?
-  updatedAt DateTime @updatedAt
+  id         String            @id @default(cuid())
+  playerId   String
+  player     Player            @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  sportId    String
+  sport      Sport             @relation(fields: [sportId], references: [id])
+  position   String?
+  projection PlayerProjection?
+  isPrimary  Boolean           @default(false)
+  bio        String?           @db.Text
+  stats      Json?
+  updatedAt  DateTime          @updatedAt
 
   @@unique([playerId, sportId])
   @@index([sportId, position])
+  @@index([sportId, projection])
   @@map("player_sports")
 }
 

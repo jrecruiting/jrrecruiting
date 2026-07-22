@@ -60,7 +60,12 @@ async function updateSportDetails(
     const data = parseSportDetailsForm(formData);
     await prisma.playerSport.update({
       where: { playerId_sportId: { playerId, sportId } },
-      data: { position: data.position || null, bio: data.bio || null, stats: data.stats },
+      data: {
+        position: data.position || null,
+        projection: data.projection || null,
+        bio: data.bio || null,
+        stats: data.stats,
+      },
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

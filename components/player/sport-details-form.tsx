@@ -5,7 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { SportFormState } from "@/actions/player-sports";
+import { PLAYER_PROJECTIONS } from "@/lib/player-projections";
 import { Plus, X } from "@phosphor-icons/react/dist/ssr";
 
 type StatRow = { key: string; label?: string; value?: string };
@@ -25,6 +33,7 @@ export function SportDetailsForm({
   sportName: string;
   defaultValues?: {
     position?: string | null;
+    projection?: string | null;
     bio?: string | null;
     stats?: { label: string; value: string }[];
   };
@@ -47,6 +56,26 @@ export function SportDetailsForm({
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="position">Position</Label>
         <Input id="position" name="position" defaultValue={defaultValues?.position ?? ""} />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="projection">Player Projection</Label>
+        <Select name="projection" defaultValue={defaultValues?.projection ?? undefined}>
+          <SelectTrigger id="projection" className="w-full">
+            <SelectValue placeholder="Select projection">
+              {(value: string | null) =>
+                PLAYER_PROJECTIONS.find((p) => p.value === value)?.label ?? "Select projection"
+              }
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {PLAYER_PROJECTIONS.map((p) => (
+              <SelectItem key={p.value} value={p.value}>
+                {p.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="flex flex-col gap-1.5">

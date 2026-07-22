@@ -61,6 +61,10 @@ const statEntrySchema = z.object({
 
 export const sportDetailsFormSchema = z.object({
   position: optionalString(60),
+  projection: z.preprocess(
+    emptyToUndefined,
+    z.enum(["FBS", "FCS", "D2", "D3", "NAIA"]).optional()
+  ),
   bio: optionalString(2000),
   stats: z.array(statEntrySchema).max(20).default([]),
 });

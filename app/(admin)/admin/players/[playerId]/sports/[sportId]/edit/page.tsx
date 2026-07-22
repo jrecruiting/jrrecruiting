@@ -39,6 +39,7 @@ export default async function EditSportDetailsPage({
         sportName={playerSport.sport.name}
         defaultValues={{
           position: playerSport.position,
+          projection: playerSport.projection,
           bio: playerSport.bio,
           stats: Array.isArray(playerSport.stats)
             ? (playerSport.stats as { label: string; value: string }[])

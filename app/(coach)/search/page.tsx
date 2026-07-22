@@ -110,7 +110,10 @@ export default async function CoachSearchPage({
                           </Link>
                           <p className="text-xs text-muted-foreground">
                             {player.sports
-                              .map((s) => `${s.sport.name}${s.position ? ` · ${s.position}` : ""}`)
+                              .map(
+                                (s) =>
+                                  `${s.sport.name}${s.position ? ` · ${s.position}` : ""}${s.projection ? ` · ${s.projection}` : ""}`
+                              )
                               .join(", ") || "No sport set"}
                           </p>
                         </div>
