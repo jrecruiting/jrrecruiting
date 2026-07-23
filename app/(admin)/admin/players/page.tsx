@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Plus } from "@phosphor-icons/react/dist/ssr";
 import { playerTypeLabel } from "@/lib/player-types";
+import { ProjectionQuickSelect } from "@/components/admin/projection-quick-select";
 
 const statusVariant: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
   ACTIVE: "default",
@@ -25,7 +26,9 @@ export default async function AdminPlayersPage() {
   const players = await prisma.player.findMany({
     orderBy: { createdAt: "desc" },
     include: {
-      sports: { include: { sport: true } },
+      // Stable order so rows don't shuffle between renders while quick-editing
+      // projections for a multi-sport player.
+      sports: { include: { sport: true }, orderBy: [{ isPrimary: "desc" }, { sportId: "asc" }] },
       _count: { select: { profileViews: true } },
     },
     take: 100,
@@ -75,7 +78,23 @@ export default async function AdminPlayersPage() {
                   </Link>
                 </TableCell>
                 <TableCell>
-                  {player.sports.map((s) => s.sport.name).join(", ") || "—"}
+                  {player.sports.length === 0 ? (
+                    "—"
+                  ) : (
+                    <div className="flex flex-col gap-1.5">
+                      {player.sports.map((s) => (
+                        <div key={s.id} className="flex items-center gap-2">
+                          <span className="whitespace-nowrap text-sm">{s.sport.name}</span>
+                          <ProjectionQuickSelect
+                            playerId={player.id}
+                            sportId={s.sportId}
+                            sportName={s.sport.name}
+                            projection={s.projection}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </TableCell>
                 <TableCell>{playerTypeLabel(player.playerType)}</TableCell>
                 <TableCell>{player.gender === "MALE" ? "Boy" : "Girl"}</TableCell>

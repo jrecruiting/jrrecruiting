@@ -3,10 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import type { PlayerProjection } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/permissions";
 import { recordPlayerUpdate } from "@/lib/notifications/player-update";
 import { addSportFormSchema } from "@/lib/validations/player";
+import { PLAYER_PROJECTIONS } from "@/lib/player-projections";
 import { parseSportDetailsForm } from "@/lib/player-data";
 import { requireOwnedPlayer } from "@/actions/players";
 
@@ -94,6 +96,28 @@ export async function removePlayerSportAdmin(playerId: string, sportId: string) 
   await requireRole("ADMIN");
   await removePlayerSport(playerId, sportId);
   revalidatePath(`/admin/players/${playerId}/edit`);
+}
+
+const PROJECTION_VALUES = new Set<string>(PLAYER_PROJECTIONS.map((p) => p.value));
+
+function parseProjection(value: string): PlayerProjection | null {
+  if (!value) return null;
+  if (!PROJECTION_VALUES.has(value)) throw new Error("Invalid projection value");
+  return value as PlayerProjection;
+}
+
+// Quick-set from the admin players list -- lets an admin label every
+// player's projection per sport without opening each sport's full details
+// form. Empty string clears it.
+export async function setSportProjectionAdmin(playerId: string, sportId: string, projection: string) {
+  await requireRole("ADMIN");
+
+  await prisma.playerSport.update({
+    where: { playerId_sportId: { playerId, sportId } },
+    data: { projection: parseProjection(projection) },
+  });
+
+  revalidatePath("/admin/players");
 }
 
 export async function updateSportDetailsAdmin(
