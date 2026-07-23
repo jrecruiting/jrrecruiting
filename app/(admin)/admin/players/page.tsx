@@ -89,7 +89,7 @@ export default async function AdminPlayersPage() {
                             playerId={player.id}
                             sportId={s.sportId}
                             sportName={s.sport.name}
-                            projection={s.projection}
+                            projections={s.projections}
                           />
                         </div>
                       ))}

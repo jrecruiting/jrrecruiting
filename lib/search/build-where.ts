@@ -19,7 +19,7 @@ export function buildPlayerWhere(params: SearchParamsValues): Prisma.PlayerWhere
         ...(params.position
           ? { position: { contains: params.position, mode: "insensitive" } }
           : {}),
-        ...(params.projection ? { projection: params.projection } : {}),
+        ...(params.projection ? { projections: { has: params.projection } } : {}),
       },
     };
   }

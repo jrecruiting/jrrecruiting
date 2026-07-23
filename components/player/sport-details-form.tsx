@@ -33,7 +33,7 @@ export function SportDetailsForm({
   sportName: string;
   defaultValues?: {
     position?: string | null;
-    projection?: string | null;
+    projections?: string[];
     bio?: string | null;
     stats?: { label: string; value: string }[];
   };
@@ -59,12 +59,16 @@ export function SportDetailsForm({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="projection">Player Projection</Label>
-        <Select name="projection" defaultValue={defaultValues?.projection ?? undefined}>
-          <SelectTrigger id="projection" className="w-full">
-            <SelectValue placeholder="Select projection">
-              {(value: string | null) =>
-                PLAYER_PROJECTIONS.find((p) => p.value === value)?.label ?? "Select projection"
+        <Label htmlFor="projections">Player Projection</Label>
+        <Select name="projections" multiple defaultValue={defaultValues?.projections ?? []}>
+          <SelectTrigger id="projections" className="w-full">
+            <SelectValue placeholder="Select projection(s)">
+              {(value: string[] | null) =>
+                value && value.length > 0
+                  ? value
+                      .map((v) => PLAYER_PROJECTIONS.find((p) => p.value === v)?.label ?? v)
+                      .join(", ")
+                  : "Select projection(s)"
               }
             </SelectValue>
           </SelectTrigger>
@@ -76,6 +80,9 @@ export function SportDetailsForm({
             ))}
           </SelectContent>
         </Select>
+        <p className="text-xs text-muted-foreground">
+          Select as many as apply -- e.g. a player can be both FCS and D2.
+        </p>
       </div>
 
       <div className="flex flex-col gap-1.5">

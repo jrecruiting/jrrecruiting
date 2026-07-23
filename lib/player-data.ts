@@ -28,7 +28,11 @@ export function parseSportDetailsForm(formData: FormData): SportDetailsFormValue
     .map((label, i) => ({ label: label.trim(), value: (values[i] ?? "").trim() }))
     .filter((s) => s.label && s.value);
 
-  return sportDetailsFormSchema.parse({ ...raw, stats });
+  // The projections Select submits multiple same-name hidden inputs when
+  // more than one is picked (e.g. FCS and D2), so collect all of them.
+  const projections = formData.getAll("projections").map(String);
+
+  return sportDetailsFormSchema.parse({ ...raw, projections, stats });
 }
 
 export function buildPlayerData(data: UpdatePlayerFormValues) {

@@ -7,7 +7,7 @@ type SportItem = {
   sportId: string;
   sportName: string;
   position: string | null;
-  projection: string | null;
+  projections: string[];
   bio: string | null;
   isPrimary: boolean;
 };
@@ -37,7 +37,7 @@ export function PlayerSportsList({
               </div>
               <p className="text-xs text-muted-foreground">
                 {s.position || "No position set"}
-                {s.projection ? ` · ${s.projection}` : ""}
+                {s.projections.length > 0 ? ` · ${s.projections.join(", ")}` : ""}
                 {s.bio ? " · Bio added" : ""}
               </p>
             </div>

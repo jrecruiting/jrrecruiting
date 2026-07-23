@@ -112,7 +112,7 @@ export default async function CoachSearchPage({
                             {player.sports
                               .map(
                                 (s) =>
-                                  `${s.sport.name}${s.position ? ` · ${s.position}` : ""}${s.projection ? ` · ${s.projection}` : ""}`
+                                  `${s.sport.name}${s.position ? ` · ${s.position}` : ""}${s.projections.length > 0 ? ` · ${s.projections.join(", ")}` : ""}`
                               )
                               .join(", ") || "No sport set"}
                           </p>

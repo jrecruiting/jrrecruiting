@@ -112,7 +112,7 @@ export default async function EditPlayerPage({
             sportId: s.sportId,
             sportName: s.sport.name,
             position: s.position,
-            projection: s.projection,
+            projections: s.projections,
             bio: s.bio,
             isPrimary: s.isPrimary,
           }))}

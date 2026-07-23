@@ -64,7 +64,7 @@ async function updateSportDetails(
       where: { playerId_sportId: { playerId, sportId } },
       data: {
         position: data.position || null,
-        projection: data.projection || null,
+        projections: data.projections,
         bio: data.bio || null,
         stats: data.stats,
       },
@@ -100,21 +100,27 @@ export async function removePlayerSportAdmin(playerId: string, sportId: string) 
 
 const PROJECTION_VALUES = new Set<string>(PLAYER_PROJECTIONS.map((p) => p.value));
 
-function parseProjection(value: string): PlayerProjection | null {
-  if (!value) return null;
-  if (!PROJECTION_VALUES.has(value)) throw new Error("Invalid projection value");
-  return value as PlayerProjection;
+function parseProjections(values: string[]): PlayerProjection[] {
+  return values.filter((v): v is PlayerProjection => {
+    if (!PROJECTION_VALUES.has(v)) throw new Error("Invalid projection value");
+    return true;
+  });
 }
 
 // Quick-set from the admin players list -- lets an admin label every
-// player's projection per sport without opening each sport's full details
-// form. Empty string clears it.
-export async function setSportProjectionAdmin(playerId: string, sportId: string, projection: string) {
+// player's projection(s) per sport without opening each sport's full
+// details form. A sport can carry more than one projection (e.g. FCS and
+// D2 for the same sport).
+export async function setSportProjectionAdmin(
+  playerId: string,
+  sportId: string,
+  projections: string[]
+) {
   await requireRole("ADMIN");
 
   await prisma.playerSport.update({
     where: { playerId_sportId: { playerId, sportId } },
-    data: { projection: parseProjection(projection) },
+    data: { projections: parseProjections(projections) },
   });
 
   revalidatePath("/admin/players");

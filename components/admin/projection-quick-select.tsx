@@ -12,39 +12,41 @@ import { PLAYER_PROJECTIONS } from "@/lib/player-projections";
 import { setSportProjectionAdmin } from "@/actions/player-sports";
 import { toast } from "sonner";
 
-const NONE = "none";
-
 export function ProjectionQuickSelect({
   playerId,
   sportId,
   sportName,
-  projection,
+  projections,
 }: {
   playerId: string;
   sportId: string;
   sportName: string;
-  projection: string | null;
+  projections: string[];
 }) {
   const [isPending, startTransition] = useTransition();
 
-  function handleChange(value: string | null) {
+  function handleChange(value: string[] | null) {
     startTransition(async () => {
-      await setSportProjectionAdmin(playerId, sportId, !value || value === NONE ? "" : value);
+      await setSportProjectionAdmin(playerId, sportId, value ?? []);
       toast.success(`${sportName} projection updated.`);
     });
   }
 
   return (
-    <Select value={projection ?? NONE} onValueChange={handleChange} disabled={isPending}>
-      <SelectTrigger className="h-7 w-[100px] text-xs" aria-label={`${sportName} projection`}>
+    <Select multiple value={projections} onValueChange={handleChange} disabled={isPending}>
+      <SelectTrigger
+        className="h-7 min-w-[90px] max-w-[160px] text-xs"
+        aria-label={`${sportName} projection`}
+      >
         <SelectValue placeholder="—">
-          {(value: string | null) =>
-            PLAYER_PROJECTIONS.find((p) => p.value === value)?.label ?? "—"
+          {(value: string[] | null) =>
+            value && value.length > 0
+              ? value.map((v) => PLAYER_PROJECTIONS.find((p) => p.value === v)?.label ?? v).join(", ")
+              : "—"
           }
         </SelectValue>
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value={NONE}>—</SelectItem>
         {PLAYER_PROJECTIONS.map((p) => (
           <SelectItem key={p.value} value={p.value}>
             {p.label}
