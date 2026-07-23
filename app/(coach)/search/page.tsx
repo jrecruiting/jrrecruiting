@@ -6,6 +6,7 @@ import { searchParamsSchema } from "@/lib/validations/search";
 import { buildPlayerWhere } from "@/lib/search/build-where";
 import { playerTypeLabel } from "@/lib/player-types";
 import { maskLastName } from "@/lib/coach-visibility";
+import { formatHeight } from "@/lib/player-data";
 import { QuickStarButton } from "@/components/coach/quick-star-button";
 import { PlayerPhoto } from "@/components/player/player-photo";
 import { FilterSidebar } from "@/components/search/filter-sidebar";
@@ -90,6 +91,12 @@ export default async function CoachSearchPage({
               ]
                 .filter(Boolean)
                 .join(", ");
+              const displayMeasurables = [
+                player.heightIn ? formatHeight(player.heightIn) : null,
+                player.weightLb ? `${player.weightLb} lb` : null,
+              ]
+                .filter(Boolean)
+                .join(" · ");
 
               return (
                 <Card key={player.id} className="border-border/60">
@@ -132,6 +139,9 @@ export default async function CoachSearchPage({
                       {player.gradYear != null ? ` · Class of ${player.gradYear}` : ""}
                       {displayLocation ? ` · ${displayLocation}` : ""}
                     </p>
+                    {displayMeasurables && (
+                      <p className="text-xs text-muted-foreground">{displayMeasurables}</p>
+                    )}
                   </CardContent>
                 </Card>
               );
