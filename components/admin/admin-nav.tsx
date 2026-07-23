@@ -10,6 +10,7 @@ import {
   CalendarCheck,
   Eye,
   UserCircle,
+  Envelope,
   SignOut,
 } from "@phosphor-icons/react/dist/ssr";
 
@@ -18,6 +19,7 @@ const navItems = [
   { href: "/admin/players", label: "Players", icon: UsersThree },
   { href: "/admin/profile-views", label: "Profile Views", icon: Eye },
   { href: "/admin/parent-views", label: "Parent Visits", icon: UserCircle },
+  { href: "/admin/coach-messages", label: "Coach Messages", icon: Envelope },
   { href: "/admin/edit-requests", label: "Edit Requests", icon: PencilSimple },
   { href: "/admin/coaches", label: "Coach Verification", icon: ShieldCheck },
   { href: "/admin/claims", label: "Claims", icon: ArrowsClockwise },

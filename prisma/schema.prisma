@@ -37,6 +37,7 @@ model User {
   notifications            Notification[]
   claimRequests            ClaimRequest[]
   resolvedClaims           ClaimRequest[]            @relation("ClaimResolvedBy")
+  coachInquiries           CoachInquiry[]
   profileViews             ProfileViewEvent[]
   payments                 Payment[]
   createdPlayers           Player[]                  @relation("AdminAuthoredPlayers")
@@ -270,6 +271,20 @@ model ClaimRequest {
   resolver    User?       @relation("ClaimResolvedBy", fields: [resolvedBy], references: [id])
 
   @@map("claim_requests")
+}
+
+// A coach's message sent via the "Contact JR Recruiting" support link --
+// separate from the public marketing contact form so admin can browse
+// them tied to a known coach account.
+model CoachInquiry {
+  id        String   @id @default(cuid())
+  coachId   String
+  coach     User     @relation(fields: [coachId], references: [id])
+  message   String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@map("coach_inquiries")
 }
 
 enum EditRequestStatus {

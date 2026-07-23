@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { Logo } from "@/components/marketing/logo";
 import { signOutAction } from "@/actions/auth";
-import { MagnifyingGlass, Star, Bell, SignOut } from "@phosphor-icons/react/dist/ssr";
+import { MagnifyingGlass, Star, Bell, Envelope, SignOut } from "@phosphor-icons/react/dist/ssr";
 
 const navItems = [
   { href: "/search", label: "Search", icon: MagnifyingGlass },
   { href: "/coach/dashboard/starred", label: "Starred", icon: Star },
   { href: "/coach/dashboard/notifications", label: "Notifications", icon: Bell },
+  { href: "/coach/dashboard/contact", label: "Contact Us", icon: Envelope },
 ];
 
 export function CoachNav() {
