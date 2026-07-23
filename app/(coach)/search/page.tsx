@@ -128,8 +128,8 @@ export default async function CoachSearchPage({
                       <Badge variant="secondary">{playerTypeLabel(player.playerType)}</Badge>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      {player.gender === "MALE" ? "Boy" : "Girl"} &middot; Class of{" "}
-                      {player.gradYear}
+                      {player.gender === "MALE" ? "Boy" : "Girl"}
+                      {player.gradYear != null ? ` · Class of ${player.gradYear}` : ""}
                       {displayLocation ? ` · ${displayLocation}` : ""}
                     </p>
                   </CardContent>

@@ -17,7 +17,9 @@ const basePlayerFields = {
   lastName: z.string().trim().min(1, "Last name is required").max(60),
   gender: z.enum(["MALE", "FEMALE"], { message: "Select a gender" }),
   playerType: z.enum(["HIGH_SCHOOL", "JUCO", "TRANSFER"], { message: "Select a player type" }),
-  gradYear: z.coerce.number().int().min(2024).max(2035),
+  // Not applicable to JUCO/Transfer athletes -- required only for High School,
+  // enforced below since it depends on the playerType field.
+  gradYear: optionalInt(2024, 2035),
   country: z.string().trim().min(2, "Country is required").max(2),
   state: optionalString(2),
   schoolName: optionalString(150),
@@ -36,16 +38,34 @@ const basePlayerFields = {
   cellPhone: optionalString(20),
 };
 
+// Graduation year only applies to High School athletes -- JUCO/Transfer
+// players don't have one, so it's optional at the field level and enforced
+// here instead, where playerType is available to check against.
+function checkGradYear(
+  data: { playerType: string; gradYear?: number },
+  ctx: z.RefinementCtx
+) {
+  if (data.playerType === "HIGH_SCHOOL" && data.gradYear == null) {
+    ctx.addIssue({
+      code: "custom",
+      message: "Graduation year is required",
+      path: ["gradYear"],
+    });
+  }
+}
+
 // Creating a player requires picking its first sport; editing the shared
 // profile fields afterward doesn't touch sports -- those are managed one at
 // a time via their own add/edit-details flow.
-export const createPlayerFormSchema = z.object({
-  ...basePlayerFields,
-  sportId: z.string().min(1, "Select a sport"),
-  position: optionalString(60),
-});
+export const createPlayerFormSchema = z
+  .object({
+    ...basePlayerFields,
+    sportId: z.string().min(1, "Select a sport"),
+    position: optionalString(60),
+  })
+  .superRefine(checkGradYear);
 
-export const updatePlayerFormSchema = z.object(basePlayerFields);
+export const updatePlayerFormSchema = z.object(basePlayerFields).superRefine(checkGradYear);
 
 export type CreatePlayerFormValues = z.infer<typeof createPlayerFormSchema>;
 export type UpdatePlayerFormValues = z.infer<typeof updatePlayerFormSchema>;

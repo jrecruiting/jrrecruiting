@@ -93,8 +93,8 @@ export default async function ParentDashboardPage() {
                         {player.firstName} {player.lastName}
                       </Link>
                       <p className="text-sm text-muted-foreground">
-                        {player.sports.map((s) => s.sport.name).join(", ") || "No sport set"}{" "}
-                        &middot; Class of {player.gradYear}
+                        {player.sports.map((s) => s.sport.name).join(", ") || "No sport set"}
+                        {player.gradYear != null ? ` · Class of ${player.gradYear}` : ""}
                       </p>
                     </div>
                   </div>

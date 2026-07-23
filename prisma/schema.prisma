@@ -156,7 +156,8 @@ model Player {
   dob             DateTime?
   gender          Gender
   playerType      PlayerType @default(HIGH_SCHOOL)
-  gradYear        Int
+  // Not applicable to JUCO/Transfer athletes -- required only for High School.
+  gradYear        Int?
   country         String
   state           String?
   city            String?

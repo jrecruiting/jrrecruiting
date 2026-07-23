@@ -38,7 +38,7 @@ export default async function StarredPlayersPage() {
               key={star.id}
               playerId={star.playerId}
               name={`${star.player.firstName} ${isVerified ? star.player.lastName : maskLastName(star.player.lastName)}`}
-              detail={`${star.player.sports.map((s) => s.sport.name).join(", ") || "No sport set"} · Class of ${star.player.gradYear}`}
+              detail={`${star.player.sports.map((s) => s.sport.name).join(", ") || "No sport set"}${star.player.gradYear != null ? ` · Class of ${star.player.gradYear}` : ""}`}
               notifyOnUpdate={star.notifyOnUpdate}
             />
           ))}

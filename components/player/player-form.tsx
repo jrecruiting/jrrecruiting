@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef } from "react";
+import { useActionState, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,7 +25,7 @@ type PlayerDefaults = {
   lastName?: string;
   gender?: "MALE" | "FEMALE";
   playerType?: "HIGH_SCHOOL" | "JUCO" | "TRANSFER";
-  gradYear?: number;
+  gradYear?: number | null;
   country?: string;
   state?: string | null;
   schoolName?: string | null;
@@ -61,6 +61,8 @@ export function PlayerForm({
 }) {
   const [state, formAction, isPending] = useActionState(action, undefined);
   const photoUploadRef = useRef<PhotoUploadHandle>(null);
+  const [playerType, setPlayerType] = useState(defaultValues?.playerType);
+  const showGradYear = playerType !== "JUCO" && playerType !== "TRANSFER";
 
   return (
     <form action={formAction} className="flex max-w-2xl flex-col gap-6">
@@ -94,7 +96,13 @@ export function PlayerForm({
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="playerType">Player type</Label>
-          <Select name="playerType" defaultValue={defaultValues?.playerType}>
+          <Select
+            name="playerType"
+            value={playerType}
+            onValueChange={(value: string | null) =>
+              setPlayerType(value as "HIGH_SCHOOL" | "JUCO" | "TRANSFER" | undefined)
+            }
+          >
             <SelectTrigger id="playerType" className="w-full">
               <SelectValue placeholder="Select player type">
                 {(value: string | null) =>
@@ -111,18 +119,20 @@ export function PlayerForm({
             </SelectContent>
           </Select>
         </div>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="gradYear">Graduation year</Label>
-          <Input
-            id="gradYear"
-            name="gradYear"
-            type="number"
-            min={2024}
-            max={2035}
-            required
-            defaultValue={defaultValues?.gradYear}
-          />
-        </div>
+        {showGradYear && (
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="gradYear">Graduation year</Label>
+            <Input
+              id="gradYear"
+              name="gradYear"
+              type="number"
+              min={2024}
+              max={2035}
+              required
+              defaultValue={defaultValues?.gradYear ?? undefined}
+            />
+          </div>
+        )}
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="country">Country code</Label>
           <Input

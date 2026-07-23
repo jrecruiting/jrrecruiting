@@ -67,7 +67,8 @@ export default async function CoachPlayerProfilePage({
               {player.firstName} {displayLastName}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              {player.gender === "MALE" ? "Boy" : "Girl"} &middot; Class of {player.gradYear}
+              {player.gender === "MALE" ? "Boy" : "Girl"}
+              {player.gradYear != null ? ` · Class of ${player.gradYear}` : ""}
               {displaySchool ? ` · ${displaySchool}` : ""}
               {displayLocation ? ` · ${displayLocation}` : ""}
             </p>

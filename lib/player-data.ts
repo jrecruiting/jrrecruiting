@@ -43,7 +43,7 @@ export function buildPlayerData(data: UpdatePlayerFormValues) {
     lastName: data.lastName,
     gender: data.gender,
     playerType: data.playerType,
-    gradYear: data.gradYear,
+    gradYear: data.gradYear ?? null,
     country: data.country.toUpperCase(),
     state: data.state ? data.state.toUpperCase() : null,
     schoolName: data.schoolName || null,

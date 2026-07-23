@@ -102,7 +102,7 @@ export default async function AdminPlayersPage() {
                 <TableCell>
                   {[player.city, player.state, player.country].filter(Boolean).join(", ")}
                 </TableCell>
-                <TableCell>{player.gradYear}</TableCell>
+                <TableCell>{player.gradYear ?? "—"}</TableCell>
                 <TableCell>
                   <Badge variant={statusVariant[player.listingStatus] ?? "outline"}>
                     {player.listingStatus.replace("_", " ")}

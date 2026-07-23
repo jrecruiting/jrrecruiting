@@ -14,7 +14,7 @@ type UnclaimedPlayer = {
   lastName: string;
   state: string | null;
   country: string;
-  gradYear: number;
+  gradYear: number | null;
 };
 
 export function ClaimSearch({
@@ -80,8 +80,8 @@ export function ClaimSearch({
                       {player.firstName} {player.lastName}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {[player.state, player.country].filter(Boolean).join(", ")} &middot; Class
-                      of {player.gradYear}
+                      {[player.state, player.country].filter(Boolean).join(", ")}
+                      {player.gradYear != null ? ` · Class of ${player.gradYear}` : ""}
                     </p>
                   </div>
                   <Button

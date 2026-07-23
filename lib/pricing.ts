@@ -183,7 +183,7 @@ export function gradYearForTier(tier: PackageTier, referenceDate = new Date()) {
  * year still resolves to a sensible tier instead of failing to match.
  */
 export function tierForPlayer(
-  player: { playerType: "HIGH_SCHOOL" | "JUCO" | "TRANSFER"; gradYear: number },
+  player: { playerType: "HIGH_SCHOOL" | "JUCO" | "TRANSFER"; gradYear: number | null },
   referenceDate = new Date()
 ): PackageTier {
   if (player.playerType === "JUCO") {
@@ -191,6 +191,12 @@ export function tierForPlayer(
   }
   if (player.playerType === "TRANSFER") {
     return FLAT_PACKAGE_TIERS.find((t) => t.id === "transfer")!;
+  }
+
+  // High School players always have a gradYear (enforced at the form level);
+  // fall back to the most junior tier in the unexpected case they don't.
+  if (player.gradYear == null) {
+    return PACKAGE_TIERS[PACKAGE_TIERS.length - 1];
   }
 
   const yearsRemaining = player.gradYear - currentSeniorGradYear(referenceDate) + 1;
