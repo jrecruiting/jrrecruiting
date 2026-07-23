@@ -30,7 +30,7 @@ export default async function AdminClaimsPage() {
             const reject = resolveClaim.bind(null, claim.id, false);
             return (
               <Card key={claim.id} className="border-border/60">
-                <CardContent className="flex items-center justify-between gap-4">
+                <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <p className="font-medium">
                       {claim.player.firstName} {claim.player.lastName}
@@ -39,7 +39,7 @@ export default async function AdminClaimsPage() {
                       Requested by {claim.requester.name} ({claim.requester.email})
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <Badge variant={statusVariant[claim.status]}>{claim.status}</Badge>
                     {claim.status === "PENDING" && (
                       <>

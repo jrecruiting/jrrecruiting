@@ -29,27 +29,29 @@ const navItems = [
 
 export function AdminNav() {
   return (
-    <nav className="flex w-56 shrink-0 flex-col gap-1 border-r border-border/60 bg-sidebar p-4">
-      <span className="mb-2 px-2 font-heading text-sm font-semibold text-sidebar-foreground/70">
+    <nav className="flex w-full shrink-0 items-center gap-1 overflow-x-auto border-b border-border/60 bg-sidebar p-2 sm:w-56 sm:flex-col sm:items-stretch sm:gap-1 sm:overflow-visible sm:border-b-0 sm:border-r sm:p-4">
+      <span className="hidden px-2 font-heading text-sm font-semibold text-sidebar-foreground/70 sm:mb-2 sm:block">
         Admin
       </span>
       {navItems.map((item) => (
         <Link
           key={item.href}
           href={item.href}
-          className="flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          aria-label={item.label}
+          className="flex shrink-0 items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
         >
           <item.icon className="h-4 w-4" weight="bold" aria-hidden />
-          {item.label}
+          <span className="hidden sm:inline">{item.label}</span>
         </Link>
       ))}
-      <form action={signOutAction} className="mt-auto">
+      <form action={signOutAction} className="shrink-0 sm:mt-auto">
         <button
           type="submit"
-          className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          aria-label="Sign Out"
+          className="flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground sm:w-full"
         >
           <SignOut className="h-4 w-4" weight="bold" aria-hidden />
-          Sign Out
+          <span className="hidden sm:inline">Sign Out</span>
         </button>
       </form>
     </nav>

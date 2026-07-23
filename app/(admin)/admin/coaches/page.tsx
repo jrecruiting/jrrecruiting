@@ -31,7 +31,7 @@ export default async function AdminCoachesPage() {
             const reject = rejectCoach.bind(null, coach.id, "");
             return (
               <Card key={coach.id} className="border-border/60">
-                <CardContent className="flex items-center justify-between gap-4">
+                <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <p className="font-medium">{coach.user.name}</p>
                     <p className="text-xs text-muted-foreground">
@@ -39,7 +39,7 @@ export default async function AdminCoachesPage() {
                       {coach.title ? ` · ${coach.title}` : ""}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <Badge variant={statusVariant[coach.verificationStatus]}>
                       {coach.verificationStatus}
                     </Badge>
