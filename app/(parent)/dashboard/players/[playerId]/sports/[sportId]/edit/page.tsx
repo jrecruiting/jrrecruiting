@@ -41,7 +41,7 @@ export default async function EditSportDetailsParentPage({
         sportName={playerSport.sport.name}
         defaultValues={{
           position: playerSport.position,
-          projections: playerSport.projections,
+          // Player Projection is admin-only and never sent to this page.
           bio: playerSport.bio,
           stats: Array.isArray(playerSport.stats)
             ? (playerSport.stats as { label: string; value: string }[])

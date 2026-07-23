@@ -28,6 +28,7 @@ export function SportDetailsForm({
   action,
   sportName,
   defaultValues,
+  showProjection = false,
 }: {
   action: (state: SportFormState, formData: FormData) => Promise<SportFormState>;
   sportName: string;
@@ -37,6 +38,8 @@ export function SportDetailsForm({
     bio?: string | null;
     stats?: { label: string; value: string }[];
   };
+  // Player Projection is an internal admin-only label, never shown to parents.
+  showProjection?: boolean;
 }) {
   const [state, formAction, isPending] = useActionState(action, undefined);
   const [statRows, setStatRows] = useState<StatRow[]>(() =>
@@ -58,32 +61,34 @@ export function SportDetailsForm({
         <Input id="position" name="position" defaultValue={defaultValues?.position ?? ""} />
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="projections">Player Projection</Label>
-        <Select name="projections" multiple defaultValue={defaultValues?.projections ?? []}>
-          <SelectTrigger id="projections" className="w-full">
-            <SelectValue placeholder="Select projection(s)">
-              {(value: string[] | null) =>
-                value && value.length > 0
-                  ? value
-                      .map((v) => PLAYER_PROJECTIONS.find((p) => p.value === v)?.label ?? v)
-                      .join(", ")
-                  : "Select projection(s)"
-              }
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {PLAYER_PROJECTIONS.map((p) => (
-              <SelectItem key={p.value} value={p.value}>
-                {p.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <p className="text-xs text-muted-foreground">
-          Select as many as apply -- e.g. a player can be both FCS and D2.
-        </p>
-      </div>
+      {showProjection && (
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="projections">Player Projection</Label>
+          <Select name="projections" multiple defaultValue={defaultValues?.projections ?? []}>
+            <SelectTrigger id="projections" className="w-full">
+              <SelectValue placeholder="Select projection(s)">
+                {(value: string[] | null) =>
+                  value && value.length > 0
+                    ? value
+                        .map((v) => PLAYER_PROJECTIONS.find((p) => p.value === v)?.label ?? v)
+                        .join(", ")
+                    : "Select projection(s)"
+                }
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {PLAYER_PROJECTIONS.map((p) => (
+                <SelectItem key={p.value} value={p.value}>
+                  {p.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            Select as many as apply -- e.g. a player can be both FCS and D2.
+          </p>
+        </div>
+      )}
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="bio">Bio for {sportName}</Label>

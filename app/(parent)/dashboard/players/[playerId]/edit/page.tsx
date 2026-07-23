@@ -110,7 +110,8 @@ export default async function EditAthletePage({
             sportId: s.sportId,
             sportName: s.sport.name,
             position: s.position,
-            projections: s.projections,
+            // Player Projection is admin-only and never sent to parent-facing pages.
+            projections: [],
             bio: s.bio,
             isPrimary: s.isPrimary,
           }))}

@@ -117,6 +117,7 @@ export default async function EditPlayerPage({
             isPrimary: s.isPrimary,
           }))}
           removeAction={removePlayerSportAdmin}
+          showProjection
         />
         <AddSportForm action={boundAddSport} availableSports={availableSports} />
       </div>

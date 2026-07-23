@@ -56,7 +56,11 @@ async function removePlayerSport(playerId: string, sportId: string) {
 async function updateSportDetails(
   playerId: string,
   sportId: string,
-  formData: FormData
+  formData: FormData,
+  // Player Projection is admin-only. Parents can't set or clear it even by
+  // tampering with the form -- their update path never includes this key,
+  // so an admin-set value is preserved no matter what a parent submits.
+  { includeProjection }: { includeProjection: boolean }
 ): Promise<{ error?: string } | undefined> {
   try {
     const data = parseSportDetailsForm(formData);
@@ -64,7 +68,7 @@ async function updateSportDetails(
       where: { playerId_sportId: { playerId, sportId } },
       data: {
         position: data.position || null,
-        projections: data.projections,
+        ...(includeProjection ? { projections: data.projections } : {}),
         bio: data.bio || null,
         stats: data.stats,
       },
@@ -133,7 +137,7 @@ export async function updateSportDetailsAdmin(
   formData: FormData
 ): Promise<SportFormState> {
   await requireRole("ADMIN");
-  const result = await updateSportDetails(playerId, sportId, formData);
+  const result = await updateSportDetails(playerId, sportId, formData, { includeProjection: true });
   if (result?.error) return result;
 
   await recordPlayerUpdate(playerId);
@@ -172,7 +176,7 @@ export async function updateSportDetailsParent(
 ): Promise<SportFormState> {
   const session = await requireRole("PARENT");
   await requireOwnedPlayer(playerId, session.user.id);
-  const result = await updateSportDetails(playerId, sportId, formData);
+  const result = await updateSportDetails(playerId, sportId, formData, { includeProjection: false });
   if (result?.error) return result;
 
   await recordPlayerUpdate(playerId);

@@ -17,11 +17,14 @@ export function PlayerSportsList({
   editBasePath,
   sports,
   removeAction,
+  showProjection = false,
 }: {
   playerId: string;
   editBasePath: string;
   sports: SportItem[];
   removeAction: (playerId: string, sportId: string) => Promise<void>;
+  // Player Projection is an internal admin-only label, never shown to parents.
+  showProjection?: boolean;
 }) {
   const canRemove = sports.length > 1;
 
@@ -37,7 +40,7 @@ export function PlayerSportsList({
               </div>
               <p className="text-xs text-muted-foreground">
                 {s.position || "No position set"}
-                {s.projections.length > 0 ? ` · ${s.projections.join(", ")}` : ""}
+                {showProjection && s.projections.length > 0 ? ` · ${s.projections.join(", ")}` : ""}
                 {s.bio ? " · Bio added" : ""}
               </p>
             </div>

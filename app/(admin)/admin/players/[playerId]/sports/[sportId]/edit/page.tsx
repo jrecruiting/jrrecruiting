@@ -37,6 +37,7 @@ export default async function EditSportDetailsPage({
       <SportDetailsForm
         action={boundUpdate}
         sportName={playerSport.sport.name}
+        showProjection
         defaultValues={{
           position: playerSport.position,
           projections: playerSport.projections,
