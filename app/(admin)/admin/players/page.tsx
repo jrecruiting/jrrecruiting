@@ -29,7 +29,7 @@ export default async function AdminPlayersPage() {
       // Stable order so rows don't shuffle between renders while quick-editing
       // projections for a multi-sport player.
       sports: { include: { sport: true }, orderBy: [{ isPrimary: "desc" }, { sportId: "asc" }] },
-      _count: { select: { profileViews: true } },
+      _count: { select: { profileViews: true, parentViews: true } },
     },
     take: 100,
   });
@@ -56,13 +56,14 @@ export default async function AdminPlayersPage() {
               <TableHead>Grad Year</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Coach Views</TableHead>
+              <TableHead>Parent Visits</TableHead>
               <TableHead className="text-right">Source</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {players.length === 0 && (
               <TableRow>
-                <TableCell colSpan={9} className="py-10 text-center text-muted-foreground">
+                <TableCell colSpan={10} className="py-10 text-center text-muted-foreground">
                   No players yet. Add the first profile to get started.
                 </TableCell>
               </TableRow>
@@ -114,6 +115,18 @@ export default async function AdminPlayersPage() {
                       className="text-gold hover:underline"
                     >
                       {player._count.profileViews}
+                    </Link>
+                  ) : (
+                    <span className="text-muted-foreground">0</span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  {player._count.parentViews > 0 ? (
+                    <Link
+                      href={`/admin/parent-views?playerId=${player.id}`}
+                      className="text-gold hover:underline"
+                    >
+                      {player._count.parentViews}
                     </Link>
                   ) : (
                     <span className="text-muted-foreground">0</span>

@@ -17,7 +17,7 @@ export default async function EditPlayerPage({
 }) {
   const { playerId } = await params;
 
-  const [player, sports, pendingEdit] = await Promise.all([
+  const [player, sports, pendingEdit, parentViews] = await Promise.all([
     prisma.player.findUnique({
       where: { id: playerId },
       include: { sports: { include: { sport: true } }, media: true },
@@ -26,6 +26,12 @@ export default async function EditPlayerPage({
     prisma.playerEditRequest.findFirst({
       where: { playerId, status: "PENDING" },
       orderBy: { createdAt: "desc" },
+    }),
+    prisma.parentViewEvent.findMany({
+      where: { playerId },
+      include: { parent: { select: { name: true, email: true } } },
+      orderBy: { viewedAt: "desc" },
+      take: 10,
     }),
   ]);
 
@@ -136,6 +142,31 @@ export default async function EditPlayerPage({
           nativeButton={false}
           render={<Link href={`/admin/players/${playerId}/new-sport-profile`}>Create Profile for Another Sport</Link>}
         />
+      </div>
+
+      <div className="flex max-w-2xl flex-col gap-3 border-t border-border/60 pt-6">
+        <div className="flex items-center justify-between">
+          <h2 className="font-heading text-lg font-semibold">Parent Activity</h2>
+          <Link
+            href={`/admin/parent-views?playerId=${playerId}`}
+            className="text-sm text-gold hover:underline"
+          >
+            View full history
+          </Link>
+        </div>
+        {parentViews.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            The parent hasn&apos;t visited this athlete&apos;s profile yet.
+          </p>
+        ) : (
+          <ul className="flex flex-col gap-1.5 text-sm">
+            {parentViews.map((v) => (
+              <li key={v.id} className="text-muted-foreground">
+                {v.parent.name} ({v.parent.email}) &mdash; {v.viewedAt.toLocaleString()}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );

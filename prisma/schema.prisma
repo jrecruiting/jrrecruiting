@@ -33,6 +33,7 @@ model User {
   players                  Player[]                  @relation("ParentPlayers")
   coachProfile             CoachProfile?
   stars                    Star[]
+  parentViews              ParentViewEvent[]
   notifications            Notification[]
   claimRequests            ClaimRequest[]
   resolvedClaims           ClaimRequest[]            @relation("ClaimResolvedBy")
@@ -179,6 +180,7 @@ model Player {
   media                   MediaAsset[]
   stars                   Star[]
   profileViews            ProfileViewEvent[]
+  parentViews             ParentViewEvent[]
   claimRequests           ClaimRequest[]
   payments                Payment[]
   editRequests            PlayerEditRequest[]
@@ -208,7 +210,7 @@ model PlayerSport {
   sportId     String
   sport       Sport              @relation(fields: [sportId], references: [id])
   position    String?
-  projections PlayerProjection[]
+  projections PlayerProjection[] @default([])
   isPrimary   Boolean            @default(false)
   bio         String?            @db.Text
   stats       Json?
@@ -320,6 +322,22 @@ model ProfileViewEvent {
 
   @@index([playerId, viewedAt])
   @@map("profile_view_events")
+}
+
+// Logs every time a parent opens their own athlete's profile page, so
+// admin can see parent engagement per player -- separate from
+// ProfileViewEvent, which tracks coach views and drives parent
+// notifications.
+model ParentViewEvent {
+  id       String   @id @default(cuid())
+  playerId String
+  player   Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  parentId String
+  parent   User     @relation(fields: [parentId], references: [id])
+  viewedAt DateTime @default(now())
+
+  @@index([playerId, viewedAt])
+  @@map("parent_view_events")
 }
 
 // ── Notifications / Email outbox ───────────────────────

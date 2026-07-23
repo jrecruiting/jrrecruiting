@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { getSports } from "@/lib/data/sports";
 import { updatePlayerParent, deletePlayerParent } from "@/actions/players";
 import { addPlayerSportParent, removePlayerSportParent } from "@/actions/player-sports";
+import { recordParentView } from "@/lib/notifications/parent-view";
 import { PlayerForm } from "@/components/player/player-form";
 import { PlayerSportsList } from "@/components/player/player-sports-list";
 import { AddSportForm } from "@/components/player/add-sport-form";
@@ -32,6 +33,8 @@ export default async function EditAthletePage({
   ]);
 
   if (!player || player.parentId !== session!.user.id) notFound();
+
+  await recordParentView(playerId, session!.user.id);
 
   const sortedSports = player.sports
     .slice()
