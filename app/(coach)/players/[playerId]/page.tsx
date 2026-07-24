@@ -50,15 +50,17 @@ export default async function CoachPlayerProfilePage({
   const sortedSports = player.sports
     .slice()
     .sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary));
-  // Only one Bio is ever shown to coaches -- the general profile bio if set,
-  // otherwise the primary sport's bio as a fallback -- so a player with both
-  // never shows duplicate "Bio" sections.
-  const displayBio = player.bio || sortedSports[0]?.bio || null;
+  // Shows every bio a parent/admin actually entered -- the general profile
+  // bio and each sport's own bio are separate fields on the edit side, so
+  // collapsing them into one fallback (as this used to do) silently hid
+  // whichever ones weren't picked.
+  const sportsWithBio = sortedSports.filter((s) => s.bio);
   const hasAnySportStats = sortedSports.some(
     (s) => Array.isArray(s.stats) && s.stats.length > 0
   );
   const sportsWithOffers = sortedSports.filter((s) => s.offers.length > 0);
-  const hasAnyBio = Boolean(displayBio) || hasAnySportStats || sportsWithOffers.length > 0;
+  const hasAnyBio =
+    Boolean(player.bio) || sportsWithBio.length > 0 || hasAnySportStats || sportsWithOffers.length > 0;
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
@@ -115,14 +117,25 @@ export default async function CoachPlayerProfilePage({
 
       {isVerified ? (
         <>
-          {displayBio && (
+          {player.bio && (
             <Card className="border-border/60">
               <CardContent>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">Bio</p>
-                <p className="mt-1 text-sm">{displayBio}</p>
+                <p className="mt-1 text-sm">{player.bio}</p>
               </CardContent>
             </Card>
           )}
+
+          {sportsWithBio.map((s) => (
+            <Card key={s.id} className="border-border/60">
+              <CardContent>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                  {s.sport.name} Bio
+                </p>
+                <p className="mt-1 text-sm">{s.bio}</p>
+              </CardContent>
+            </Card>
+          ))}
 
           {sportsWithOffers.length > 0 && (
             <Card className="border-border/60">
