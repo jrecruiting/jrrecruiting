@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { formatPacificDateTime } from "@/lib/format-date";
 import {
   Table,
   TableBody,
@@ -95,10 +96,10 @@ export default async function AdminParentViewsPage({
                   <TableCell>{parent ? `${parent.name} (${parent.email})` : "Unknown parent"}</TableCell>
                   <TableCell>{row._count._all}</TableCell>
                   <TableCell className="text-muted-foreground">
-                    {row._min.viewedAt?.toLocaleString()}
+                    {row._min.viewedAt ? formatPacificDateTime(row._min.viewedAt) : ""}
                   </TableCell>
                   <TableCell className="text-right text-muted-foreground">
-                    {row._max.viewedAt?.toLocaleString()}
+                    {row._max.viewedAt ? formatPacificDateTime(row._max.viewedAt) : ""}
                   </TableCell>
                 </TableRow>
               );

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { formatPacificDateTime } from "@/lib/format-date";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default async function AdminCoachMessagesPage() {
@@ -40,7 +41,7 @@ export default async function AdminCoachMessagesPage() {
                     )}
                   </p>
                   <p className="shrink-0 text-xs text-muted-foreground">
-                    {m.createdAt.toLocaleString()}
+                    {formatPacificDateTime(m.createdAt)}
                   </p>
                 </div>
                 <p className="whitespace-pre-wrap text-sm text-muted-foreground">{m.message}</p>

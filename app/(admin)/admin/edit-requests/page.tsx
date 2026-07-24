@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { resolveEditRequest } from "@/actions/player-edit-requests";
 import { buildPlayerData } from "@/lib/player-data";
+import { formatPacificDateTime } from "@/lib/format-date";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -90,7 +91,7 @@ export default async function AdminEditRequestsPage() {
                       </p>
                       <p className="text-xs text-muted-foreground">
                         Submitted by {request.submitter.name} ({request.submitter.email}) &middot;{" "}
-                        {request.createdAt.toLocaleString()}
+                        {formatPacificDateTime(request.createdAt)}
                       </p>
                     </div>
                     <Badge variant={statusVariant[request.status]}>{request.status}</Badge>

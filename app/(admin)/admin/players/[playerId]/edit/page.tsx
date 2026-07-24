@@ -7,6 +7,7 @@ import { addPlayerSportAdmin, removePlayerSportAdmin } from "@/actions/player-sp
 import { PlayerForm } from "@/components/player/player-form";
 import { PlayerSportsList } from "@/components/player/player-sports-list";
 import { AddSportForm } from "@/components/player/add-sport-form";
+import { formatPacificDate, formatPacificDateTime } from "@/lib/format-date";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -65,7 +66,7 @@ export default async function EditPlayerPage({
         <Card className="border-gold/50 bg-gold/5">
           <CardContent className="flex items-center justify-between gap-4">
             <p className="text-sm">
-              The parent submitted changes on {pendingEdit.createdAt.toLocaleDateString()} that
+              The parent submitted changes on {formatPacificDate(pendingEdit.createdAt)} that
               are waiting on your review. Editing here directly still applies immediately.
             </p>
             <Button
@@ -162,7 +163,7 @@ export default async function EditPlayerPage({
           <ul className="flex flex-col gap-1.5 text-sm">
             {parentViews.map((v) => (
               <li key={v.id} className="text-muted-foreground">
-                {v.parent.name} ({v.parent.email}) &mdash; {v.viewedAt.toLocaleString()}
+                {v.parent.name} ({v.parent.email}) &mdash; {formatPacificDateTime(v.viewedAt)}
               </li>
             ))}
           </ul>

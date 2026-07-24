@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { formatPacificDate } from "@/lib/format-date";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -59,7 +60,7 @@ export default async function AdminPaymentsPage() {
                   </Badge>
                 </TableCell>
                 <TableCell className="text-muted-foreground">
-                  {payment.createdAt.toLocaleDateString()}
+                  {formatPacificDate(payment.createdAt)}
                 </TableCell>
               </TableRow>
             ))}
