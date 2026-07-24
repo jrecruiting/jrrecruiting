@@ -121,7 +121,7 @@ export default async function CoachPlayerProfilePage({
             <Card className="border-border/60">
               <CardContent>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">Bio</p>
-                <p className="mt-1 text-sm">{player.bio}</p>
+                <p className="mt-1 whitespace-pre-wrap text-sm">{player.bio}</p>
               </CardContent>
             </Card>
           )}
@@ -132,7 +132,7 @@ export default async function CoachPlayerProfilePage({
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">
                   {s.sport.name} Bio
                 </p>
-                <p className="mt-1 text-sm">{s.bio}</p>
+                <p className="mt-1 whitespace-pre-wrap text-sm">{s.bio}</p>
               </CardContent>
             </Card>
           ))}
