@@ -2,7 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { updateSportDetailsAdmin } from "@/actions/player-sports";
+import { addOfferAdmin, removeOfferAdmin } from "@/actions/offers";
 import { SportDetailsForm } from "@/components/player/sport-details-form";
+import { OffersManager } from "@/components/player/offers-manager";
 
 export default async function EditSportDetailsPage({
   params,
@@ -13,12 +15,17 @@ export default async function EditSportDetailsPage({
 
   const playerSport = await prisma.playerSport.findUnique({
     where: { playerId_sportId: { playerId, sportId } },
-    include: { sport: true, player: { select: { firstName: true, lastName: true } } },
+    include: {
+      sport: true,
+      player: { select: { firstName: true, lastName: true } },
+      offers: { orderBy: { createdAt: "desc" } },
+    },
   });
 
   if (!playerSport) notFound();
 
   const boundUpdate = updateSportDetailsAdmin.bind(null, playerId, sportId);
+  const boundAddOffer = addOfferAdmin.bind(null, playerId, sportId);
 
   return (
     <div className="flex flex-col gap-6">
@@ -47,6 +54,14 @@ export default async function EditSportDetailsPage({
             : [],
         }}
       />
+      <div className="max-w-2xl border-t border-border/60 pt-6">
+        <OffersManager
+          offers={playerSport.offers}
+          addAction={boundAddOffer}
+          removeAction={removeOfferAdmin}
+          showStatus
+        />
+      </div>
     </div>
   );
 }

@@ -38,6 +38,8 @@ model User {
   claimRequests            ClaimRequest[]
   resolvedClaims           ClaimRequest[]            @relation("ClaimResolvedBy")
   coachInquiries           CoachInquiry[]
+  offers                   Offer[]
+  resolvedOffers           Offer[]                   @relation("OfferResolvedBy")
   profileViews             ProfileViewEvent[]
   payments                 Payment[]
   createdPlayers           Player[]                  @relation("AdminAuthoredPlayers")
@@ -216,11 +218,40 @@ model PlayerSport {
   isPrimary   Boolean            @default(false)
   bio         String?            @db.Text
   stats       Json?
+  offers      Offer[]
   updatedAt   DateTime           @updatedAt
 
   @@unique([playerId, sportId])
   @@index([sportId, position])
   @@map("player_sports")
+}
+
+enum OfferStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// A school that has offered this athlete for this sport. Admin-added
+// offers are trusted and go live immediately; parent-added offers stay
+// PENDING until an admin approves them, since it's an unverified claim
+// shown to coaches.
+model Offer {
+  id            String      @id @default(cuid())
+  playerSportId String
+  playerSport   PlayerSport @relation(fields: [playerSportId], references: [id], onDelete: Cascade)
+  schoolName    String
+  status        OfferStatus @default(PENDING)
+  createdAt     DateTime    @default(now())
+  submittedBy   String
+  submitter     User        @relation(fields: [submittedBy], references: [id])
+  resolvedAt    DateTime?
+  resolvedBy    String?
+  resolver      User?       @relation("OfferResolvedBy", fields: [resolvedBy], references: [id])
+
+  @@index([playerSportId])
+  @@index([status])
+  @@map("offers")
 }
 
 enum MediaType {
@@ -368,6 +399,8 @@ enum NotificationType {
   CLAIM_REJECTED
   EDIT_APPROVED
   EDIT_REJECTED
+  OFFER_APPROVED
+  OFFER_REJECTED
 }
 
 model Notification {

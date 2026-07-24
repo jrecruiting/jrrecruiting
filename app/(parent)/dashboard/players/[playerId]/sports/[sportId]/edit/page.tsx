@@ -3,7 +3,9 @@ import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { updateSportDetailsParent } from "@/actions/player-sports";
+import { addOfferParent, removeOfferParent } from "@/actions/offers";
 import { SportDetailsForm } from "@/components/player/sport-details-form";
+import { OffersManager } from "@/components/player/offers-manager";
 
 export default async function EditSportDetailsParentPage({
   params,
@@ -15,12 +17,17 @@ export default async function EditSportDetailsParentPage({
 
   const playerSport = await prisma.playerSport.findUnique({
     where: { playerId_sportId: { playerId, sportId } },
-    include: { sport: true, player: { select: { firstName: true, lastName: true, parentId: true } } },
+    include: {
+      sport: true,
+      player: { select: { firstName: true, lastName: true, parentId: true } },
+      offers: { orderBy: { createdAt: "desc" } },
+    },
   });
 
   if (!playerSport || playerSport.player.parentId !== session!.user.id) notFound();
 
   const boundUpdate = updateSportDetailsParent.bind(null, playerId, sportId);
+  const boundAddOffer = addOfferParent.bind(null, playerId, sportId);
 
   return (
     <div className="flex flex-col gap-6">
@@ -48,6 +55,18 @@ export default async function EditSportDetailsParentPage({
             : [],
         }}
       />
+      <div className="max-w-2xl border-t border-border/60 pt-6">
+        <OffersManager
+          offers={playerSport.offers}
+          addAction={boundAddOffer}
+          removeAction={removeOfferParent}
+          showStatus
+        />
+        <p className="mt-2 text-xs text-muted-foreground">
+          New offers are reviewed by our team before they show on {playerSport.player.firstName}
+          &apos;s profile.
+        </p>
+      </div>
     </div>
   );
 }

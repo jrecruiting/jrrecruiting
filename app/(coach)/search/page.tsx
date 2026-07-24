@@ -37,7 +37,14 @@ export default async function CoachSearchPage({
   const [players, total, sports, myStars] = await Promise.all([
     prisma.player.findMany({
       where,
-      include: { sports: { include: { sport: true } } },
+      include: {
+        sports: {
+          include: {
+            sport: true,
+            _count: { select: { offers: { where: { status: "APPROVED" } } } },
+          },
+        },
+      },
       orderBy: { publishedAt: "desc" },
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
@@ -97,6 +104,7 @@ export default async function CoachSearchPage({
               ]
                 .filter(Boolean)
                 .join(" · ");
+              const offerCount = player.sports.reduce((sum, s) => sum + s._count.offers, 0);
 
               return (
                 <Card key={player.id} className="border-border/60">
@@ -133,6 +141,11 @@ export default async function CoachSearchPage({
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       <Badge variant="secondary">{playerTypeLabel(player.playerType)}</Badge>
+                      {isVerified && offerCount > 0 && (
+                        <Badge variant="secondary">
+                          {offerCount} Offer{offerCount === 1 ? "" : "s"}
+                        </Badge>
+                      )}
                     </div>
                     <p className="text-xs text-muted-foreground">
                       {player.gender === "MALE" ? "Boy" : "Girl"}

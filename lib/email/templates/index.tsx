@@ -11,6 +11,9 @@ import { ContactInquiryEmail } from "./contact-inquiry";
 import { PasswordResetEmail } from "./password-reset";
 import { NewClaimRequestEmail } from "./new-claim-request";
 import { NewCoachSignupEmail } from "./new-coach-signup";
+import { NewOfferSubmittedEmail } from "./new-offer-submitted";
+import { OfferApprovedEmail } from "./offer-approved";
+import { OfferRejectedEmail } from "./offer-rejected";
 
 export type EmailTemplateKey =
   | "player-updated"
@@ -24,7 +27,10 @@ export type EmailTemplateKey =
   | "contact-inquiry"
   | "password-reset"
   | "new-claim-request"
-  | "new-coach-signup";
+  | "new-coach-signup"
+  | "new-offer-submitted"
+  | "offer-approved"
+  | "offer-rejected";
 
 export function renderEmailTemplate(
   templateKey: string,
@@ -117,6 +123,38 @@ export function renderEmailTemplate(
             coachName={payload.coachName as string}
             coachEmail={payload.coachEmail as string}
             organization={payload.organization as string}
+          />
+        ),
+      };
+    case "new-offer-submitted":
+      return {
+        subject: `New offer submitted for ${payload.playerName as string}`,
+        react: (
+          <NewOfferSubmittedEmail
+            playerName={payload.playerName as string}
+            schoolName={payload.schoolName as string}
+            submitterName={payload.submitterName as string}
+            submitterEmail={payload.submitterEmail as string}
+          />
+        ),
+      };
+    case "offer-approved":
+      return {
+        subject: `${payload.schoolName as string}'s offer for ${payload.playerName as string} was approved`,
+        react: (
+          <OfferApprovedEmail
+            playerName={payload.playerName as string}
+            schoolName={payload.schoolName as string}
+          />
+        ),
+      };
+    case "offer-rejected":
+      return {
+        subject: `Update on the ${payload.schoolName as string} offer for ${payload.playerName as string}`,
+        react: (
+          <OfferRejectedEmail
+            playerName={payload.playerName as string}
+            schoolName={payload.schoolName as string}
           />
         ),
       };

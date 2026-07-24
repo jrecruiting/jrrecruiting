@@ -3,14 +3,21 @@ import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function AdminOverviewPage() {
-  const [playerCount, activeCoachCount, pendingCoachCount, pendingEditCount, pendingClaimCount] =
-    await Promise.all([
-      prisma.player.count(),
-      prisma.coachProfile.count({ where: { verificationStatus: "APPROVED" } }),
-      prisma.coachProfile.count({ where: { verificationStatus: "PENDING" } }),
-      prisma.playerEditRequest.count({ where: { status: "PENDING" } }),
-      prisma.claimRequest.count({ where: { status: "PENDING" } }),
-    ]);
+  const [
+    playerCount,
+    activeCoachCount,
+    pendingCoachCount,
+    pendingEditCount,
+    pendingClaimCount,
+    pendingOfferCount,
+  ] = await Promise.all([
+    prisma.player.count(),
+    prisma.coachProfile.count({ where: { verificationStatus: "APPROVED" } }),
+    prisma.coachProfile.count({ where: { verificationStatus: "PENDING" } }),
+    prisma.playerEditRequest.count({ where: { status: "PENDING" } }),
+    prisma.claimRequest.count({ where: { status: "PENDING" } }),
+    prisma.offer.count({ where: { status: "PENDING" } }),
+  ]);
 
   const stats = [
     { label: "Total Players", value: playerCount },
@@ -18,6 +25,7 @@ export default async function AdminOverviewPage() {
     { label: "Pending Coach Reviews", value: pendingCoachCount },
     { label: "Pending Edit Requests", value: pendingEditCount },
     { label: "Pending Claims", value: pendingClaimCount, href: "/admin/claims" },
+    { label: "Pending Offers", value: pendingOfferCount, href: "/admin/offers" },
   ];
 
   return (

@@ -22,7 +22,15 @@ export default async function CoachPlayerProfilePage({
 
   const player = await prisma.player.findUnique({
     where: { id: playerId },
-    include: { sports: { include: { sport: true } }, media: true },
+    include: {
+      sports: {
+        include: {
+          sport: true,
+          offers: { where: { status: "APPROVED" }, orderBy: { createdAt: "asc" } },
+        },
+      },
+      media: true,
+    },
   });
 
   if (!player || player.listingStatus !== "ACTIVE") notFound();
@@ -49,7 +57,8 @@ export default async function CoachPlayerProfilePage({
   const hasAnySportStats = sortedSports.some(
     (s) => Array.isArray(s.stats) && s.stats.length > 0
   );
-  const hasAnyBio = Boolean(displayBio) || hasAnySportStats;
+  const sportsWithOffers = sortedSports.filter((s) => s.offers.length > 0);
+  const hasAnyBio = Boolean(displayBio) || hasAnySportStats || sportsWithOffers.length > 0;
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
@@ -111,6 +120,28 @@ export default async function CoachPlayerProfilePage({
               <CardContent>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">Bio</p>
                 <p className="mt-1 text-sm">{displayBio}</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {sportsWithOffers.length > 0 && (
+            <Card className="border-border/60">
+              <CardContent className="flex flex-col gap-3">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Offers</p>
+                {sportsWithOffers.map((s) => (
+                  <div key={s.id}>
+                    {sportsWithOffers.length > 1 && (
+                      <p className="text-xs font-medium text-muted-foreground">{s.sport.name}</p>
+                    )}
+                    <div className="mt-1 flex flex-wrap gap-1.5">
+                      {s.offers.map((offer) => (
+                        <Badge key={offer.id} variant="secondary">
+                          {offer.schoolName}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </CardContent>
             </Card>
           )}
@@ -197,7 +228,7 @@ export default async function CoachPlayerProfilePage({
           <Card className="border-dashed border-border/60 bg-card/40">
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Bio, highlight video, and contact info unlock once your coach account is
+                Bio, offers, highlight video, and contact info unlock once your coach account is
                 verified.
               </p>
             </CardContent>
