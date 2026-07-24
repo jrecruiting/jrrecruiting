@@ -108,6 +108,11 @@ model CoachProfile {
   verifiedAt         DateTime?
   verifiedByAdminId  String?
   rejectionReason    String?
+  // Marks an internal QA/demo coach account -- its profile views never
+  // notify the parent and are excluded from view counts/history, so
+  // admin can browse profiles as a coach without polluting real
+  // recruiting-interest signals.
+  isTestAccount      Boolean                 @default(false)
   createdAt          DateTime                @default(now())
   updatedAt          DateTime                @updatedAt
 

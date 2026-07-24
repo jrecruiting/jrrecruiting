@@ -6,9 +6,17 @@ const DEDUPE_WINDOW_HOURS = 6;
  * Logs a coach's profile view and notifies the parent in-app — but only
  * once per (coach, player) pair within the dedupe window, so a coach
  * re-opening the same profile repeatedly in one session doesn't spam
- * the parent with notifications.
+ * the parent with notifications. No-ops entirely for a coach flagged as
+ * a test account, so admin reviewing profiles internally doesn't log a
+ * view, inflate view counts, or alert the parent.
  */
 export async function recordProfileView(playerId: string, coachId: string) {
+  const coachProfile = await prisma.coachProfile.findUnique({
+    where: { userId: coachId },
+    select: { isTestAccount: true },
+  });
+  if (coachProfile?.isTestAccount) return;
+
   await prisma.profileViewEvent.create({ data: { playerId, coachId } });
 
   const player = await prisma.player.findUnique({

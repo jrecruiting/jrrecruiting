@@ -36,6 +36,17 @@ export async function approveCoach(coachProfileId: string) {
   revalidatePath("/admin/coaches");
 }
 
+export async function setCoachTestAccount(coachProfileId: string, isTestAccount: boolean) {
+  await requireRole("ADMIN");
+
+  await prisma.coachProfile.update({
+    where: { id: coachProfileId },
+    data: { isTestAccount },
+  });
+
+  revalidatePath("/admin/coaches");
+}
+
 export async function deleteCoach(userId: string) {
   await requireRole("ADMIN");
 

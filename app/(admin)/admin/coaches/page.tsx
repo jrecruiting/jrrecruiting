@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { DeleteCoachButton } from "@/components/admin/delete-coach-button";
+import { TestAccountToggle } from "@/components/admin/test-account-toggle";
 
 const statusVariant: Record<string, "default" | "secondary" | "destructive"> = {
   PENDING: "secondary",
@@ -39,7 +40,11 @@ export default async function AdminCoachesPage() {
                       {coach.title ? ` · ${coach.title}` : ""}
                     </p>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <TestAccountToggle
+                      coachProfileId={coach.id}
+                      isTestAccount={coach.isTestAccount}
+                    />
                     <Badge variant={statusVariant[coach.verificationStatus]}>
                       {coach.verificationStatus}
                     </Badge>
