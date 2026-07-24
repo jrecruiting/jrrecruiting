@@ -50,17 +50,17 @@ export default async function CoachPlayerProfilePage({
   const sortedSports = player.sports
     .slice()
     .sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary));
-  // Shows every bio a parent/admin actually entered -- the general profile
-  // bio and each sport's own bio are separate fields on the edit side, so
-  // collapsing them into one fallback (as this used to do) silently hid
-  // whichever ones weren't picked.
+  // Each sport's own bio takes priority -- the general profile bio is only
+  // shown as a fallback when no sport has its own bio, so a player who's
+  // filled in both doesn't show two overlapping "Bio" sections for what's
+  // effectively the same sport's profile.
   const sportsWithBio = sortedSports.filter((s) => s.bio);
+  const showGeneralBio = Boolean(player.bio) && sportsWithBio.length === 0;
   const hasAnySportStats = sortedSports.some(
     (s) => Array.isArray(s.stats) && s.stats.length > 0
   );
   const sportsWithOffers = sortedSports.filter((s) => s.offers.length > 0);
-  const hasAnyBio =
-    Boolean(player.bio) || sportsWithBio.length > 0 || hasAnySportStats || sportsWithOffers.length > 0;
+  const hasAnyBio = showGeneralBio || sportsWithBio.length > 0 || hasAnySportStats || sportsWithOffers.length > 0;
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
@@ -117,7 +117,7 @@ export default async function CoachPlayerProfilePage({
 
       {isVerified ? (
         <>
-          {player.bio && (
+          {showGeneralBio && (
             <Card className="border-border/60">
               <CardContent>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">Bio</p>
