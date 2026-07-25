@@ -15,6 +15,7 @@ export async function markNotificationRead(notificationId: string) {
 
   revalidatePath("/dashboard/notifications");
   revalidatePath("/coach/dashboard/notifications");
+  revalidatePath("/team/notifications");
 }
 
 export async function markAllNotificationsRead() {
@@ -28,4 +29,5 @@ export async function markAllNotificationsRead() {
 
   revalidatePath("/dashboard/notifications");
   revalidatePath("/coach/dashboard/notifications");
+  revalidatePath("/team/notifications");
 }

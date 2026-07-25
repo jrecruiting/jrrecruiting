@@ -22,6 +22,18 @@ async function isAllowedToViewPhoto(
     return player?.parentId === user.id;
   }
 
+  if (user.role === "TEAM_COACH") {
+    const player = await prisma.player.findFirst({
+      where: { primaryPhotoUrl: pathname },
+      select: { id: true },
+    });
+    if (!player) return false;
+    const access = await prisma.teamCoachAccess.findUnique({
+      where: { teamCoachId_playerId: { teamCoachId: user.id, playerId: player.id } },
+    });
+    return Boolean(access);
+  }
+
   return false;
 }
 

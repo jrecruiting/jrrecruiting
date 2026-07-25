@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 const adminPrefix = "/admin";
 const coachPrefixes = ["/search", "/coach", "/players"];
 const parentPrefix = "/dashboard";
+const teamCoachPrefix = "/team";
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;
@@ -12,8 +13,9 @@ export default auth((req) => {
   const isAdminRoute = pathname.startsWith(adminPrefix);
   const isCoachRoute = !isAdminRoute && coachPrefixes.some((p) => pathname.startsWith(p));
   const isParentRoute = !isAdminRoute && pathname.startsWith(parentPrefix);
+  const isTeamCoachRoute = !isAdminRoute && pathname.startsWith(teamCoachPrefix);
 
-  if ((isParentRoute || isCoachRoute || isAdminRoute) && !req.auth) {
+  if ((isParentRoute || isCoachRoute || isAdminRoute || isTeamCoachRoute) && !req.auth) {
     const signInUrl = new URL("/sign-in", req.url);
     signInUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(signInUrl);
@@ -28,10 +30,13 @@ export default auth((req) => {
   if (isAdminRoute && role !== "ADMIN") {
     return NextResponse.redirect(new URL("/", req.url));
   }
+  if (isTeamCoachRoute && role !== "TEAM_COACH") {
+    return NextResponse.redirect(new URL("/", req.url));
+  }
 
   return NextResponse.next();
 });
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/search/:path*", "/coach/:path*", "/admin/:path*"],
+  matcher: ["/dashboard/:path*", "/search/:path*", "/coach/:path*", "/admin/:path*", "/team/:path*"],
 };

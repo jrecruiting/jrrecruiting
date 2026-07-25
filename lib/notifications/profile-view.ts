@@ -1,14 +1,29 @@
 import { prisma } from "@/lib/prisma";
+import { scheduleOutboxFlush } from "@/lib/email/send";
 
 const DEDUPE_WINDOW_HOURS = 6;
 
+async function shouldNotify(userId: string, type: "PROFILE_VIEWED" | "TEAM_COACH_PROFILE_VIEWED", playerId: string) {
+  const since = new Date(Date.now() - DEDUPE_WINDOW_HOURS * 60 * 60 * 1000);
+  const recent = await prisma.notification.findFirst({
+    where: {
+      userId,
+      type,
+      createdAt: { gte: since },
+      payload: { path: ["playerId"], equals: playerId },
+    },
+  });
+  return !recent;
+}
+
 /**
- * Logs a coach's profile view and notifies the parent in-app — but only
- * once per (coach, player) pair within the dedupe window, so a coach
+ * Logs a coach's profile view and notifies the parent (in-app only) and
+ * any linked team coaches (in-app + email) -- but only once per
+ * (recipient, player) pair within the dedupe window, so a coach
  * re-opening the same profile repeatedly in one session doesn't spam
- * the parent with notifications. No-ops entirely for a coach flagged as
- * a test account, so admin reviewing profiles internally doesn't log a
- * view, inflate view counts, or alert the parent.
+ * anyone with notifications. No-ops entirely for a coach flagged as a
+ * test account, so admin reviewing profiles internally doesn't log a
+ * view, inflate view counts, or alert anyone.
  */
 export async function recordProfileView(playerId: string, coachId: string) {
   const coachProfile = await prisma.coachProfile.findUnique({
@@ -23,24 +38,43 @@ export async function recordProfileView(playerId: string, coachId: string) {
     where: { id: playerId },
     select: { firstName: true, lastName: true, parentId: true },
   });
-  if (!player?.parentId) return;
+  if (!player) return;
+  const playerName = `${player.firstName} ${player.lastName}`;
 
-  const since = new Date(Date.now() - DEDUPE_WINDOW_HOURS * 60 * 60 * 1000);
-  const recent = await prisma.notification.findFirst({
-    where: {
-      userId: player.parentId,
-      type: "PROFILE_VIEWED",
-      createdAt: { gte: since },
-      payload: { path: ["playerId"], equals: playerId },
-    },
-  });
-  if (recent) return;
+  if (player.parentId && (await shouldNotify(player.parentId, "PROFILE_VIEWED", playerId))) {
+    await prisma.notification.create({
+      data: {
+        userId: player.parentId,
+        type: "PROFILE_VIEWED",
+        payload: { playerId, playerName },
+      },
+    });
+  }
 
-  await prisma.notification.create({
-    data: {
-      userId: player.parentId,
-      type: "PROFILE_VIEWED",
-      payload: { playerId, playerName: `${player.firstName} ${player.lastName}` },
-    },
+  const teamCoaches = await prisma.teamCoachAccess.findMany({
+    where: { playerId },
+    select: { teamCoach: { select: { id: true, email: true } } },
   });
+
+  for (const { teamCoach } of teamCoaches) {
+    if (!(await shouldNotify(teamCoach.id, "TEAM_COACH_PROFILE_VIEWED", playerId))) continue;
+
+    await prisma.$transaction([
+      prisma.notification.create({
+        data: {
+          userId: teamCoach.id,
+          type: "TEAM_COACH_PROFILE_VIEWED",
+          payload: { playerId, playerName },
+        },
+      }),
+      prisma.emailOutbox.create({
+        data: {
+          toEmail: teamCoach.email,
+          templateKey: "team-coach-profile-viewed",
+          payload: { playerId, playerName },
+        },
+      }),
+    ]);
+  }
+  if (teamCoaches.length > 0) scheduleOutboxFlush();
 }

@@ -14,6 +14,9 @@ import { NewCoachSignupEmail } from "./new-coach-signup";
 import { NewOfferSubmittedEmail } from "./new-offer-submitted";
 import { OfferApprovedEmail } from "./offer-approved";
 import { OfferRejectedEmail } from "./offer-rejected";
+import { TeamCoachInviteEmail } from "./team-coach-invite";
+import { TeamCoachProfileViewedEmail } from "./team-coach-profile-viewed";
+import { TeamCoachProfileUpdatedEmail } from "./team-coach-profile-updated";
 
 export type EmailTemplateKey =
   | "player-updated"
@@ -30,7 +33,10 @@ export type EmailTemplateKey =
   | "new-coach-signup"
   | "new-offer-submitted"
   | "offer-approved"
-  | "offer-rejected";
+  | "offer-rejected"
+  | "team-coach-invite"
+  | "team-coach-profile-viewed"
+  | "team-coach-profile-updated";
 
 export function renderEmailTemplate(
   templateKey: string,
@@ -155,6 +161,37 @@ export function renderEmailTemplate(
           <OfferRejectedEmail
             playerName={payload.playerName as string}
             schoolName={payload.schoolName as string}
+          />
+        ),
+      };
+    case "team-coach-invite":
+      return {
+        subject: `You've been given access to ${payload.playerName as string}'s recruiting profile`,
+        react: (
+          <TeamCoachInviteEmail
+            coachName={payload.coachName as string}
+            playerName={payload.playerName as string}
+            setupUrl={payload.setupUrl as string}
+          />
+        ),
+      };
+    case "team-coach-profile-viewed":
+      return {
+        subject: `A college coach viewed ${payload.playerName as string}'s profile`,
+        react: (
+          <TeamCoachProfileViewedEmail
+            playerId={payload.playerId as string}
+            playerName={payload.playerName as string}
+          />
+        ),
+      };
+    case "team-coach-profile-updated":
+      return {
+        subject: `${payload.playerName as string}'s profile was updated`,
+        react: (
+          <TeamCoachProfileUpdatedEmail
+            playerId={payload.playerId as string}
+            playerName={payload.playerName as string}
           />
         ),
       };

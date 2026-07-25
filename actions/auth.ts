@@ -35,6 +35,7 @@ export async function signInWithCredentials(
     if (user?.role === "COACH") redirectTo = "/search";
     else if (user?.role === "PARENT") redirectTo = "/dashboard";
     else if (user?.role === "ADMIN") redirectTo = "/admin";
+    else if (user?.role === "TEAM_COACH") redirectTo = "/team";
   }
 
   try {
@@ -252,7 +253,12 @@ export async function resetPassword(
     }),
   ]);
 
-  const redirectTo = resetToken.user.role === "COACH" ? "/search" : "/dashboard";
+  const redirectTo =
+    resetToken.user.role === "COACH"
+      ? "/search"
+      : resetToken.user.role === "TEAM_COACH"
+        ? "/team"
+        : "/dashboard";
 
   try {
     await signIn("credentials", {

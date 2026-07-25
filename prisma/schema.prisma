@@ -14,6 +14,7 @@ enum Role {
   PARENT
   COACH
   ADMIN
+  TEAM_COACH
 }
 
 model User {
@@ -33,6 +34,7 @@ model User {
   players                  Player[]                  @relation("ParentPlayers")
   coachProfile             CoachProfile?
   stars                    Star[]
+  teamCoachAccess          TeamCoachAccess[]
   parentViews              ParentViewEvent[]
   notifications            Notification[]
   claimRequests            ClaimRequest[]
@@ -188,6 +190,7 @@ model Player {
   sports                  PlayerSport[]
   media                   MediaAsset[]
   stars                   Star[]
+  teamCoachAccess         TeamCoachAccess[]
   profileViews            ProfileViewEvent[]
   parentViews             ParentViewEvent[]
   claimRequests           ClaimRequest[]
@@ -364,6 +367,23 @@ model Star {
   @@map("stars")
 }
 
+// A team/high-school coach's read-only access to a specific athlete's
+// profile -- admin-granted, not self-serve like coach Stars. Lets a
+// player's own coach see profile updates and college-coach interest
+// without giving them any edit rights.
+model TeamCoachAccess {
+  id          String   @id @default(cuid())
+  teamCoachId String
+  teamCoach   User     @relation(fields: [teamCoachId], references: [id], onDelete: Cascade)
+  playerId    String
+  player      Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([teamCoachId, playerId])
+  @@index([playerId])
+  @@map("team_coach_access")
+}
+
 model ProfileViewEvent {
   id       String   @id @default(cuid())
   playerId String
@@ -406,6 +426,8 @@ enum NotificationType {
   EDIT_REJECTED
   OFFER_APPROVED
   OFFER_REJECTED
+  TEAM_COACH_PROFILE_VIEWED
+  TEAM_COACH_PROFILE_UPDATED
 }
 
 model Notification {
