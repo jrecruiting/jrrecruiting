@@ -27,66 +27,96 @@ export function Hero() {
         }}
         aria-hidden
       />
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="relative mx-auto flex max-w-4xl flex-col items-center gap-7 px-4 py-28 text-center sm:px-6 sm:py-36"
-      >
-        <motion.span
-          variants={item}
-          className="text-xs font-semibold uppercase tracking-[0.25em] text-gold"
+      <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-[1.05fr_1fr] lg:gap-16">
+        <motion.div
+          variants={container}
+          initial="hidden"
+          animate="show"
+          className="flex flex-col items-start gap-7 text-left"
         >
-          Recruiting shouldn&apos;t be a guessing game
-        </motion.span>
+          <motion.span
+            variants={item}
+            className="text-xs font-semibold uppercase tracking-[0.25em] text-gold"
+          >
+            Recruiting shouldn&apos;t be a guessing game
+          </motion.span>
 
-        <motion.h1
-          variants={item}
-          className="text-balance font-heading text-5xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-6xl md:text-7xl"
-        >
-          Great athletes get
-          <br />
-          overlooked all the time. <span className="text-gold">We are here to change that now.</span>
-        </motion.h1>
+          <motion.h1
+            variants={item}
+            className="text-balance font-heading text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl"
+          >
+            Great athletes get overlooked all the time.{" "}
+            <span className="text-gold">We are here to change that now.</span>
+          </motion.h1>
 
-        <motion.p
-          variants={item}
-          className="max-w-xl text-balance text-lg text-muted-foreground"
-        >
-          J.R. Recruiting puts verified, searchable player profiles directly in
-          front of college coaches &mdash; by state, country, and sport &mdash;
-          so the right coach finds the right athlete.
-        </motion.p>
+          <motion.p
+            variants={item}
+            className="max-w-xl text-balance text-lg text-muted-foreground"
+          >
+            J.R. Recruiting puts verified, searchable player profiles directly in
+            front of college coaches &mdash; by state, country, and sport &mdash;
+            so the right coach finds the right athlete.
+          </motion.p>
 
-        <motion.div variants={item} className="flex flex-col gap-3 pt-2 sm:flex-row">
-          <Button
-            size="lg"
-            className="bg-gold text-gold-foreground hover:bg-gold/90"
-            nativeButton={false}
-            render={<Link href="/sign-up">List Your Athlete</Link>}
-          />
-          <Button
-            size="lg"
-            variant="outline"
-            className="border-foreground/20 bg-transparent text-foreground hover:bg-foreground/5"
-            nativeButton={false}
-            render={<Link href="/sign-up?role=coach">I&apos;m a Coach</Link>}
-          />
+          <motion.div variants={item} className="flex flex-col gap-3 pt-2 sm:flex-row">
+            <Button
+              size="lg"
+              className="bg-gold text-gold-foreground hover:bg-gold/90"
+              nativeButton={false}
+              render={<Link href="/sign-up">List Your Athlete</Link>}
+            />
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-foreground/20 bg-transparent text-foreground hover:bg-foreground/5"
+              nativeButton={false}
+              render={<Link href="/sign-up?role=coach">I&apos;m a Coach</Link>}
+            />
+          </motion.div>
+
+          <motion.div
+            variants={item}
+            className="mt-4 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground"
+          >
+            <span>Scroll to explore</span>
+            <motion.span
+              animate={reduceMotion ? {} : { y: [0, 6, 0] }}
+              transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <ArrowDown className="h-4 w-4" aria-hidden />
+            </motion.span>
+          </motion.div>
         </motion.div>
 
         <motion.div
-          variants={item}
-          className="mt-10 flex flex-col items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground"
+          initial={{ opacity: 0, scale: 0.97 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, ease: "easeOut", delay: reduceMotion ? 0 : 0.15 }}
+          className="relative aspect-[4/5] w-full overflow-hidden rounded-xl border border-border/60"
         >
-          <span>Scroll to explore</span>
-          <motion.span
-            animate={reduceMotion ? {} : { y: [0, 6, 0] }}
-            transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <ArrowDown className="h-4 w-4" aria-hidden />
-          </motion.span>
+          {/*
+            Placeholder for a real athlete action photo (composition: subject
+            weighted lower-right, panned-motion feel) — pending parent consent
+            for public marketing use. Swap for a next/image once cleared.
+          */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(ellipse 55% 60% at 68% 62%, color-mix(in oklch, var(--gold), transparent 78%), transparent 68%), radial-gradient(ellipse 70% 40% at 20% 15%, color-mix(in oklch, var(--foreground), transparent 95%), transparent 60%), linear-gradient(200deg, color-mix(in oklch, var(--card), white 6%) 0%, var(--card) 55%, var(--background) 100%)",
+            }}
+          />
+          <div
+            className="absolute inset-0 opacity-40 mix-blend-overlay"
+            style={{
+              background:
+                "repeating-linear-gradient(100deg, transparent 0 18px, color-mix(in oklch, var(--foreground), transparent 97%) 18px 20px)",
+              maskImage: "linear-gradient(200deg, black, transparent 70%)",
+            }}
+            aria-hidden
+          />
         </motion.div>
-      </motion.div>
+      </div>
     </section>
   );
 }

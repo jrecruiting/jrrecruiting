@@ -35,27 +35,33 @@ const faqs = [
 
 export function Faq() {
   return (
-    <section className="mx-auto max-w-3xl px-4 py-24 sm:px-6">
-      <div className="mx-auto mb-12 max-w-2xl text-center">
-        <span className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">
-          Questions
-        </span>
-        <h2 className="mt-3 text-balance font-heading text-3xl font-bold tracking-tight sm:text-4xl">
-          Frequently asked questions
-        </h2>
+    <section className="mx-auto max-w-5xl px-4 py-24 sm:px-6">
+      <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-14">
+        <div className="flex flex-col gap-3 text-left">
+          <span className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">
+            Questions
+          </span>
+          <h2 className="font-heading text-3xl font-bold tracking-tight sm:text-4xl">
+            Frequently asked questions
+          </h2>
+          <p className="max-w-xs text-sm text-muted-foreground">
+            Straight answers on cost, privacy, and how search access actually
+            works.
+          </p>
+        </div>
+        <Accordion className="rounded-xl border border-border/60 bg-card/40 px-5">
+          {faqs.map((faq, i) => (
+            <AccordionItem key={faq.question} value={`item-${i}`}>
+              <AccordionTrigger className="text-base">
+                {faq.question}
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                {faq.answer}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
       </div>
-      <Accordion className="rounded-xl border border-border/60 bg-card/40 px-5">
-        {faqs.map((faq, i) => (
-          <AccordionItem key={faq.question} value={`item-${i}`}>
-            <AccordionTrigger className="text-base">
-              {faq.question}
-            </AccordionTrigger>
-            <AccordionContent className="text-muted-foreground">
-              {faq.answer}
-            </AccordionContent>
-          </AccordionItem>
-        ))}
-      </Accordion>
     </section>
   );
 }

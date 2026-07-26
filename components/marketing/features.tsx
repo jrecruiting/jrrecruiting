@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "motion/react";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   MagnifyingGlass,
   Star,
@@ -39,19 +38,19 @@ const features = [
 export function Features() {
   return (
     <section className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
-      <div className="mx-auto mb-14 max-w-2xl text-center">
+      <div className="mx-auto mb-14 flex max-w-xl flex-col items-center gap-3 text-center">
         <span className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">
           Built for recruiting
         </span>
-        <h2 className="mt-3 text-balance font-heading text-3xl font-bold tracking-tight sm:text-4xl">
+        <h2 className="text-balance font-heading text-3xl font-bold tracking-tight sm:text-4xl">
           Everything recruiting needs, in one place
         </h2>
-        <p className="mt-3 text-muted-foreground">
+        <p className="text-muted-foreground">
           From searchable profiles to real-time notifications, J.R. Recruiting
           keeps parents, players, and coaches connected.
         </p>
       </div>
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 divide-y divide-border/60 lg:grid-cols-4 lg:divide-x lg:divide-y-0">
         {features.map((feature, i) => (
           <motion.div
             key={feature.title}
@@ -59,22 +58,19 @@ export function Features() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.45, delay: i * 0.06, ease: "easeOut" }}
+            className="flex flex-col items-start gap-3 py-6 first:pt-0 last:pb-0 lg:px-8 lg:py-0 lg:first:pl-0 lg:last:pr-0"
           >
-            <Card className="h-full border-border/60 bg-card/60">
-              <CardContent className="flex h-full flex-col gap-3 pt-2">
-                <feature.icon
-                  className="h-8 w-8 text-gold"
-                  weight="duotone"
-                  aria-hidden
-                />
-                <h3 className="font-heading text-base font-semibold">
-                  {feature.title}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {feature.description}
-                </p>
-              </CardContent>
-            </Card>
+            <feature.icon
+              className="h-6 w-6 text-gold"
+              weight="duotone"
+              aria-hidden
+            />
+            <h3 className="font-heading text-base font-semibold">
+              {feature.title}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {feature.description}
+            </p>
           </motion.div>
         ))}
       </div>
