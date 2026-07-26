@@ -2,6 +2,7 @@ export type TestimonialEntry = {
   quote: string;
   name: string;
   detail?: string;
+  featured?: boolean;
 };
 
 export const allTestimonials: TestimonialEntry[] = [
@@ -10,6 +11,7 @@ export const allTestimonials: TestimonialEntry[] = [
       "Would you believe me if I told you every kid can play football in college? Maybe, maybe not. J.R. Recruiting came into my world 3 years ago and I've never looked back. Javier is hands down the guy to be with. He not only helps find a school for you, finds a school that will love you. He's relentless in his pursuit of making dreams come true for athletes. From the weekly check-ins, to showing up on Game Days so he can present an accurate picture of you to coaches. The recruiting team works tirelessly to accomplish the goal: get to college. We had a kid that was told he would never play Collegiate Ball, not only did J.R. Recruiting find a school, they found a Division 1 school that wanted this kid. Every athlete that comes across my program, gets a referral to J.R. Recruiting because I know he will treat each kid as if they were his own. Thank you J.R. Recruiting and keep doing what you're doing. Changing lives one personal client at a time.",
     name: "Coach Jay Toles",
     detail: "Football Operations Director, CA",
+    featured: true,
   },
   {
     quote:
@@ -76,6 +78,7 @@ export const allTestimonials: TestimonialEntry[] = [
       "Hey guys and especially fathers of athletes. I have to give major props to Javier at JR Recruiting. He is the biggest reason my son just signed his D1 full 100% scholarship at Southeast Missouri State University. He was under-recruited coming out of high school even though his film was excellent. We attended all the camps from all the colleges and apparel companies, everything from Baylor and SMU to Under Armour and Nike. Frustration grew as we had to turn down a D3 offer (my son's skill level was way above that) and go to junior college. My son introduced me to Javier and it was slow at first but as soon as my son got some good film Javier went to work and several D2 opportunities came in. Once he got an offer then the flood gates opened — he received 5 great D1 visit requests and 2 offers on the D1 level. My son finally made his decision and the rest is history. It was a hard process but JR Recruiting has my full endorsement. As a matter of fact I have a junior in high school and will pay my fee to make the process easier this time. Javier works hard for your kids. Blessings.",
     name: "Patrick Roberson",
     detail: "Father of Jamarcus Roberson, TX",
+    featured: true,
   },
   {
     quote:

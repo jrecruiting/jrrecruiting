@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PricingCategory } from "@/components/marketing/pricing-category";
 import {
@@ -30,15 +31,25 @@ export function PricingCategoryTabs() {
       </Tabs>
 
       <div className="w-full">
-        {category === HIGH_SCHOOL && (
-          <PricingCategory tiers={PACKAGE_TIERS} showGradYear bestValueId="freshman" />
-        )}
-        {flatCategory && (
-          <PricingCategory
-            tiers={FLAT_PACKAGE_TIERS.filter((t) => t.id === flatCategory.tierId)}
-            showGradYear={false}
-          />
-        )}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={category}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+          >
+            {category === HIGH_SCHOOL && (
+              <PricingCategory tiers={PACKAGE_TIERS} showGradYear bestValueId="freshman" />
+            )}
+            {flatCategory && (
+              <PricingCategory
+                tiers={FLAT_PACKAGE_TIERS.filter((t) => t.id === flatCategory.tierId)}
+                showGradYear={false}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

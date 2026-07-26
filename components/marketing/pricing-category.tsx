@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { OneTimePricingGrid } from "@/components/marketing/one-time-pricing-grid";
 import { SubscriptionPlans } from "@/components/marketing/subscription-plans";
@@ -41,27 +42,37 @@ export function PricingCategory({
       </div>
 
       <div className="w-full">
-        {mode === "full" ? (
-          <>
-            <OneTimePricingGrid tiers={tiers} showGradYear={showGradYear} bestValueId={bestValueId} />
-            {showGradYear && (
-              <p className="mx-auto mt-10 max-w-2xl text-center text-xs text-muted-foreground">
-                Package is selected automatically based on your athlete&apos;s
-                graduation year when you complete their profile.
-              </p>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={mode}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+          >
+            {mode === "full" ? (
+              <>
+                <OneTimePricingGrid tiers={tiers} showGradYear={showGradYear} bestValueId={bestValueId} />
+                {showGradYear && (
+                  <p className="mx-auto mt-10 max-w-2xl text-center text-xs text-muted-foreground">
+                    Package is selected automatically based on your athlete&apos;s
+                    graduation year when you complete their profile.
+                  </p>
+                )}
+              </>
+            ) : (
+              <>
+                <SubscriptionPlans tiers={tiers} showGradYear={showGradYear} />
+                <p className="mx-auto mt-10 max-w-2xl text-center text-xs text-muted-foreground">
+                  Payment plans pay the full listing rate over time and don&apos;t
+                  include the early-signup discount available when paying in
+                  full. Billing stops automatically once the balance is paid
+                  off.
+                </p>
+              </>
             )}
-          </>
-        ) : (
-          <>
-            <SubscriptionPlans tiers={tiers} showGradYear={showGradYear} />
-            <p className="mx-auto mt-10 max-w-2xl text-center text-xs text-muted-foreground">
-              Payment plans pay the full listing rate over time and don&apos;t
-              include the early-signup discount available when paying in
-              full. Billing stops automatically once the balance is paid
-              off.
-            </p>
-          </>
-        )}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );
