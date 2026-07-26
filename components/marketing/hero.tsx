@@ -25,6 +25,10 @@ const HERO_PHOTOS: { src: string; alt: string }[] = [
     src: "/marketing/hero/athlete-02.jpg",
     alt: "High school football lineman seated on the bench",
   },
+  {
+    src: "/marketing/hero/athlete-03.jpg",
+    alt: "High school football quarterback throwing on the field",
+  },
 ];
 
 const ROTATION_INTERVAL_MS = 6000;
