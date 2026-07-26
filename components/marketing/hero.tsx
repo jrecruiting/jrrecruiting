@@ -1,9 +1,92 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { motion, useReducedMotion, type Variants } from "motion/react";
+import {
+  AnimatePresence,
+  motion,
+  useReducedMotion,
+  type Variants,
+} from "motion/react";
 import { Button } from "@/components/ui/button";
 import { ArrowDown } from "@phosphor-icons/react";
+
+// Parent-approved athlete photos for the hero rotation. Add entries here as
+// they're cleared for public marketing use; files live in public/marketing/hero/.
+// With 0 photos the panel falls back to an abstract placeholder; with 2+ it
+// crossfades between them every 6s.
+const HERO_PHOTOS: { src: string; alt: string }[] = [
+  {
+    src: "/marketing/hero/athlete-01.jpg",
+    alt: "High school football player on the sideline at dusk",
+  },
+];
+
+const ROTATION_INTERVAL_MS = 6000;
+
+function HeroPhoto({ reduceMotion }: { reduceMotion: boolean | null }) {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (reduceMotion || HERO_PHOTOS.length < 2) return;
+    const id = setInterval(() => {
+      setIndex((i) => (i + 1) % HERO_PHOTOS.length);
+    }, ROTATION_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [reduceMotion]);
+
+  if (HERO_PHOTOS.length === 0) {
+    return (
+      <>
+        {/*
+          Placeholder for a real athlete action photo (composition: subject
+          weighted lower-right, panned-motion feel) — pending parent consent
+          for public marketing use.
+        */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(ellipse 55% 60% at 68% 62%, color-mix(in oklch, var(--gold), transparent 78%), transparent 68%), radial-gradient(ellipse 70% 40% at 20% 15%, color-mix(in oklch, var(--foreground), transparent 95%), transparent 60%), linear-gradient(200deg, color-mix(in oklch, var(--card), white 6%) 0%, var(--card) 55%, var(--background) 100%)",
+          }}
+        />
+        <div
+          className="absolute inset-0 opacity-40 mix-blend-overlay"
+          style={{
+            background:
+              "repeating-linear-gradient(100deg, transparent 0 18px, color-mix(in oklch, var(--foreground), transparent 97%) 18px 20px)",
+            maskImage: "linear-gradient(200deg, black, transparent 70%)",
+          }}
+          aria-hidden
+        />
+      </>
+    );
+  }
+
+  const photo = HERO_PHOTOS[index];
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        key={photo.src}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: reduceMotion ? 0 : 0.8, ease: "easeInOut" }}
+        className="absolute inset-0"
+      >
+        <Image
+          src={photo.src}
+          alt={photo.alt}
+          fill
+          priority={index === 0}
+          className="object-cover"
+        />
+      </motion.div>
+    </AnimatePresence>
+  );
+}
 
 export function Hero() {
   const reduceMotion = useReducedMotion();
@@ -94,27 +177,7 @@ export function Hero() {
           transition={{ duration: 0.6, ease: "easeOut", delay: reduceMotion ? 0 : 0.15 }}
           className="relative aspect-[4/5] w-full overflow-hidden rounded-xl border border-border/60"
         >
-          {/*
-            Placeholder for a real athlete action photo (composition: subject
-            weighted lower-right, panned-motion feel) — pending parent consent
-            for public marketing use. Swap for a next/image once cleared.
-          */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(ellipse 55% 60% at 68% 62%, color-mix(in oklch, var(--gold), transparent 78%), transparent 68%), radial-gradient(ellipse 70% 40% at 20% 15%, color-mix(in oklch, var(--foreground), transparent 95%), transparent 60%), linear-gradient(200deg, color-mix(in oklch, var(--card), white 6%) 0%, var(--card) 55%, var(--background) 100%)",
-            }}
-          />
-          <div
-            className="absolute inset-0 opacity-40 mix-blend-overlay"
-            style={{
-              background:
-                "repeating-linear-gradient(100deg, transparent 0 18px, color-mix(in oklch, var(--foreground), transparent 97%) 18px 20px)",
-              maskImage: "linear-gradient(200deg, black, transparent 70%)",
-            }}
-            aria-hidden
-          />
+          <HeroPhoto reduceMotion={reduceMotion} />
         </motion.div>
       </div>
     </section>
