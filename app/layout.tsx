@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Sora, Geist_Mono } from "next/font/google";
 import { MotionConfig } from "motion/react";
 import { Toaster } from "@/components/ui/sonner";
+import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import "./globals.css";
 
 const inter = Inter({
@@ -60,6 +61,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <MotionConfig reducedMotion="user">{children}</MotionConfig>
         <Toaster richColors position="top-right" />
+        <GoogleAnalytics />
       </body>
     </html>
   );

@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useRef } from "react";
 import Link from "next/link";
 import { signUp } from "@/actions/auth";
+import { trackEvent } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +17,17 @@ export function SignUpForm({
   playerAudience?: boolean;
 }) {
   const [error, formAction, isPending] = useActionState(signUp, undefined);
+  const hasStarted = useRef(false);
+
+  function handleFirstInteraction() {
+    if (hasStarted.current) return;
+    hasStarted.current = true;
+    trackEvent("sign_up_form_started", { role: initialRole });
+  }
+
+  function handleSubmit() {
+    trackEvent("sign_up_form_submitted", { role: initialRole });
+  }
 
   return (
     <div className="flex min-h-[calc(100dvh-4rem)] items-center justify-center bg-secondary/20 px-4 py-12">
@@ -30,7 +42,12 @@ export function SignUpForm({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form action={formAction} className="flex flex-col gap-4">
+          <form
+            action={formAction}
+            onSubmit={handleSubmit}
+            onFocus={handleFirstInteraction}
+            className="flex flex-col gap-4"
+          >
             <input type="hidden" name="role" value={initialRole} />
 
             <div className="flex flex-col gap-1.5">
