@@ -88,13 +88,38 @@ const HERO_PHOTOS: { src: string; alt: string; focus?: string }[] = [
 
 const ROTATION_INTERVAL_MS = 6000;
 
+function shuffle<T>(items: T[]): T[] {
+  const result = [...items];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
 function HeroPhoto({ reduceMotion }: { reduceMotion: boolean | null }) {
+  // Starts unshuffled so the first paint matches the server-rendered HTML
+  // (avoids a hydration mismatch); everything after the first photo gets
+  // shuffled client-side once mounted, then reshuffled at the end of each
+  // full cycle so the order isn't the same every lap.
+  const [order, setOrder] = useState(HERO_PHOTOS);
   const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    setOrder((current) => [current[0], ...shuffle(current.slice(1))]);
+  }, []);
 
   useEffect(() => {
     if (reduceMotion || HERO_PHOTOS.length < 2) return;
     const id = setInterval(() => {
-      setIndex((i) => (i + 1) % HERO_PHOTOS.length);
+      setIndex((i) => {
+        const next = i + 1;
+        if (next >= HERO_PHOTOS.length) {
+          setOrder(shuffle(HERO_PHOTOS));
+          return 0;
+        }
+        return next;
+      });
     }, ROTATION_INTERVAL_MS);
     return () => clearInterval(id);
   }, [reduceMotion]);
@@ -127,7 +152,7 @@ function HeroPhoto({ reduceMotion }: { reduceMotion: boolean | null }) {
     );
   }
 
-  const photo = HERO_PHOTOS[index];
+  const photo = order[index];
 
   return (
     <AnimatePresence>
