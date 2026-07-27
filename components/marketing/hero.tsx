@@ -29,6 +29,50 @@ const HERO_PHOTOS: { src: string; alt: string }[] = [
     src: "/marketing/hero/athlete-03.jpg",
     alt: "High school football quarterback throwing on the field",
   },
+  {
+    src: "/marketing/hero/athlete-04.jpg",
+    alt: "High school football player adjusting his helmet on the sideline",
+  },
+  {
+    src: "/marketing/hero/athlete-05.jpg",
+    alt: "High school football player in a team photo, number 15",
+  },
+  {
+    src: "/marketing/hero/athlete-06.jpg",
+    alt: "High school football player smiling while stretching before a game",
+  },
+  {
+    src: "/marketing/hero/athlete-07.jpg",
+    alt: "High school football player smiling on the field after a game",
+  },
+  {
+    src: "/marketing/hero/athlete-08.jpg",
+    alt: "High school football player with a teammate on the field",
+  },
+  {
+    src: "/marketing/hero/athlete-09.jpg",
+    alt: "High school football player standing on the field holding his helmet",
+  },
+  {
+    src: "/marketing/hero/athlete-10.jpg",
+    alt: "High school football player running onto the field",
+  },
+  {
+    src: "/marketing/hero/athlete-11.jpg",
+    alt: "High school football lineman in game action",
+  },
+  {
+    src: "/marketing/hero/athlete-12.jpg",
+    alt: "High school football player walking off the field holding his helmet",
+  },
+  {
+    src: "/marketing/hero/athlete-13.jpg",
+    alt: "High school football player looking downfield",
+  },
+  {
+    src: "/marketing/hero/athlete-14.jpg",
+    alt: "High school football player in a team photo with arms crossed",
+  },
 ];
 
 const ROTATION_INTERVAL_MS = 6000;
