@@ -140,20 +140,20 @@ export default async function CoachSearchPage({
                       />
                     </div>
                     <div className="flex flex-wrap gap-1.5">
-                      <Badge variant="secondary">{playerTypeLabel(player.playerType)}</Badge>
                       {isVerified && offerCount > 0 && (
-                        <Badge variant="secondary">
+                        <Badge className="bg-gold font-semibold text-gold-foreground">
                           {offerCount} Offer{offerCount === 1 ? "" : "s"}
                         </Badge>
                       )}
+                      <Badge variant="secondary">{playerTypeLabel(player.playerType)}</Badge>
                     </div>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-foreground/85">
                       {player.gender === "MALE" ? "Boy" : "Girl"}
                       {player.gradYear != null ? ` · Class of ${player.gradYear}` : ""}
                       {displayLocation ? ` · ${displayLocation}` : ""}
                     </p>
                     {displayMeasurables && (
-                      <p className="text-xs text-muted-foreground">{displayMeasurables}</p>
+                      <p className="text-[0.7rem] text-muted-foreground/70">{displayMeasurables}</p>
                     )}
                   </CardContent>
                 </Card>
