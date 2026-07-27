@@ -195,9 +195,13 @@ export function Hero() {
           initial={{ opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, ease: "easeOut", delay: reduceMotion ? 0 : 0.15 }}
-          className="relative aspect-[4/5] w-full overflow-hidden rounded-xl border border-border/60"
         >
-          <HeroPhoto reduceMotion={reduceMotion} />
+          <div className="relative aspect-[4/5] w-full overflow-hidden rounded-xl border border-border/60">
+            <HeroPhoto reduceMotion={reduceMotion} />
+          </div>
+          <p className="mt-2.5 text-center text-xs text-muted-foreground">
+            These are pictures of our current and past athletes.
+          </p>
         </motion.div>
       </div>
     </section>
