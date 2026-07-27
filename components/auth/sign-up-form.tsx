@@ -1,20 +1,55 @@
 "use client";
 
-import { useActionState, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { signUp } from "@/actions/auth";
 import { trackEvent } from "@/lib/analytics";
+import { ATHLETE_PHOTOS, type MarketingPhoto } from "@/lib/marketing-photos";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const PANEL_PHOTO = {
-  src: "/marketing/hero/athlete-11.jpg",
-  alt: "High school football lineman in game action",
-};
+function pickRandomPhoto(): MarketingPhoto {
+  return ATHLETE_PHOTOS[Math.floor(Math.random() * ATHLETE_PHOTOS.length)];
+}
+
+// Picks a new random photo on every mount (fresh page load, or navigating
+// back to this page) — starts as null so the server-rendered placeholder
+// matches the client's first render, then swaps in a real photo once
+// mounted, avoiding a hydration mismatch on the random pick.
+function SignUpPanelPhoto() {
+  const [photo, setPhoto] = useState<MarketingPhoto | null>(null);
+
+  useEffect(() => {
+    setPhoto(pickRandomPhoto());
+  }, []);
+
+  if (!photo) {
+    return (
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 55% 60% at 68% 30%, color-mix(in oklch, var(--gold), transparent 80%), transparent 68%), linear-gradient(200deg, color-mix(in oklch, var(--card), white 6%) 0%, var(--card) 55%, var(--background) 100%)",
+        }}
+      />
+    );
+  }
+
+  return (
+    <Image
+      src={photo.src}
+      alt={photo.alt}
+      fill
+      className="object-cover"
+      style={{ objectPosition: photo.focus ?? "center" }}
+      priority
+    />
+  );
+}
 
 const PANEL_COPY = {
   COACH: {
@@ -60,7 +95,7 @@ export function SignUpForm({
   return (
     <div className="grid min-h-[calc(100dvh-4rem)] lg:grid-cols-[1.1fr_1fr]">
       <div className="relative hidden overflow-hidden border-r border-border/60 lg:flex lg:flex-col lg:justify-end lg:p-12">
-        <Image src={PANEL_PHOTO.src} alt={PANEL_PHOTO.alt} fill className="object-cover" priority />
+        <SignUpPanelPhoto />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
         <motion.div
           initial={{ opacity: 0, y: 16 }}
