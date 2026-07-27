@@ -16,7 +16,10 @@ import { ArrowDown } from "@phosphor-icons/react";
 // they're cleared for public marketing use; files live in public/marketing/hero/.
 // With 0 photos the panel falls back to an abstract placeholder; with 2+ it
 // crossfades between them every 6s.
-const HERO_PHOTOS: { src: string; alt: string }[] = [
+// `focus` sets the crop anchor (CSS object-position) for the fixed 4:5 panel —
+// defaults to "center", but tall full-body shots need "top" so the panel's
+// vertical crop doesn't cut into the face.
+const HERO_PHOTOS: { src: string; alt: string; focus?: string }[] = [
   {
     src: "/marketing/hero/athlete-01.jpg",
     alt: "High school football player on the sideline at dusk",
@@ -32,10 +35,12 @@ const HERO_PHOTOS: { src: string; alt: string }[] = [
   {
     src: "/marketing/hero/athlete-04.jpg",
     alt: "High school football player adjusting his helmet on the sideline",
+    focus: "top",
   },
   {
     src: "/marketing/hero/athlete-05.jpg",
     alt: "High school football player in a team photo, number 15",
+    focus: "top",
   },
   {
     src: "/marketing/hero/athlete-06.jpg",
@@ -44,18 +49,22 @@ const HERO_PHOTOS: { src: string; alt: string }[] = [
   {
     src: "/marketing/hero/athlete-07.jpg",
     alt: "High school football player smiling on the field after a game",
+    focus: "top",
   },
   {
     src: "/marketing/hero/athlete-08.jpg",
     alt: "High school football player with a teammate on the field",
+    focus: "top",
   },
   {
     src: "/marketing/hero/athlete-09.jpg",
     alt: "High school football player standing on the field holding his helmet",
+    focus: "top",
   },
   {
     src: "/marketing/hero/athlete-10.jpg",
     alt: "High school football player running onto the field",
+    focus: "top",
   },
   {
     src: "/marketing/hero/athlete-11.jpg",
@@ -64,6 +73,7 @@ const HERO_PHOTOS: { src: string; alt: string }[] = [
   {
     src: "/marketing/hero/athlete-12.jpg",
     alt: "High school football player walking off the field holding his helmet",
+    focus: "top",
   },
   {
     src: "/marketing/hero/athlete-13.jpg",
@@ -72,6 +82,7 @@ const HERO_PHOTOS: { src: string; alt: string }[] = [
   {
     src: "/marketing/hero/athlete-14.jpg",
     alt: "High school football player in a team photo with arms crossed",
+    focus: "top",
   },
 ];
 
@@ -134,6 +145,7 @@ function HeroPhoto({ reduceMotion }: { reduceMotion: boolean | null }) {
           fill
           priority={index === 0}
           className="object-cover"
+          style={{ objectPosition: photo.focus ?? "center" }}
         />
       </motion.div>
     </AnimatePresence>
