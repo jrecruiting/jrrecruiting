@@ -14,6 +14,9 @@ import { NewCoachSignupEmail } from "./new-coach-signup";
 import { NewOfferSubmittedEmail } from "./new-offer-submitted";
 import { OfferApprovedEmail } from "./offer-approved";
 import { OfferRejectedEmail } from "./offer-rejected";
+import { NewSchoolInterestSubmittedEmail } from "./new-school-interest-submitted";
+import { SchoolInterestApprovedEmail } from "./school-interest-approved";
+import { SchoolInterestRejectedEmail } from "./school-interest-rejected";
 import { TeamCoachInviteEmail } from "./team-coach-invite";
 import { TeamCoachProfileViewedEmail } from "./team-coach-profile-viewed";
 import { TeamCoachProfileUpdatedEmail } from "./team-coach-profile-updated";
@@ -34,6 +37,9 @@ export type EmailTemplateKey =
   | "new-offer-submitted"
   | "offer-approved"
   | "offer-rejected"
+  | "new-school-interest-submitted"
+  | "school-interest-approved"
+  | "school-interest-rejected"
   | "team-coach-invite"
   | "team-coach-profile-viewed"
   | "team-coach-profile-updated";
@@ -159,6 +165,38 @@ export function renderEmailTemplate(
         subject: `Update on the ${payload.schoolName as string} offer for ${payload.playerName as string}`,
         react: (
           <OfferRejectedEmail
+            playerName={payload.playerName as string}
+            schoolName={payload.schoolName as string}
+          />
+        ),
+      };
+    case "new-school-interest-submitted":
+      return {
+        subject: `New school in contact submitted for ${payload.playerName as string}`,
+        react: (
+          <NewSchoolInterestSubmittedEmail
+            playerName={payload.playerName as string}
+            schoolName={payload.schoolName as string}
+            submitterName={payload.submitterName as string}
+            submitterEmail={payload.submitterEmail as string}
+          />
+        ),
+      };
+    case "school-interest-approved":
+      return {
+        subject: `${payload.schoolName as string} approved for ${payload.playerName as string}`,
+        react: (
+          <SchoolInterestApprovedEmail
+            playerName={payload.playerName as string}
+            schoolName={payload.schoolName as string}
+          />
+        ),
+      };
+    case "school-interest-rejected":
+      return {
+        subject: `Update on ${payload.schoolName as string} for ${payload.playerName as string}`,
+        react: (
+          <SchoolInterestRejectedEmail
             playerName={payload.playerName as string}
             schoolName={payload.schoolName as string}
           />

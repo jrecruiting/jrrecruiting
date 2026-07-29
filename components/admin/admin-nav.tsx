@@ -14,6 +14,7 @@ import {
   Trophy,
   IdentificationBadge,
   SignOut,
+  ChatsCircle,
 } from "@phosphor-icons/react/dist/ssr";
 
 const navItems = [
@@ -23,6 +24,7 @@ const navItems = [
   { href: "/admin/parent-views", label: "Parent Visits", icon: UserCircle },
   { href: "/admin/coach-messages", label: "Coach Messages", icon: Envelope },
   { href: "/admin/offers", label: "Offers", icon: Trophy },
+  { href: "/admin/school-interest", label: "Schools in Contact", icon: ChatsCircle },
   { href: "/admin/team-coaches", label: "Team Coaches", icon: IdentificationBadge },
   { href: "/admin/edit-requests", label: "Edit Requests", icon: PencilSimple },
   { href: "/admin/coaches", label: "Coach Verification", icon: ShieldCheck },

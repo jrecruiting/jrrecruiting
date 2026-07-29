@@ -29,7 +29,13 @@ export default async function TeamCoachPlayerPage({
   const player = await prisma.player.findUnique({
     where: { id: playerId },
     include: {
-      sports: { include: { sport: true, offers: { orderBy: { createdAt: "asc" } } } },
+      sports: {
+        include: {
+          sport: true,
+          offers: { orderBy: { createdAt: "asc" } },
+          schoolInterests: { orderBy: { createdAt: "asc" } },
+        },
+      },
       media: true,
     },
   });
@@ -43,6 +49,7 @@ export default async function TeamCoachPlayerPage({
   const sportsWithBio = sortedSports.filter((s) => s.bio);
   const showGeneralBio = Boolean(player.bio) && sportsWithBio.length === 0;
   const sportsWithOffers = sortedSports.filter((s) => s.offers.length > 0);
+  const sportsWithSchoolInterests = sortedSports.filter((s) => s.schoolInterests.length > 0);
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
@@ -125,6 +132,31 @@ export default async function TeamCoachPlayerPage({
                     <Badge key={offer.id} variant={offerStatusVariant[offer.status]}>
                       {offer.schoolName}
                       {offer.status !== "APPROVED" ? ` · ${offer.status.toLowerCase()}` : ""}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {sportsWithSchoolInterests.length > 0 && (
+        <Card className="border-border/60">
+          <CardContent className="flex flex-col gap-3">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">
+              Schools Currently in Contact
+            </p>
+            {sportsWithSchoolInterests.map((s) => (
+              <div key={s.id} className="flex flex-col gap-1.5">
+                {sportsWithSchoolInterests.length > 1 && (
+                  <p className="text-xs font-medium text-muted-foreground">{s.sport.name}</p>
+                )}
+                <div className="flex flex-wrap gap-1.5">
+                  {s.schoolInterests.map((entry) => (
+                    <Badge key={entry.id} variant={offerStatusVariant[entry.status]}>
+                      {entry.schoolName}
+                      {entry.status !== "APPROVED" ? ` · ${entry.status.toLowerCase()}` : ""}
                     </Badge>
                   ))}
                 </div>

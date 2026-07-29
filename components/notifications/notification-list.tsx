@@ -24,6 +24,8 @@ const iconMap: Record<string, typeof Bell> = {
   CLAIM_REJECTED: XCircle,
   OFFER_APPROVED: CheckCircle,
   OFFER_REJECTED: XCircle,
+  SCHOOL_INTEREST_APPROVED: CheckCircle,
+  SCHOOL_INTEREST_REJECTED: XCircle,
   TEAM_COACH_PROFILE_VIEWED: Eye,
   TEAM_COACH_PROFILE_UPDATED: Star,
 };
@@ -49,6 +51,10 @@ function describe(type: string, payload: unknown): string {
       return `The offer from ${p.schoolName ?? "a school"} for ${p.playerName ?? "your athlete"} was approved and is now live.`;
     case "OFFER_REJECTED":
       return `The offer from ${p.schoolName ?? "a school"} for ${p.playerName ?? "your athlete"} wasn't approved.`;
+    case "SCHOOL_INTEREST_APPROVED":
+      return `${p.schoolName ?? "A school"} was approved and now shows as in contact with ${p.playerName ?? "your athlete"}.`;
+    case "SCHOOL_INTEREST_REJECTED":
+      return `${p.schoolName ?? "A school"} wasn't approved as in contact with ${p.playerName ?? "your athlete"}.`;
     case "TEAM_COACH_PROFILE_VIEWED":
       return `A college coach viewed ${p.playerName ?? "an athlete"}'s profile.`;
     case "TEAM_COACH_PROFILE_UPDATED":

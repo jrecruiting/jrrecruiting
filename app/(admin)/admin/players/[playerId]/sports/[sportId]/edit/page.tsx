@@ -3,8 +3,10 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { updateSportDetailsAdmin } from "@/actions/player-sports";
 import { addOfferAdmin, removeOfferAdmin } from "@/actions/offers";
+import { addSchoolInterestAdmin, removeSchoolInterestAdmin } from "@/actions/school-interest";
 import { SportDetailsForm } from "@/components/player/sport-details-form";
 import { OffersManager } from "@/components/player/offers-manager";
+import { SchoolInterestManager } from "@/components/player/school-interest-manager";
 
 export default async function EditSportDetailsPage({
   params,
@@ -19,6 +21,7 @@ export default async function EditSportDetailsPage({
       sport: true,
       player: { select: { firstName: true, lastName: true } },
       offers: { orderBy: { createdAt: "desc" } },
+      schoolInterests: { orderBy: { createdAt: "desc" } },
     },
   });
 
@@ -26,6 +29,7 @@ export default async function EditSportDetailsPage({
 
   const boundUpdate = updateSportDetailsAdmin.bind(null, playerId, sportId);
   const boundAddOffer = addOfferAdmin.bind(null, playerId, sportId);
+  const boundAddSchoolInterest = addSchoolInterestAdmin.bind(null, playerId, sportId);
 
   return (
     <div className="flex flex-col gap-6">
@@ -59,6 +63,14 @@ export default async function EditSportDetailsPage({
           offers={playerSport.offers}
           addAction={boundAddOffer}
           removeAction={removeOfferAdmin}
+          showStatus
+        />
+      </div>
+      <div className="max-w-2xl border-t border-border/60 pt-6">
+        <SchoolInterestManager
+          schoolInterests={playerSport.schoolInterests}
+          addAction={boundAddSchoolInterest}
+          removeAction={removeSchoolInterestAdmin}
           showStatus
         />
       </div>

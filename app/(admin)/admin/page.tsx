@@ -10,6 +10,7 @@ export default async function AdminOverviewPage() {
     pendingEditCount,
     pendingClaimCount,
     pendingOfferCount,
+    pendingSchoolInterestCount,
   ] = await Promise.all([
     prisma.player.count(),
     prisma.coachProfile.count({ where: { verificationStatus: "APPROVED" } }),
@@ -17,6 +18,7 @@ export default async function AdminOverviewPage() {
     prisma.playerEditRequest.count({ where: { status: "PENDING" } }),
     prisma.claimRequest.count({ where: { status: "PENDING" } }),
     prisma.offer.count({ where: { status: "PENDING" } }),
+    prisma.schoolInterest.count({ where: { status: "PENDING" } }),
   ]);
 
   const stats = [
@@ -26,6 +28,11 @@ export default async function AdminOverviewPage() {
     { label: "Pending Edit Requests", value: pendingEditCount },
     { label: "Pending Claims", value: pendingClaimCount, href: "/admin/claims" },
     { label: "Pending Offers", value: pendingOfferCount, href: "/admin/offers" },
+    {
+      label: "Pending Schools in Contact",
+      value: pendingSchoolInterestCount,
+      href: "/admin/school-interest",
+    },
   ];
 
   return (

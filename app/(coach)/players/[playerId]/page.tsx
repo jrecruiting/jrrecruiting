@@ -27,6 +27,7 @@ export default async function CoachPlayerProfilePage({
         include: {
           sport: true,
           offers: { where: { status: "APPROVED" }, orderBy: { createdAt: "asc" } },
+          schoolInterests: { where: { status: "APPROVED" }, orderBy: { createdAt: "asc" } },
         },
       },
       media: true,
@@ -60,7 +61,13 @@ export default async function CoachPlayerProfilePage({
     (s) => Array.isArray(s.stats) && s.stats.length > 0
   );
   const sportsWithOffers = sortedSports.filter((s) => s.offers.length > 0);
-  const hasAnyBio = showGeneralBio || sportsWithBio.length > 0 || hasAnySportStats || sportsWithOffers.length > 0;
+  const sportsWithSchoolInterests = sortedSports.filter((s) => s.schoolInterests.length > 0);
+  const hasAnyBio =
+    showGeneralBio ||
+    sportsWithBio.length > 0 ||
+    hasAnySportStats ||
+    sportsWithOffers.length > 0 ||
+    sportsWithSchoolInterests.length > 0;
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
@@ -148,13 +155,44 @@ export default async function CoachPlayerProfilePage({
                     )}
                     <div className="mt-1 flex flex-wrap gap-1.5">
                       {s.offers.map((offer) => (
-                        <Badge key={offer.id} variant="secondary">
+                        <Badge
+                          key={offer.id}
+                          className="border-gold/40 bg-gold/10 font-semibold text-gold"
+                        >
                           {offer.schoolName}
                         </Badge>
                       ))}
                     </div>
                   </div>
                 ))}
+              </CardContent>
+            </Card>
+          )}
+
+          {sportsWithSchoolInterests.length > 0 && (
+            <Card className="border-border/60">
+              <CardContent className="flex flex-col gap-3">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Schools Currently in Contact
+                </p>
+                {sportsWithSchoolInterests.map((s) => (
+                  <div key={s.id}>
+                    {sportsWithSchoolInterests.length > 1 && (
+                      <p className="text-xs font-medium text-muted-foreground">{s.sport.name}</p>
+                    )}
+                    <div className="mt-1 flex flex-wrap gap-1.5">
+                      {s.schoolInterests.map((entry) => (
+                        <Badge key={entry.id} variant="secondary">
+                          {entry.schoolName}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+                <p className="text-xs text-muted-foreground">
+                  Schools that have reached out and started a conversation &mdash; not yet a
+                  formal offer.
+                </p>
               </CardContent>
             </Card>
           )}

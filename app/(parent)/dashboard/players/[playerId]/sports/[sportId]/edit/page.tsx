@@ -4,8 +4,10 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { updateSportDetailsParent } from "@/actions/player-sports";
 import { addOfferParent, removeOfferParent } from "@/actions/offers";
+import { addSchoolInterestParent, removeSchoolInterestParent } from "@/actions/school-interest";
 import { SportDetailsForm } from "@/components/player/sport-details-form";
 import { OffersManager } from "@/components/player/offers-manager";
+import { SchoolInterestManager } from "@/components/player/school-interest-manager";
 
 export default async function EditSportDetailsParentPage({
   params,
@@ -21,6 +23,7 @@ export default async function EditSportDetailsParentPage({
       sport: true,
       player: { select: { firstName: true, lastName: true, parentId: true } },
       offers: { orderBy: { createdAt: "desc" } },
+      schoolInterests: { orderBy: { createdAt: "desc" } },
     },
   });
 
@@ -28,6 +31,7 @@ export default async function EditSportDetailsParentPage({
 
   const boundUpdate = updateSportDetailsParent.bind(null, playerId, sportId);
   const boundAddOffer = addOfferParent.bind(null, playerId, sportId);
+  const boundAddSchoolInterest = addSchoolInterestParent.bind(null, playerId, sportId);
 
   return (
     <div className="flex flex-col gap-6">
@@ -65,6 +69,19 @@ export default async function EditSportDetailsParentPage({
         <p className="mt-2 text-xs text-muted-foreground">
           New offers are reviewed by our team before they show on {playerSport.player.firstName}
           &apos;s profile.
+        </p>
+      </div>
+      <div className="max-w-2xl border-t border-border/60 pt-6">
+        <SchoolInterestManager
+          schoolInterests={playerSport.schoolInterests}
+          addAction={boundAddSchoolInterest}
+          removeAction={removeSchoolInterestParent}
+          showStatus
+        />
+        <p className="mt-2 text-xs text-muted-foreground">
+          Schools that have reached out and started a conversation &mdash; new entries are
+          reviewed by our team before they show on {playerSport.player.firstName}&apos;s
+          profile.
         </p>
       </div>
     </div>

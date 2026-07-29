@@ -42,6 +42,8 @@ model User {
   coachInquiries           CoachInquiry[]
   offers                   Offer[]
   resolvedOffers           Offer[]                   @relation("OfferResolvedBy")
+  schoolInterests          SchoolInterest[]
+  resolvedSchoolInterests  SchoolInterest[]          @relation("SchoolInterestResolvedBy")
   profileViews             ProfileViewEvent[]
   payments                 Payment[]
   createdPlayers           Player[]                  @relation("AdminAuthoredPlayers")
@@ -227,6 +229,7 @@ model PlayerSport {
   bio         String?            @db.Text
   stats       Json?
   offers      Offer[]
+  schoolInterests SchoolInterest[]
   updatedAt   DateTime           @updatedAt
 
   @@unique([playerId, sportId])
@@ -260,6 +263,34 @@ model Offer {
   @@index([playerSportId])
   @@index([status])
   @@map("offers")
+}
+
+enum SchoolInterestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// A school that has reached out to this athlete and started a conversation
+// -- a lighter-weight, earlier-stage signal than a formal Offer. Same
+// admin-review flow as Offer so the public profile stays trustworthy, but
+// kept entirely separate so it's never counted toward the Offers count.
+model SchoolInterest {
+  id            String               @id @default(cuid())
+  playerSportId String
+  playerSport   PlayerSport          @relation(fields: [playerSportId], references: [id], onDelete: Cascade)
+  schoolName    String
+  status        SchoolInterestStatus @default(PENDING)
+  createdAt     DateTime             @default(now())
+  submittedBy   String
+  submitter     User                 @relation(fields: [submittedBy], references: [id])
+  resolvedAt    DateTime?
+  resolvedBy    String?
+  resolver      User?                @relation("SchoolInterestResolvedBy", fields: [resolvedBy], references: [id])
+
+  @@index([playerSportId])
+  @@index([status])
+  @@map("school_interests")
 }
 
 enum MediaType {
@@ -426,6 +457,8 @@ enum NotificationType {
   EDIT_REJECTED
   OFFER_APPROVED
   OFFER_REJECTED
+  SCHOOL_INTEREST_APPROVED
+  SCHOOL_INTEREST_REJECTED
   TEAM_COACH_PROFILE_VIEWED
   TEAM_COACH_PROFILE_UPDATED
 }
