@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   UserPlus,
   ShieldCheck,
@@ -67,25 +66,29 @@ function StepList({
   steps: typeof parentSteps;
 }) {
   return (
-    <div className="flex flex-col gap-5">
-      <h2 className="font-heading text-2xl font-bold tracking-tight">{title}</h2>
-      <div className="flex flex-col gap-4">
-        {steps.map((step, i) => (
-          <Card key={step.title} className="border-border/60 bg-card/60">
-            <CardContent className="flex items-start gap-4 pt-2">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gold/10 font-heading text-sm font-bold text-gold">
-                {i + 1}
-              </span>
-              <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-6">
+      <h2 className="font-heading text-xl font-bold tracking-tight">{title}</h2>
+      <div className="flex flex-col">
+        {steps.map((step, i) => {
+          const isLast = i === steps.length - 1;
+          return (
+            <div key={step.title} className="flex gap-4">
+              <div className="flex flex-col items-center">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-gold font-heading text-sm font-bold text-gold">
+                  {i + 1}
+                </span>
+                {!isLast && <span className="mt-1 w-px flex-1 bg-border" aria-hidden />}
+              </div>
+              <div className={`flex flex-col gap-1 ${isLast ? "" : "pb-8"}`}>
                 <div className="flex items-center gap-2">
                   <step.icon className="h-5 w-5 text-gold" weight="duotone" aria-hidden />
                   <h3 className="font-heading text-base font-semibold">{step.title}</h3>
                 </div>
                 <p className="text-sm text-muted-foreground">{step.description}</p>
               </div>
-            </CardContent>
-          </Card>
-        ))}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
