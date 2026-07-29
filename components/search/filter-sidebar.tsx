@@ -15,6 +15,8 @@ import { Button } from "@/components/ui/button";
 import { PLAYER_TYPES } from "@/lib/player-types";
 import { PLAYER_PROJECTIONS } from "@/lib/player-projections";
 import { currentSeniorGradYear } from "@/lib/pricing";
+import { cn } from "@/lib/utils";
+import { CaretDown } from "@phosphor-icons/react";
 
 const ANY = "any";
 
@@ -30,6 +32,10 @@ export function FilterSidebar({ sports }: { sports: { id: string; name: string }
   // remount (and thus drop their stale defaultValue) — normal typing or
   // select changes don't touch this, so focus/typing state is preserved.
   const [resetKey, setResetKey] = useState(0);
+  // Collapsed by default on mobile so results are visible without first
+  // scrolling past every filter field; always expanded at lg+ regardless
+  // of this state (see the lg:flex override below).
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const updateParams = useCallback(
     (updates: Record<string, string | undefined>) => {
@@ -59,9 +65,18 @@ export function FilterSidebar({ sports }: { sports: { id: string; name: string }
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between">
-        <h2 className="font-heading text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+        <button
+          type="button"
+          onClick={() => setMobileOpen((o) => !o)}
+          aria-expanded={mobileOpen}
+          className="flex items-center gap-1.5 font-heading text-sm font-semibold uppercase tracking-wide text-muted-foreground lg:cursor-default"
+        >
           Filters
-        </h2>
+          <CaretDown
+            className={cn("h-3.5 w-3.5 transition-transform lg:hidden", mobileOpen && "rotate-180")}
+            aria-hidden
+          />
+        </button>
         {hasFilters && (
           <Button variant="ghost" size="sm" onClick={clearAll} className="h-auto p-0 text-xs text-gold">
             Clear all
@@ -69,6 +84,7 @@ export function FilterSidebar({ sports }: { sports: { id: string; name: string }
         )}
       </div>
 
+      <div className={cn("flex-col gap-5 lg:flex", mobileOpen ? "flex" : "hidden")}>
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="filter-sport">Sport</Label>
         <Select
@@ -220,6 +236,7 @@ export function FilterSidebar({ sports }: { sports: { id: string; name: string }
             onChange={(e) => handleTextChange("state", e.target.value)}
           />
         </div>
+      </div>
       </div>
     </div>
   );
