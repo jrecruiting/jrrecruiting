@@ -32,7 +32,7 @@ export async function signInWithCredentials(
   let redirectTo = explicitCallbackUrl || "/";
   if (redirectTo === "/") {
     const user = await prisma.user.findUnique({ where: { email }, select: { role: true } });
-    if (user?.role === "COACH") redirectTo = "/search";
+    if (user?.role === "COACH") redirectTo = "/home";
     else if (user?.role === "PARENT") redirectTo = "/dashboard";
     else if (user?.role === "ADMIN") redirectTo = "/admin";
     else if (user?.role === "TEAM_COACH") redirectTo = "/team";
@@ -120,7 +120,7 @@ export async function signUp(
 
   // Coaches can browse/search immediately with reduced info; full detail
   // unlocks once an admin verifies them (see lib/coach-visibility.ts).
-  const redirectTo = data.role === "COACH" ? "/search" : "/dashboard";
+  const redirectTo = data.role === "COACH" ? "/home" : "/dashboard";
 
   try {
     await signIn("credentials", {
@@ -255,7 +255,7 @@ export async function resetPassword(
 
   const redirectTo =
     resetToken.user.role === "COACH"
-      ? "/search"
+      ? "/home"
       : resetToken.user.role === "TEAM_COACH"
         ? "/team"
         : "/dashboard";

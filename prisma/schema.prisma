@@ -44,6 +44,7 @@ model User {
   resolvedOffers           Offer[]                   @relation("OfferResolvedBy")
   schoolInterests          SchoolInterest[]
   resolvedSchoolInterests  SchoolInterest[]          @relation("SchoolInterestResolvedBy")
+  announcements            Announcement[]
   profileViews             ProfileViewEvent[]
   payments                 Payment[]
   createdPlayers           Player[]                  @relation("AdminAuthoredPlayers")
@@ -318,6 +319,23 @@ model MediaAsset {
   createdAt DateTime      @default(now())
 
   @@map("media_assets")
+}
+
+// ── Coach home ──────────────────────────────────────────
+
+// A short, admin-written note pinned to the top of the coach home page.
+// Trusted content -- goes live immediately, no review flow. The coach
+// home page shows only the most recently created one.
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  body      String   @db.Text
+  createdAt DateTime @default(now())
+  createdBy String
+  author    User     @relation(fields: [createdBy], references: [id])
+
+  @@index([createdAt])
+  @@map("announcements")
 }
 
 // ── Claim flow (admin-authored → parent-linked) ────────

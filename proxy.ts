@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 
 const adminPrefix = "/admin";
-const coachPrefixes = ["/search", "/coach", "/players"];
+const coachPrefixes = ["/home", "/search", "/coach", "/players"];
 const parentPrefix = "/dashboard";
 const teamCoachPrefix = "/team";
 
@@ -38,5 +38,12 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/search/:path*", "/coach/:path*", "/admin/:path*", "/team/:path*"],
+  matcher: [
+    "/dashboard/:path*",
+    "/home/:path*",
+    "/search/:path*",
+    "/coach/:path*",
+    "/admin/:path*",
+    "/team/:path*",
+  ],
 };

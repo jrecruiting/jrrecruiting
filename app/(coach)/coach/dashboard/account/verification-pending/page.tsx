@@ -8,7 +8,7 @@ import { ClockCountdown } from "@phosphor-icons/react/dist/ssr";
 export default async function VerificationPendingPage() {
   const session = await requireRole("COACH");
   if (session.user.coachVerificationStatus === "APPROVED") {
-    redirect("/search");
+    redirect("/home");
   }
 
   return (

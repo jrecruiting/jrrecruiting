@@ -15,10 +15,12 @@ import {
   IdentificationBadge,
   SignOut,
   ChatsCircle,
+  Megaphone,
 } from "@phosphor-icons/react/dist/ssr";
 
 const navItems = [
   { href: "/admin", label: "Overview", icon: Gauge },
+  { href: "/admin/announcements", label: "Announcements", icon: Megaphone },
   { href: "/admin/players", label: "Players", icon: UsersThree },
   { href: "/admin/profile-views", label: "Profile Views", icon: Eye },
   { href: "/admin/parent-views", label: "Parent Visits", icon: UserCircle },

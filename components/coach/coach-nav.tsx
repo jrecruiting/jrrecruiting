@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { Logo } from "@/components/marketing/logo";
 import { signOutAction } from "@/actions/auth";
-import { MagnifyingGlass, Star, Bell, Envelope, SignOut } from "@phosphor-icons/react/dist/ssr";
+import { House, MagnifyingGlass, Star, Bell, Envelope, SignOut } from "@phosphor-icons/react/dist/ssr";
 
 const navItems = [
+  { href: "/home", label: "Home", icon: House },
   { href: "/search", label: "Search", icon: MagnifyingGlass },
   { href: "/coach/dashboard/starred", label: "Starred", icon: Star },
   { href: "/coach/dashboard/notifications", label: "Notifications", icon: Bell },
@@ -14,7 +15,7 @@ export function CoachNav() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Link href="/search" aria-label="J.R. Recruiting home">
+        <Link href="/home" aria-label="J.R. Recruiting home">
           <Logo size="sm" />
         </Link>
         <nav className="flex items-center gap-6">
