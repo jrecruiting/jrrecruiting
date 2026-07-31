@@ -5,6 +5,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { formatDistanceToNow } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import { PlayerPhoto } from "@/components/player/player-photo";
+import { renderAnnouncementBody } from "@/lib/announcement-body";
 import { Trophy, ChatsCircle, UserPlus, ArrowsClockwise } from "@phosphor-icons/react";
 
 export type FeedItemData = {
@@ -64,7 +65,9 @@ export function HomeContent({
                 Pinned by J.R. Recruiting
               </span>
               <h2 className="font-heading text-lg font-bold">{announcement.title}</h2>
-              <p className="whitespace-pre-wrap text-sm text-foreground/90">{announcement.body}</p>
+              <p className="whitespace-pre-wrap text-sm text-foreground/90">
+                {renderAnnouncementBody(announcement.body)}
+              </p>
             </CardContent>
           </Card>
         </motion.div>

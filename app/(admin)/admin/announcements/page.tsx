@@ -1,19 +1,26 @@
 import { prisma } from "@/lib/prisma";
-import { createAnnouncement, deleteAnnouncement } from "@/actions/announcements";
+import { deleteAnnouncement } from "@/actions/announcements";
 import { formatPacificDateTime } from "@/lib/format-date";
+import { renderAnnouncementBody } from "@/lib/announcement-body";
+import { AnnouncementForm } from "@/components/admin/announcement-form";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default async function AdminAnnouncementsPage() {
-  const announcements = await prisma.announcement.findMany({
-    orderBy: { createdAt: "desc" },
-    include: { author: { select: { name: true } } },
-  });
+  const [announcements, players] = await Promise.all([
+    prisma.announcement.findMany({
+      orderBy: { createdAt: "desc" },
+      include: { author: { select: { name: true } } },
+    }),
+    prisma.player.findMany({
+      where: { listingStatus: "ACTIVE" },
+      select: { id: true, firstName: true, lastName: true },
+      orderBy: { firstName: "asc" },
+    }),
+  ]);
 
   const [mostRecent, ...older] = announcements;
+  const playerOptions = players.map((p) => ({ id: p.id, name: `${p.firstName} ${p.lastName}` }));
 
   return (
     <div className="flex flex-col gap-6">
@@ -27,25 +34,7 @@ export default async function AdminAnnouncementsPage() {
 
       <Card className="max-w-2xl border-border/60">
         <CardContent>
-          <form action={createAnnouncement} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                name="title"
-                placeholder="e.g. Big weekend for our 2027 QBs"
-                maxLength={120}
-                required
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="body">Message</Label>
-              <Textarea id="body" name="body" rows={4} maxLength={2000} required />
-            </div>
-            <Button type="submit" className="w-fit bg-gold text-gold-foreground hover:bg-gold/90">
-              Post Announcement
-            </Button>
-          </form>
+          <AnnouncementForm players={playerOptions} />
         </CardContent>
       </Card>
 
@@ -64,7 +53,9 @@ export default async function AdminAnnouncementsPage() {
                   </Button>
                 </form>
               </div>
-              <p className="whitespace-pre-wrap text-sm text-muted-foreground">{mostRecent.body}</p>
+              <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+                {renderAnnouncementBody(mostRecent.body)}
+              </p>
               <p className="text-xs text-muted-foreground">
                 Posted by {mostRecent.author.name} &middot; {formatPacificDateTime(mostRecent.createdAt)}
               </p>
@@ -90,7 +81,9 @@ export default async function AdminAnnouncementsPage() {
                       </Button>
                     </form>
                   </div>
-                  <p className="whitespace-pre-wrap text-sm text-muted-foreground">{a.body}</p>
+                  <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+                    {renderAnnouncementBody(a.body)}
+                  </p>
                   <p className="text-xs text-muted-foreground">
                     Posted by {a.author.name} &middot; {formatPacificDateTime(a.createdAt)}
                   </p>
