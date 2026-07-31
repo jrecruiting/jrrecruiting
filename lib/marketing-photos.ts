@@ -115,4 +115,65 @@ export const ATHLETE_PHOTOS: MarketingPhoto[] = [
     alt: "High school football player in a team photo with arms crossed",
     focus: "top",
   },
+  {
+    src: "/marketing/hero/athlete-25.jpg",
+    alt: "High school football lineman lined up at night under the lights",
+    focus: "top",
+  },
+  {
+    src: "/marketing/hero/athlete-26.jpg",
+    alt: "High school football lineman stretching before a game on the field",
+  },
+  {
+    src: "/marketing/hero/athlete-27.jpg",
+    alt: "High school football quarterback holding the ball on the stadium stairs",
+    focus: "top",
+  },
+  {
+    src: "/marketing/hero/athlete-28.jpg",
+    alt: "High school girls lacrosse player sprinting downfield with the ball",
+  },
+  {
+    src: "/marketing/hero/athlete-29.jpg",
+    alt: "High school girls lacrosse player winding up to pass",
+    focus: "top",
+  },
+  {
+    src: "/marketing/hero/athlete-30.jpg",
+    alt: "High school girls lacrosse player standing on the field",
+    focus: "top",
+  },
+  {
+    src: "/marketing/hero/athlete-31.jpg",
+    alt: "High school track sprinter finishing a relay handoff",
+    focus: "top",
+  },
+  {
+    src: "/marketing/hero/athlete-32.jpg",
+    alt: "High school track sprinter holding the relay baton coming out of the blocks",
+    focus: "top",
+  },
+  {
+    src: "/marketing/hero/athlete-33.jpg",
+    alt: "High school football player standing on the field with his helmet off",
+    focus: "top",
+  },
+  {
+    src: "/marketing/hero/athlete-34.jpg",
+    alt: "High school football player smiling in a team photo holding a football",
+    focus: "top",
+  },
+  {
+    src: "/marketing/hero/athlete-35.jpg",
+    alt: "High school football player smiling on the track in his jersey",
+    focus: "top",
+  },
+  {
+    src: "/marketing/hero/athlete-36.jpg",
+    alt: "High school football player tossing a football, studio portrait",
+  },
+  {
+    src: "/marketing/hero/athlete-37.jpg",
+    alt: "High school football player running with the ball on the field",
+  },
 ];
