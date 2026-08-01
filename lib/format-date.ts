@@ -24,3 +24,15 @@ export function formatPacificDate(date: Date): string {
     day: "numeric",
   }).format(date);
 }
+
+// Expects a date-only value (e.g. parsed from a "YYYY-MM-DD" string, which
+// Date parses as UTC midnight) — formats in UTC so the calendar date shown
+// never shifts a day off depending on the server/browser's local timezone.
+export function formatLongDate(date: Date): string {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "UTC",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(date);
+}
