@@ -5,6 +5,7 @@ import { formatPacificDateTime } from "@/lib/format-date";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { ApproveEditRequestButton } from "@/components/admin/approve-edit-request-button";
 import type { UpdatePlayerFormValues } from "@/lib/validations/player";
 
 const FIELD_LABELS: Record<string, string> = {
@@ -91,8 +92,9 @@ export default async function AdminEditRequestsPage() {
               });
             }
 
-            const approve = resolveEditRequest.bind(null, request.id, true);
-            const reject = resolveEditRequest.bind(null, request.id, false);
+            const approveAndAnnounce = resolveEditRequest.bind(null, request.id, true, true);
+            const approveOnly = resolveEditRequest.bind(null, request.id, true, false);
+            const reject = resolveEditRequest.bind(null, request.id, false, false);
 
             return (
               <Card key={request.id} className="border-border/60">
@@ -137,15 +139,10 @@ export default async function AdminEditRequestsPage() {
 
                   {request.status === "PENDING" && (
                     <div className="flex items-center gap-2">
-                      <form action={approve}>
-                        <Button
-                          type="submit"
-                          size="sm"
-                          className="bg-gold text-gold-foreground hover:bg-gold/90"
-                        >
-                          Approve
-                        </Button>
-                      </form>
+                      <ApproveEditRequestButton
+                        approveAndAnnounce={approveAndAnnounce}
+                        approveOnly={approveOnly}
+                      />
                       <form action={reject}>
                         <Button type="submit" size="sm" variant="destructive">
                           Reject

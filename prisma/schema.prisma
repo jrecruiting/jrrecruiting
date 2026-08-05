@@ -399,6 +399,10 @@ model PlayerEditRequest {
   resolvedBy      String?
   resolver        User?             @relation("EditRequestResolvedBy", fields: [resolvedBy], references: [id])
   rejectionReason String?
+  // Set at approval time, only when the admin opts in via the "Announce this
+  // update?" prompt -- gates whether this shows up as a feed item on the
+  // coach home page. Approving without announcing leaves this false.
+  announced       Boolean           @default(false)
 
   @@index([status])
   @@map("player_edit_requests")

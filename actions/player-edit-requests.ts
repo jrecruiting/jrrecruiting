@@ -9,7 +9,11 @@ import { scheduleOutboxFlush } from "@/lib/email/send";
 import { buildPlayerData, syncVideo, syncPhotos } from "@/lib/player-data";
 import type { UpdatePlayerFormValues } from "@/lib/validations/player";
 
-export async function resolveEditRequest(requestId: string, approve: boolean) {
+export async function resolveEditRequest(
+  requestId: string,
+  approve: boolean,
+  announce: boolean = false
+) {
   const session = await requireRole("ADMIN");
 
   const request = await prisma.playerEditRequest.findUnique({
@@ -31,6 +35,7 @@ export async function resolveEditRequest(requestId: string, approve: boolean) {
         status: approve ? "APPROVED" : "REJECTED",
         resolvedAt: new Date(),
         resolvedBy: session.user.id,
+        announced: approve && announce,
       },
     });
 
@@ -68,4 +73,5 @@ export async function resolveEditRequest(requestId: string, approve: boolean) {
   revalidatePath(`/admin/players/${request.playerId}/edit`);
   revalidatePath(`/dashboard/players/${request.playerId}/edit`);
   revalidatePath("/dashboard");
+  revalidatePath("/home");
 }

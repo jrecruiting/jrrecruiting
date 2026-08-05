@@ -6,19 +6,24 @@ import { formatDistanceToNow } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import { PlayerPhoto } from "@/components/player/player-photo";
 import { renderAnnouncementBody } from "@/lib/announcement-body";
-import { Trophy, ChatsCircle, UserPlus, ArrowsClockwise } from "@phosphor-icons/react";
+import { Trophy, ChatsCircle, UserPlus, ArrowsClockwise, PencilSimple } from "@phosphor-icons/react";
 
 export type FeedItemData = {
   key: string;
   at: string;
-  type: "player" | "offer" | "interest";
+  type: "player" | "offer" | "interest" | "update";
   playerId: string;
   playerName: string;
   photoUrl: string | null;
   schoolName?: string;
 };
 
-const TYPE_ICON = { player: UserPlus, offer: Trophy, interest: ChatsCircle } as const;
+const TYPE_ICON = {
+  player: UserPlus,
+  offer: Trophy,
+  interest: ChatsCircle,
+  update: PencilSimple,
+} as const;
 
 function feedItemText(item: FeedItemData) {
   switch (item.type) {
@@ -36,6 +41,8 @@ function feedItemText(item: FeedItemData) {
           is now in contact with <span className="font-semibold">{item.schoolName}</span>
         </>
       );
+    case "update":
+      return "updated their profile";
   }
 }
 

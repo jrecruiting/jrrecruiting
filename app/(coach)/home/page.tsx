@@ -16,7 +16,7 @@ export default async function CoachHomePage() {
   let feed: FeedItemData[] = [];
 
   if (isVerified) {
-    const [newPlayers, newOffers, newSchoolInterests] = await Promise.all([
+    const [newPlayers, newOffers, newSchoolInterests, approvedEdits] = await Promise.all([
       prisma.player.findMany({
         where: { listingStatus: "ACTIVE", publishedAt: { not: null } },
         orderBy: { publishedAt: "desc" },
@@ -51,6 +51,16 @@ export default async function CoachHomePage() {
               player: { select: { id: true, firstName: true, lastName: true, primaryPhotoUrl: true } },
             },
           },
+        },
+      }),
+      prisma.playerEditRequest.findMany({
+        where: { status: "APPROVED", announced: true, player: { listingStatus: "ACTIVE" } },
+        orderBy: { resolvedAt: "desc" },
+        take: FEED_LIMIT,
+        select: {
+          id: true,
+          resolvedAt: true,
+          player: { select: { id: true, firstName: true, lastName: true, primaryPhotoUrl: true } },
         },
       }),
     ]);
@@ -90,6 +100,18 @@ export default async function CoachHomePage() {
             playerName: `${s.playerSport.player.firstName} ${s.playerSport.player.lastName}`,
             photoUrl: s.playerSport.player.primaryPhotoUrl,
             schoolName: s.schoolName,
+          })
+        ),
+      ...approvedEdits
+        .filter((e) => e.resolvedAt)
+        .map(
+          (e): FeedItemData => ({
+            key: `update-${e.id}`,
+            at: e.resolvedAt!.toISOString(),
+            type: "update",
+            playerId: e.player.id,
+            playerName: `${e.player.firstName} ${e.player.lastName}`,
+            photoUrl: e.player.primaryPhotoUrl,
           })
         ),
     ]
