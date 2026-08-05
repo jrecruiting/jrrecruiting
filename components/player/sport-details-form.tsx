@@ -14,9 +14,10 @@ import {
 } from "@/components/ui/select";
 import type { SportFormState } from "@/actions/player-sports";
 import { PLAYER_PROJECTIONS } from "@/lib/player-projections";
+import { SPORT_STAT_SUGGESTIONS, CUSTOM_STAT_VALUE } from "@/lib/player-stats";
 import { Plus, X } from "@phosphor-icons/react/dist/ssr";
 
-type StatRow = { key: string; label?: string; value?: string };
+type StatRow = { key: string; label?: string; value?: string; custom: boolean };
 
 let statRowCounter = 0;
 function newStatRowKey() {
@@ -27,11 +28,13 @@ function newStatRowKey() {
 export function SportDetailsForm({
   action,
   sportName,
+  sportSlug,
   defaultValues,
   showProjection = false,
 }: {
   action: (state: SportFormState, formData: FormData) => Promise<SportFormState>;
   sportName: string;
+  sportSlug: string;
   defaultValues?: {
     position?: string | null;
     projections?: string[];
@@ -42,16 +45,31 @@ export function SportDetailsForm({
   showProjection?: boolean;
 }) {
   const [state, formAction, isPending] = useActionState(action, undefined);
+  const suggestions = SPORT_STAT_SUGGESTIONS[sportSlug] ?? [];
   const [statRows, setStatRows] = useState<StatRow[]>(() =>
-    (defaultValues?.stats ?? []).map((s) => ({ key: newStatRowKey(), label: s.label, value: s.value }))
+    (defaultValues?.stats ?? []).map((s) => ({
+      key: newStatRowKey(),
+      label: s.label,
+      value: s.value,
+      // Stats saved before this feature existed (or from a sport with no
+      // curated list) won't match a suggestion -- fall back to the free
+      // text field for those instead of hiding/losing the value.
+      custom: !suggestions.includes(s.label),
+    }))
   );
 
   function addStatRow() {
-    setStatRows((rows) => [...rows, { key: newStatRowKey() }]);
+    setStatRows((rows) => [...rows, { key: newStatRowKey(), custom: false }]);
   }
 
   function removeStatRow(key: string) {
     setStatRows((rows) => rows.filter((r) => r.key !== key));
+  }
+
+  function setStatCustom(key: string, custom: boolean) {
+    setStatRows((rows) =>
+      rows.map((r) => (r.key === key ? { ...r, custom, label: custom ? "" : r.label } : r))
+    );
   }
 
   return (
@@ -107,35 +125,68 @@ export function SportDetailsForm({
         {statRows.map((row) => (
           <div
             key={row.key}
-            className="grid grid-cols-[1fr_1fr_auto] items-end gap-3 rounded-lg border border-border/60 p-3"
+            className="flex flex-col gap-2 rounded-lg border border-border/60 p-3"
           >
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor={`statLabel-${row.key}`}>Stat name</Label>
-              <Input
-                id={`statLabel-${row.key}`}
-                name="statLabel"
-                placeholder="e.g. 40-Yard Dash"
-                defaultValue={row.label ?? ""}
-              />
+            <div className="grid grid-cols-[1fr_1fr_auto] items-end gap-3">
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor={`statLabel-${row.key}`}>Stat name</Label>
+                {row.custom || suggestions.length === 0 ? (
+                  <Input
+                    id={`statLabel-${row.key}`}
+                    name="statLabel"
+                    placeholder="e.g. Agility Score"
+                    defaultValue={row.label ?? ""}
+                  />
+                ) : (
+                  <Select
+                    name="statLabel"
+                    defaultValue={row.label}
+                    onValueChange={(value: string | null) => {
+                      if (value === CUSTOM_STAT_VALUE) setStatCustom(row.key, true);
+                    }}
+                  >
+                    <SelectTrigger id={`statLabel-${row.key}`} className="w-full">
+                      <SelectValue placeholder="Select a stat" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {suggestions.map((s) => (
+                        <SelectItem key={s} value={s}>
+                          {s}
+                        </SelectItem>
+                      ))}
+                      <SelectItem value={CUSTOM_STAT_VALUE}>Other (custom)&hellip;</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor={`statValue-${row.key}`}>Value</Label>
+                <Input
+                  id={`statValue-${row.key}`}
+                  name="statValue"
+                  placeholder="e.g. 4.6s"
+                  defaultValue={row.value ?? ""}
+                />
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => removeStatRow(row.key)}
+                aria-label="Remove stat"
+              >
+                <X className="h-4 w-4" aria-hidden />
+              </Button>
             </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor={`statValue-${row.key}`}>Value</Label>
-              <Input
-                id={`statValue-${row.key}`}
-                name="statValue"
-                placeholder="e.g. 4.6s"
-                defaultValue={row.value ?? ""}
-              />
-            </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => removeStatRow(row.key)}
-              aria-label="Remove stat"
-            >
-              <X className="h-4 w-4" aria-hidden />
-            </Button>
+            {row.custom && suggestions.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setStatCustom(row.key, false)}
+                className="w-fit text-xs text-muted-foreground underline-offset-2 hover:text-gold hover:underline"
+              >
+                Choose from list instead
+              </button>
+            )}
           </div>
         ))}
       </div>
