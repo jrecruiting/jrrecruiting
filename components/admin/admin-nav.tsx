@@ -16,6 +16,7 @@ import {
   SignOut,
   ChatsCircle,
   Megaphone,
+  ListChecks,
 } from "@phosphor-icons/react/dist/ssr";
 
 const navItems = [
@@ -28,6 +29,7 @@ const navItems = [
   { href: "/admin/offers", label: "Offers", icon: Trophy },
   { href: "/admin/school-interest", label: "Schools in Contact", icon: ChatsCircle },
   { href: "/admin/team-coaches", label: "Team Coaches", icon: IdentificationBadge },
+  { href: "/admin/stat-suggestions", label: "Stat Suggestions", icon: ListChecks },
   { href: "/admin/edit-requests", label: "Edit Requests", icon: PencilSimple },
   { href: "/admin/coaches", label: "Coach Verification", icon: ShieldCheck },
   { href: "/admin/claims", label: "Claims", icon: ArrowsClockwise },

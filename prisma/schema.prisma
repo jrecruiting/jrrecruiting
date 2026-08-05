@@ -213,6 +213,10 @@ model Sport {
   name      String        @unique
   slug      String        @unique
   positions Json
+  // Curated combine-stat suggestions (e.g. "40-Yard Dash") shown in the
+  // stat-name dropdown when editing a player's sport details. Admin-editable
+  // at /admin/stat-suggestions -- always an array of strings.
+  statSuggestions Json @default("[]")
   players   PlayerSport[]
 
   @@map("sports")

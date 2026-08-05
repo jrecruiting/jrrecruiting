@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { DEFAULT_SPORT_STAT_SUGGESTIONS } from "../lib/player-stats";
 
 const prisma = new PrismaClient();
 
@@ -80,8 +81,11 @@ async function main() {
   for (const sport of sports) {
     await prisma.sport.upsert({
       where: { slug: sport.slug },
+      // Only set statSuggestions on first insert -- an admin may have
+      // already customized it via /admin/stat-suggestions, and re-running
+      // this seed shouldn't clobber that.
       update: { name: sport.name, positions: sport.positions },
-      create: sport,
+      create: { ...sport, statSuggestions: DEFAULT_SPORT_STAT_SUGGESTIONS[sport.slug] ?? [] },
     });
   }
   console.log(`Seeded ${sports.length} sports.`);

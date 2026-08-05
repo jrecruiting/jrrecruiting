@@ -1,9 +1,11 @@
-// Curated combine/measurable suggestions per sport, keyed by Sport.slug.
-// Purely a UX aid for the stat-name picker in SportDetailsForm -- the
-// underlying data is still a free-form { label, value } pair, so an
-// unlisted sport (or a custom stat) just falls back to free text instead
-// of being blocked.
-export const SPORT_STAT_SUGGESTIONS: Record<string, string[]> = {
+// Default combine/measurable suggestions per sport, keyed by Sport.slug.
+// The live, admin-editable list lives on Sport.statSuggestions in the
+// database (see /admin/stat-suggestions) -- this is only the original seed
+// data, used by prisma/seed.ts and as the "Reset to defaults" option in
+// that admin page. Purely a UX aid either way: the underlying stat is
+// still a free-form { label, value } pair, so an unlisted sport (or a
+// custom stat) just falls back to free text instead of being blocked.
+export const DEFAULT_SPORT_STAT_SUGGESTIONS: Record<string, string[]> = {
   football: [
     "40-Yard Dash",
     "10-Yard Split",

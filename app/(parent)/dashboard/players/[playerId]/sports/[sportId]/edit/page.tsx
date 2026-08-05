@@ -50,7 +50,11 @@ export default async function EditSportDetailsParentPage({
       <SportDetailsForm
         action={boundUpdate}
         sportName={playerSport.sport.name}
-        sportSlug={playerSport.sport.slug}
+        suggestions={
+          Array.isArray(playerSport.sport.statSuggestions)
+            ? (playerSport.sport.statSuggestions as string[])
+            : []
+        }
         defaultValues={{
           position: playerSport.position,
           // Player Projection is admin-only and never sent to this page.

@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import type { SportFormState } from "@/actions/player-sports";
 import { PLAYER_PROJECTIONS } from "@/lib/player-projections";
-import { SPORT_STAT_SUGGESTIONS, CUSTOM_STAT_VALUE } from "@/lib/player-stats";
+import { CUSTOM_STAT_VALUE } from "@/lib/player-stats";
 import { Plus, X } from "@phosphor-icons/react/dist/ssr";
 
 type StatRow = { key: string; label?: string; value?: string; custom: boolean };
@@ -28,13 +28,14 @@ function newStatRowKey() {
 export function SportDetailsForm({
   action,
   sportName,
-  sportSlug,
+  suggestions,
   defaultValues,
   showProjection = false,
 }: {
   action: (state: SportFormState, formData: FormData) => Promise<SportFormState>;
   sportName: string;
-  sportSlug: string;
+  // Admin-editable per-sport stat-name suggestions (see /admin/stat-suggestions).
+  suggestions: string[];
   defaultValues?: {
     position?: string | null;
     projections?: string[];
@@ -45,7 +46,6 @@ export function SportDetailsForm({
   showProjection?: boolean;
 }) {
   const [state, formAction, isPending] = useActionState(action, undefined);
-  const suggestions = SPORT_STAT_SUGGESTIONS[sportSlug] ?? [];
   const [statRows, setStatRows] = useState<StatRow[]>(() =>
     (defaultValues?.stats ?? []).map((s) => ({
       key: newStatRowKey(),
