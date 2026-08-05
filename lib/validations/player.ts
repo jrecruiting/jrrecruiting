@@ -31,6 +31,11 @@ const basePlayerFields = {
   // Blob pathname (e.g. "player-photos/xyz.png"), not a full URL -- photos
   // are private and only ever resolved through /api/blob/photo.
   primaryPhotoUrl: optionalString(300),
+  // Up to 3 additional blob pathnames beyond the primary photo -- together
+  // they power the rotating gallery on the full profile page. Empty slots
+  // are filtered out before this is parsed, so this is always a compact
+  // ordered list, never sparse.
+  extraPhotos: z.array(z.string().trim().max(300)).max(3).default([]),
   photoConsent: z.coerce.boolean().optional(),
   videoUrl: optionalUrl(),
   instagramHandle: optionalString(30),

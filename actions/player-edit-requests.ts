@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/permissions";
 import { recordPlayerUpdate } from "@/lib/notifications/player-update";
 import { scheduleOutboxFlush } from "@/lib/email/send";
-import { buildPlayerData, syncVideo } from "@/lib/player-data";
+import { buildPlayerData, syncVideo, syncPhotos } from "@/lib/player-data";
 import type { UpdatePlayerFormValues } from "@/lib/validations/player";
 
 export async function resolveEditRequest(requestId: string, approve: boolean) {
@@ -57,6 +57,7 @@ export async function resolveEditRequest(requestId: string, approve: boolean) {
 
   if (approve) {
     await syncVideo(request.playerId, data.videoUrl);
+    await syncPhotos(request.playerId, data.extraPhotos ?? []);
     await recordPlayerUpdate(request.playerId);
   }
 

@@ -8,12 +8,30 @@ import {
   type SportDetailsFormValues,
 } from "@/lib/validations/player";
 
+// Extra photo slots submit as repeated same-name hidden inputs (one per
+// upload slot, same pattern as stats/projections below), including empty
+// ones for slots the parent never filled -- filter those out here so the
+// schema always sees a compact ordered list.
+function extraPhotosFromFormData(formData: FormData): string[] {
+  return formData
+    .getAll("extraPhotoUrl")
+    .map(String)
+    .map((v) => v.trim())
+    .filter(Boolean);
+}
+
 export function parseCreatePlayerForm(formData: FormData): CreatePlayerFormValues {
-  return createPlayerFormSchema.parse(Object.fromEntries(formData.entries()));
+  return createPlayerFormSchema.parse({
+    ...Object.fromEntries(formData.entries()),
+    extraPhotos: extraPhotosFromFormData(formData),
+  });
 }
 
 export function parseUpdatePlayerForm(formData: FormData): UpdatePlayerFormValues {
-  return updatePlayerFormSchema.parse(Object.fromEntries(formData.entries()));
+  return updatePlayerFormSchema.parse({
+    ...Object.fromEntries(formData.entries()),
+    extraPhotos: extraPhotosFromFormData(formData),
+  });
 }
 
 export function parseSportDetailsForm(formData: FormData): SportDetailsFormValues {
@@ -74,6 +92,37 @@ export async function syncVideo(playerId: string, videoUrl: string | undefined) 
         url: videoUrl,
       },
     });
+  }
+}
+
+// Reconciles a player's extra-photo MediaAsset rows (type PHOTO) to exactly
+// match the submitted ordered list -- unlike syncVideo's append-only
+// behavior, photo slots can be reordered, replaced, or cleared, so this
+// deletes what's no longer present and rewrites sortOrder for the rest.
+export async function syncPhotos(playerId: string, photoUrls: string[]) {
+  const existing = await prisma.mediaAsset.findMany({
+    where: { playerId, type: "PHOTO" },
+  });
+  const existingByUrl = new Map(existing.map((m) => [m.url, m]));
+  const keep = new Set(photoUrls);
+
+  const toDelete = existing.filter((m) => !keep.has(m.url));
+  if (toDelete.length > 0) {
+    await prisma.mediaAsset.deleteMany({ where: { id: { in: toDelete.map((m) => m.id) } } });
+  }
+
+  for (let i = 0; i < photoUrls.length; i++) {
+    const url = photoUrls[i];
+    const existingRow = existingByUrl.get(url);
+    if (existingRow) {
+      if (existingRow.sortOrder !== i) {
+        await prisma.mediaAsset.update({ where: { id: existingRow.id }, data: { sortOrder: i } });
+      }
+    } else {
+      await prisma.mediaAsset.create({
+        data: { playerId, type: "PHOTO", provider: "VERCEL_BLOB", url, sortOrder: i },
+      });
+    }
   }
 }
 

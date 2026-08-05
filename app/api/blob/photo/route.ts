@@ -4,6 +4,19 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import type { Session } from "next-auth";
 
+// A pathname can belong to a player either as its primaryPhotoUrl or as one
+// of its extra-photo MediaAsset rows (type PHOTO) -- check both so the same
+// ownership/access rules apply to every photo in the rotating gallery, not
+// just the first one.
+function findPlayerForPathname(pathname: string) {
+  return prisma.player.findFirst({
+    where: {
+      OR: [{ primaryPhotoUrl: pathname }, { media: { some: { type: "PHOTO", url: pathname } } }],
+    },
+    select: { id: true, parentId: true },
+  });
+}
+
 async function isAllowedToViewPhoto(
   user: NonNullable<Session["user"]>,
   pathname: string
@@ -15,18 +28,12 @@ async function isAllowedToViewPhoto(
   }
 
   if (user.role === "PARENT") {
-    const player = await prisma.player.findFirst({
-      where: { primaryPhotoUrl: pathname },
-      select: { parentId: true },
-    });
+    const player = await findPlayerForPathname(pathname);
     return player?.parentId === user.id;
   }
 
   if (user.role === "TEAM_COACH") {
-    const player = await prisma.player.findFirst({
-      where: { primaryPhotoUrl: pathname },
-      select: { id: true },
-    });
+    const player = await findPlayerForPathname(pathname);
     if (!player) return false;
     const access = await prisma.teamCoachAccess.findUnique({
       where: { teamCoachId_playerId: { teamCoachId: user.id, playerId: player.id } },

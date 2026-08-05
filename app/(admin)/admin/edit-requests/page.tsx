@@ -63,6 +63,11 @@ export default async function AdminEditRequestsPage() {
             const proposedRow = buildPlayerData(proposed) as unknown as Record<string, unknown>;
             const currentPlayer = request.player as unknown as Record<string, unknown>;
             const currentVideo = request.player.media.find((m) => m.type === "VIDEO");
+            const currentPhotos = request.player.media
+              .filter((m) => m.type === "PHOTO")
+              .sort((a, b) => a.sortOrder - b.sortOrder)
+              .map((m) => m.url);
+            const proposedPhotos = proposed.extraPhotos ?? [];
 
             const rows: { label: string; before: string; after: string }[] = [];
 
@@ -76,6 +81,14 @@ export default async function AdminEditRequestsPage() {
             const afterVideo = proposed.videoUrl || "—";
             if (beforeVideo !== afterVideo) {
               rows.push({ label: "Highlight video", before: beforeVideo, after: afterVideo });
+            }
+
+            if (currentPhotos.join("|") !== proposedPhotos.join("|")) {
+              rows.push({
+                label: "Additional photos",
+                before: currentPhotos.length > 0 ? `${currentPhotos.length} photo(s)` : "—",
+                after: proposedPhotos.length > 0 ? `${proposedPhotos.length} photo(s)` : "—",
+              });
             }
 
             const approve = resolveEditRequest.bind(null, request.id, true);

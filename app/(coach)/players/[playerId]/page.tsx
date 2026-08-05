@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { recordProfileView } from "@/lib/notifications/profile-view";
 import { maskLastName } from "@/lib/coach-visibility";
 import { QuickStarButton } from "@/components/coach/quick-star-button";
-import { PlayerPhoto } from "@/components/player/player-photo";
+import { PlayerPhotoGallery } from "@/components/player/player-photo-gallery";
 import { VerificationBanner } from "@/components/coach/verification-banner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -43,6 +43,13 @@ export default async function CoachPlayerProfilePage({
   });
 
   const video = player.media.find((m) => m.type === "VIDEO");
+  const extraPhotos = player.media
+    .filter((m) => m.type === "PHOTO")
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((m) => m.url);
+  const allPhotos = [player.primaryPhotoUrl, ...extraPhotos].filter(
+    (v): v is string => Boolean(v)
+  );
   const displayLastName = isVerified ? player.lastName : maskLastName(player.lastName);
   const displaySchool = isVerified ? player.schoolName : null;
   const displayLocation = [isVerified ? player.city : null, player.state, player.country]
@@ -75,8 +82,8 @@ export default async function CoachPlayerProfilePage({
 
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-4">
-          <PlayerPhoto
-            pathname={isVerified ? player.primaryPhotoUrl : null}
+          <PlayerPhotoGallery
+            photos={isVerified ? allPhotos : []}
             alt={`${player.firstName} ${displayLastName}`}
             size="lg"
           />

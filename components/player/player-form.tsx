@@ -35,6 +35,7 @@ type PlayerDefaults = {
   gpa?: string | number | null;
   bio?: string | null;
   primaryPhotoUrl?: string | null;
+  extraPhotos?: string[];
   photoConsent?: boolean;
   sportId?: string;
   position?: string | null;
@@ -61,7 +62,17 @@ export function PlayerForm({
 }) {
   const [state, formAction, isPending] = useActionState(action, undefined);
   const photoUploadRef = useRef<PhotoUploadHandle>(null);
+  const extraPhotoRef1 = useRef<PhotoUploadHandle>(null);
+  const extraPhotoRef2 = useRef<PhotoUploadHandle>(null);
+  const extraPhotoRef3 = useRef<PhotoUploadHandle>(null);
   const [playerType, setPlayerType] = useState(defaultValues?.playerType);
+
+  function clearAllPhotos() {
+    photoUploadRef.current?.clear();
+    extraPhotoRef1.current?.clear();
+    extraPhotoRef2.current?.clear();
+    extraPhotoRef3.current?.clear();
+  }
   const showGradYear = playerType !== "JUCO" && playerType !== "TRANSFER";
 
   return (
@@ -249,12 +260,33 @@ export function PlayerForm({
       )}
 
       <div className="flex flex-col gap-1.5">
-        <Label>Photo</Label>
-        <PhotoUpload
-          ref={photoUploadRef}
-          name="primaryPhotoUrl"
-          defaultValue={defaultValues?.primaryPhotoUrl}
-        />
+        <Label>Photos (up to 4)</Label>
+        <p className="text-xs text-muted-foreground">
+          The first photo is used as the profile thumbnail everywhere on the site. All
+          uploaded photos rotate on the full profile page coaches see.
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <PhotoUpload
+            ref={photoUploadRef}
+            name="primaryPhotoUrl"
+            defaultValue={defaultValues?.primaryPhotoUrl}
+          />
+          <PhotoUpload
+            ref={extraPhotoRef1}
+            name="extraPhotoUrl"
+            defaultValue={defaultValues?.extraPhotos?.[0]}
+          />
+          <PhotoUpload
+            ref={extraPhotoRef2}
+            name="extraPhotoUrl"
+            defaultValue={defaultValues?.extraPhotos?.[1]}
+          />
+          <PhotoUpload
+            ref={extraPhotoRef3}
+            name="extraPhotoUrl"
+            defaultValue={defaultValues?.extraPhotos?.[2]}
+          />
+        </div>
       </div>
 
       <div className="flex flex-col gap-1.5">
@@ -307,7 +339,7 @@ export function PlayerForm({
         {requireConsentDialog ? (
           <PhotoConsentCheckbox
             defaultChecked={defaultValues?.photoConsent}
-            onClearPhoto={() => photoUploadRef.current?.clear()}
+            onClearPhoto={clearAllPhotos}
           />
         ) : (
           <Checkbox

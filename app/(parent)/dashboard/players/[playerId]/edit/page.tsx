@@ -40,6 +40,10 @@ export default async function EditAthletePage({
     .slice()
     .sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary));
   const primaryVideo = player.media.find((m) => m.type === "VIDEO");
+  const extraPhotos = player.media
+    .filter((m) => m.type === "PHOTO")
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((m) => m.url);
   const addedSportIds = new Set(player.sports.map((s) => s.sportId));
   const availableSports = sports.filter((s) => !addedSportIds.has(s.id));
 
@@ -92,6 +96,7 @@ export default async function EditAthletePage({
           gpa: player.gpa?.toString(),
           bio: player.bio,
           primaryPhotoUrl: player.primaryPhotoUrl,
+          extraPhotos,
           photoConsent: player.photoConsent,
           videoUrl: primaryVideo?.url,
           instagramHandle: player.instagramHandle,

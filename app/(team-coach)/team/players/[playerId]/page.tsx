@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { PlayerPhoto } from "@/components/player/player-photo";
+import { PlayerPhotoGallery } from "@/components/player/player-photo-gallery";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { playerTypeLabel } from "@/lib/player-types";
@@ -42,6 +42,13 @@ export default async function TeamCoachPlayerPage({
   if (!player) notFound();
 
   const video = player.media.find((m) => m.type === "VIDEO");
+  const extraPhotos = player.media
+    .filter((m) => m.type === "PHOTO")
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((m) => m.url);
+  const allPhotos = [player.primaryPhotoUrl, ...extraPhotos].filter(
+    (v): v is string => Boolean(v)
+  );
   const displayLocation = [player.city, player.state, player.country].filter(Boolean).join(", ");
   const sortedSports = player.sports
     .slice()
@@ -54,8 +61,8 @@ export default async function TeamCoachPlayerPage({
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
       <div className="flex items-start gap-4">
-        <PlayerPhoto
-          pathname={player.primaryPhotoUrl}
+        <PlayerPhotoGallery
+          photos={allPhotos}
           alt={`${player.firstName} ${player.lastName}`}
           size="lg"
         />

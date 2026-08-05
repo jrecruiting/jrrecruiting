@@ -11,6 +11,7 @@ import {
   parseUpdatePlayerForm,
   buildPlayerData,
   syncVideo,
+  syncPhotos,
   guessVideoProvider,
 } from "@/lib/player-data";
 
@@ -50,6 +51,7 @@ export async function createPlayerAdmin(
       },
     });
     playerId = player.id;
+    await syncPhotos(playerId, data.extraPhotos);
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { error: error.issues[0]?.message ?? "Please check the form for errors." };
@@ -72,6 +74,7 @@ export async function updatePlayerAdmin(
     const data = parseUpdatePlayerForm(formData);
     await prisma.player.update({ where: { id: playerId }, data: buildPlayerData(data) });
     await syncVideo(playerId, data.videoUrl);
+    await syncPhotos(playerId, data.extraPhotos);
     await recordPlayerUpdate(playerId);
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -125,6 +128,7 @@ export async function createPlayerParent(
       },
     });
     playerId = player.id;
+    await syncPhotos(playerId, data.extraPhotos);
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { error: error.issues[0]?.message ?? "Please check the form for errors." };
