@@ -102,11 +102,13 @@ export default function AboutPage() {
             </div>
           </div>
           <p className="max-w-lg pl-[calc(3px+1.25rem)] text-balance text-muted-foreground">
-            Too many talented athletes get missed simply because the right
-            coach never saw the right profile at the right time. We built
-            J.R. Recruiting to close that gap &mdash; giving every athlete a
-            verified, searchable presence in front of the coaches actively
-            looking for them.
+            What started with football has grown into a platform for
+            athletes across every sport, built on that same direct,
+            personal approach. Too many talented athletes get missed
+            simply because the right coach never saw the right profile at
+            the right time. We built J.R. Recruiting to close that gap
+            &mdash; giving every athlete a verified, searchable presence
+            in front of the coaches actively looking for them.
           </p>
         </div>
       </div>

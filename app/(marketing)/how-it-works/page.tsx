@@ -16,7 +16,7 @@ import {
 export const metadata: Metadata = {
   title: "How It Works",
   description:
-    "18 years of football recruiting experience: how Javier builds your athlete's profile, distributes it to 700+ college programs, and personally follows up with coaches until you get results.",
+    "How Javier builds your athlete's profile, distributes it directly to college coaches, and personally follows up until you get results — for football and every other sport we work with.",
 };
 
 type Step = {
@@ -37,7 +37,7 @@ const recruitingSteps: Step[] = [
       "Game stats and season highlights",
       "Highlight and full-game film",
       "Academic record (GPA, test scores)",
-      "Measurables (height, weight, 40-yard time, and other combine metrics)",
+      "Measurables (height, weight, and the key numbers for your sport — 40-yard dash, exit velocity, event times, and more)",
       "Contact information and references",
     ],
     closing: "This profile becomes the foundation for everything that follows.",
@@ -46,13 +46,13 @@ const recruitingSteps: Step[] = [
     icon: Globe,
     title: "National Distribution",
     description:
-      "Once the profile is complete, it's added to our Football Prospect List, which we send to coaches at over 700 college programs across the country, spanning FBS, FCS, D2, D3, and NAIA. My team keeps this list active by providing coaches weekly updates on the athletes we currently represent, ensuring your athlete stays visible on an ongoing basis, not just after one initial send.",
+      "Once the profile is complete, it's put directly in front of coaches. For football, that means our established Prospect List — sent to coaches at over 700 college programs across FBS, FCS, D2, D3, and NAIA, with weekly updates so your athlete stays visible on an ongoing basis, not just after one initial send. For other sports, I build that same kind of direct distribution to the programs and coaches relevant to your athlete, using the same hands-on approach.",
   },
   {
     icon: Handshake,
     title: "Personal, One-on-One Coach Outreach",
     description:
-      "This is where I spend most of my time, and it's what sets this service apart from a mass mailing list. The Prospect List gets your athlete in front of coaches broadly, but I also reach out to coaches individually, walk them through your athlete's profile personally, and follow up directly for feedback after they evaluate it. That personal contact matters because it's the difference between a profile sitting in an inbox and a coach actually taking a close look.",
+      "This is where I spend most of my time, and it's what sets this service apart from a mass mailing list. Beyond the initial distribution, I reach out to coaches individually, walk them through your athlete's profile personally, and follow up directly for feedback after they evaluate it. That personal contact matters because it's the difference between a profile sitting in an inbox and a coach actually taking a close look.",
   },
   {
     icon: ChatsCircle,
@@ -135,9 +135,10 @@ export default function HowItWorksPage() {
           How I Help Your Athlete Get Recruited
         </h1>
         <p className="mt-4 text-balance text-muted-foreground">
-          With 18 years of experience in football recruiting, I&apos;ve helped over 100
-          athletes earn scholarship offers from programs across the country. Here&apos;s
-          exactly how the process works.
+          With 18 years of experience that started in football recruiting, I&apos;ve
+          helped over 100 athletes across football and other sports earn scholarship
+          offers from programs across the country. Here&apos;s exactly how the process
+          works, whatever sport your athlete plays.
         </p>
       </div>
 
