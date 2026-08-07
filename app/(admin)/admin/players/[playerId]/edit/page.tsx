@@ -87,6 +87,7 @@ export default async function EditPlayerPage({
       <PlayerForm
         action={boundUpdate}
         submitLabel="Save Changes"
+        promptAnnounceOnSave
         defaultValues={{
           firstName: player.firstName,
           lastName: player.lastName,

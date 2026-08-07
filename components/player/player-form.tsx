@@ -17,6 +17,15 @@ import type { PlayerFormState } from "@/actions/players";
 import { PLAYER_TYPES } from "@/lib/player-types";
 import { PhotoUpload, type PhotoUploadHandle } from "@/components/player/photo-upload";
 import { PhotoConsentCheckbox } from "@/components/player/photo-consent-checkbox";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type SportOption = { id: string; name: string };
 
@@ -52,6 +61,7 @@ export function PlayerForm({
   defaultValues,
   submitLabel,
   requireConsentDialog = false,
+  promptAnnounceOnSave = false,
 }: {
   sports?: SportOption[];
   showSportField?: boolean;
@@ -59,13 +69,22 @@ export function PlayerForm({
   defaultValues?: PlayerDefaults;
   submitLabel: string;
   requireConsentDialog?: boolean;
+  // Editing an existing player directly (admin only) applies immediately --
+  // when true, saving pops the same "announce this on the coach home page?"
+  // choice the parent-edit approval flow uses, instead of submitting right
+  // away. Not used on create, since a new player already gets its own
+  // "joined" feed entry.
+  promptAnnounceOnSave?: boolean;
 }) {
   const [state, formAction, isPending] = useActionState(action, undefined);
   const photoUploadRef = useRef<PhotoUploadHandle>(null);
   const extraPhotoRef1 = useRef<PhotoUploadHandle>(null);
   const extraPhotoRef2 = useRef<PhotoUploadHandle>(null);
   const extraPhotoRef3 = useRef<PhotoUploadHandle>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const announceInputRef = useRef<HTMLInputElement>(null);
   const [playerType, setPlayerType] = useState(defaultValues?.playerType);
+  const [announceDialogOpen, setAnnounceDialogOpen] = useState(false);
 
   function clearAllPhotos() {
     photoUploadRef.current?.clear();
@@ -73,10 +92,20 @@ export function PlayerForm({
     extraPhotoRef2.current?.clear();
     extraPhotoRef3.current?.clear();
   }
+
+  function submitWithAnnounce(announce: boolean) {
+    if (announceInputRef.current) announceInputRef.current.value = String(announce);
+    setAnnounceDialogOpen(false);
+    formRef.current?.requestSubmit();
+  }
+
   const showGradYear = playerType !== "JUCO" && playerType !== "TRANSFER";
 
   return (
-    <form action={formAction} className="flex max-w-2xl flex-col gap-6">
+    <form ref={formRef} action={formAction} className="flex max-w-2xl flex-col gap-6">
+      {promptAnnounceOnSave && (
+        <input type="hidden" name="announce" ref={announceInputRef} defaultValue="false" />
+      )}
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="firstName">First name</Label>
@@ -359,13 +388,50 @@ export function PlayerForm({
         </p>
       )}
 
-      <Button
-        type="submit"
-        disabled={isPending}
-        className="w-fit bg-gold text-gold-foreground hover:bg-gold/90"
-      >
-        {isPending ? "Saving..." : submitLabel}
-      </Button>
+      {promptAnnounceOnSave ? (
+        <>
+          <Button
+            type="button"
+            disabled={isPending}
+            className="w-fit bg-gold text-gold-foreground hover:bg-gold/90"
+            onClick={() => setAnnounceDialogOpen(true)}
+          >
+            {isPending ? "Saving..." : submitLabel}
+          </Button>
+
+          <AlertDialog open={announceDialogOpen} onOpenChange={setAnnounceDialogOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Announce this update?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Saving publishes these changes right away either way. You can also have it
+                  show up as a &ldquo;profile updated&rdquo; item in the Recent Activity feed
+                  on the coaches&apos; home page.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogAction variant="outline" onClick={() => submitWithAnnounce(false)}>
+                  Save only
+                </AlertDialogAction>
+                <AlertDialogAction
+                  className="bg-gold text-gold-foreground hover:bg-gold/90"
+                  onClick={() => submitWithAnnounce(true)}
+                >
+                  Save &amp; announce
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </>
+      ) : (
+        <Button
+          type="submit"
+          disabled={isPending}
+          className="w-fit bg-gold text-gold-foreground hover:bg-gold/90"
+        >
+          {isPending ? "Saving..." : submitLabel}
+        </Button>
+      )}
     </form>
   );
 }

@@ -68,7 +68,7 @@ export async function updatePlayerAdmin(
   _prevState: PlayerFormState,
   formData: FormData
 ): Promise<PlayerFormState> {
-  await requireRole("ADMIN");
+  const session = await requireRole("ADMIN");
 
   try {
     const data = parseUpdatePlayerForm(formData);
@@ -76,6 +76,24 @@ export async function updatePlayerAdmin(
     await syncVideo(playerId, data.videoUrl);
     await syncPhotos(playerId, data.extraPhotos);
     await recordPlayerUpdate(playerId);
+
+    // A direct admin edit has no PlayerEditRequest of its own to flag --
+    // when the admin opts to announce it, log one as self-submitted and
+    // self-approved so it flows through the same "announced" feed query as
+    // an approved parent edit, without a separate announcement mechanism.
+    if (formData.get("announce") === "true") {
+      await prisma.playerEditRequest.create({
+        data: {
+          playerId,
+          submittedBy: session.user.id,
+          proposedData: data,
+          status: "APPROVED",
+          resolvedAt: new Date(),
+          resolvedBy: session.user.id,
+          announced: true,
+        },
+      });
+    }
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { error: error.issues[0]?.message ?? "Please check the form for errors." };
@@ -85,6 +103,7 @@ export async function updatePlayerAdmin(
 
   revalidatePath(`/admin/players/${playerId}/edit`);
   revalidatePath("/admin/players");
+  revalidatePath("/home");
   return { error: undefined };
 }
 
