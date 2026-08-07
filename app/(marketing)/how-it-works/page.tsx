@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { UL, LI } from "@/components/marketing/blog-prose";
 import type { Icon } from "@phosphor-icons/react";
 import {
@@ -66,6 +67,49 @@ const recruitingSteps: Step[] = [
     description:
       "In addition to direct outreach, your athlete's profile and highlights are also posted on my website, where coaches can search for and review prospects on their own time, giving your athlete a presence that works even outside of active outreach.",
   },
+];
+
+// Pulled directly from schools named in our published testimonials (see
+// /testimonials) -- real, specific, and already ours to reference, unlike
+// an abstract "X programs reached" number.
+const SCHOOLS_SIGNED: string[] = [
+  "Benedictine University",
+  "Black Hills State University",
+  "Bridgewater State University",
+  "Cal Poly San Luis Obispo",
+  "Eastern University",
+  "Erskine College",
+  "Grambling State University",
+  "Hamline University",
+  "Henderson State University",
+  "Hiram College",
+  "Hobart and William Smith College",
+  "Humboldt State University",
+  "Lenoir-Rhyne University",
+  "Liberty University",
+  "Mayville State University",
+  "Minot State University",
+  "Mississippi College",
+  "Penn State University",
+  "Quincy University",
+  "Rocky Mountain College",
+  "Southeast Missouri State University",
+  "Southern Nazarene University",
+  "Southwestern Oklahoma State University",
+  "Tabor College",
+  "Tarleton State University",
+  "University of Colorado",
+  "University of Findlay",
+  "University of Idaho",
+  "University of Minnesota Crookston",
+  "University of New Haven",
+  "UNLV",
+  "Upper Iowa University",
+  "Valdosta State University",
+  "Western Illinois University",
+  "Western New Mexico University",
+  "Western Oregon University",
+  "Winston-Salem State University",
 ];
 
 const coachSteps: Step[] = [
@@ -155,6 +199,19 @@ export default function HowItWorksPage() {
             I&apos;m honored to have helped so many families navigate this process,
             resulting in real offers from real programs.
           </p>
+
+          <div className="flex flex-col gap-2.5">
+            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+              Some of the schools our athletes have signed with
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {SCHOOLS_SIGNED.map((school) => (
+                <Badge key={school} variant="outline" className="h-auto px-2.5 py-1">
+                  {school}
+                </Badge>
+              ))}
+            </div>
+          </div>
 
           <div className="flex gap-5">
             <span className="w-[3px] shrink-0 rounded-full bg-gold" aria-hidden />
