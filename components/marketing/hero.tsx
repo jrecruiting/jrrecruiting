@@ -156,9 +156,10 @@ export function Hero() {
             variants={item}
             className="max-w-xl text-balance text-lg text-muted-foreground"
           >
-            J.R. Recruiting puts verified, searchable player profiles directly in
-            front of college coaches &mdash; by state, country, and sport &mdash;
-            so the right coach finds the right athlete.
+            J.R. Recruiting gets your athlete in front of college coaches through
+            direct, personal outreach &mdash; built on 18 years of real coach
+            relationships &mdash; plus a verified, searchable profile coaches can
+            find by state, country, and sport.
           </motion.p>
 
           <motion.div variants={item} className="flex flex-col gap-3 pt-2 sm:flex-row">
