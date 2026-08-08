@@ -20,6 +20,8 @@ import { SchoolInterestRejectedEmail } from "./school-interest-rejected";
 import { TeamCoachInviteEmail } from "./team-coach-invite";
 import { TeamCoachProfileViewedEmail } from "./team-coach-profile-viewed";
 import { TeamCoachProfileUpdatedEmail } from "./team-coach-profile-updated";
+import { StarCreatedEmail } from "./star-created";
+import { AdminActivityDigestEmail } from "./admin-activity-digest";
 
 export type EmailTemplateKey =
   | "player-updated"
@@ -42,7 +44,9 @@ export type EmailTemplateKey =
   | "school-interest-rejected"
   | "team-coach-invite"
   | "team-coach-profile-viewed"
-  | "team-coach-profile-updated";
+  | "team-coach-profile-updated"
+  | "star-created"
+  | "admin-activity-digest";
 
 export function renderEmailTemplate(
   templateKey: string,
@@ -230,6 +234,30 @@ export function renderEmailTemplate(
           <TeamCoachProfileUpdatedEmail
             playerId={payload.playerId as string}
             playerName={payload.playerName as string}
+          />
+        ),
+      };
+    case "star-created":
+      return {
+        subject: `${payload.coachName as string} starred ${payload.playerName as string}`,
+        react: (
+          <StarCreatedEmail
+            playerId={payload.playerId as string}
+            playerName={payload.playerName as string}
+            coachName={payload.coachName as string}
+            organization={(payload.organization as string) || ""}
+          />
+        ),
+      };
+    case "admin-activity-digest":
+      return {
+        subject: `Coach activity: ${payload.periodLabel as string}`,
+        react: (
+          <AdminActivityDigestEmail
+            periodLabel={payload.periodLabel as string}
+            newCoaches={payload.newCoaches as { name: string; email: string; organization: string }[]}
+            views={payload.views as { playerName: string; coachName: string }[]}
+            stars={payload.stars as { playerName: string; coachName: string }[]}
           />
         ),
       };
