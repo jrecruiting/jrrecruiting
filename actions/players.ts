@@ -45,6 +45,7 @@ export async function createPlayerAdmin(
                 type: "VIDEO",
                 provider: guessVideoProvider(data.videoUrl),
                 url: data.videoUrl,
+                title: data.videoTitle || null,
               },
             }
           : undefined,
@@ -73,7 +74,7 @@ export async function updatePlayerAdmin(
   try {
     const data = parseUpdatePlayerForm(formData);
     await prisma.player.update({ where: { id: playerId }, data: buildPlayerData(data) });
-    await syncVideo(playerId, data.videoUrl);
+    await syncVideo(playerId, data.videoUrl, data.videoTitle);
     await syncPhotos(playerId, data.extraPhotos);
     await recordPlayerUpdate(playerId);
 
@@ -141,6 +142,7 @@ export async function createPlayerParent(
                 type: "VIDEO",
                 provider: guessVideoProvider(data.videoUrl),
                 url: data.videoUrl,
+                title: data.videoTitle || null,
               },
             }
           : undefined,

@@ -106,6 +106,7 @@ export default async function EditPlayerPage({
           extraPhotos,
           photoConsent: player.photoConsent,
           videoUrl: primaryVideo?.url,
+          videoTitle: primaryVideo?.title,
           instagramHandle: player.instagramHandle,
           xHandle: player.xHandle,
           cellPhone: player.cellPhone,

@@ -99,6 +99,7 @@ export default async function EditAthletePage({
           extraPhotos,
           photoConsent: player.photoConsent,
           videoUrl: primaryVideo?.url,
+          videoTitle: primaryVideo?.title,
           instagramHandle: player.instagramHandle,
           xHandle: player.xHandle,
           cellPhone: player.cellPhone,

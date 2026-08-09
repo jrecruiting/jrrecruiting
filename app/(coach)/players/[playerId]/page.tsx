@@ -232,7 +232,7 @@ export default async function CoachPlayerProfilePage({
             <Card className="border-border/60">
               <CardContent>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                  Highlight video
+                  {video.title || "Highlight video"}
                 </p>
                 <a
                   href={video.url}

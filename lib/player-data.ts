@@ -77,9 +77,14 @@ export function buildPlayerData(data: UpdatePlayerFormValues) {
   };
 }
 
-export async function syncVideo(playerId: string, videoUrl: string | undefined) {
+export async function syncVideo(
+  playerId: string,
+  videoUrl: string | undefined,
+  videoTitle?: string
+) {
   if (!videoUrl) return;
 
+  const title = videoTitle || null;
   const existing = await prisma.mediaAsset.findFirst({
     where: { playerId, type: "VIDEO", url: videoUrl },
   });
@@ -90,8 +95,11 @@ export async function syncVideo(playerId: string, videoUrl: string | undefined) 
         type: "VIDEO",
         provider: guessVideoProvider(videoUrl),
         url: videoUrl,
+        title,
       },
     });
+  } else if (existing.title !== title) {
+    await prisma.mediaAsset.update({ where: { id: existing.id }, data: { title } });
   }
 }
 

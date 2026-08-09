@@ -84,6 +84,16 @@ export default async function AdminEditRequestsPage() {
               rows.push({ label: "Highlight video", before: beforeVideo, after: afterVideo });
             }
 
+            const beforeVideoTitle = currentVideo?.title ?? "—";
+            const afterVideoTitle = proposed.videoTitle || "—";
+            if (beforeVideoTitle !== afterVideoTitle) {
+              rows.push({
+                label: "Highlight video title",
+                before: beforeVideoTitle,
+                after: afterVideoTitle,
+              });
+            }
+
             if (currentPhotos.join("|") !== proposedPhotos.join("|")) {
               rows.push({
                 label: "Additional photos",

@@ -49,6 +49,7 @@ type PlayerDefaults = {
   sportId?: string;
   position?: string | null;
   videoUrl?: string;
+  videoTitle?: string | null;
   instagramHandle?: string | null;
   xHandle?: string | null;
   cellPhone?: string | null;
@@ -318,14 +319,30 @@ export function PlayerForm({
         </div>
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="videoUrl">Video highlight URL</Label>
-        <Input
-          id="videoUrl"
-          name="videoUrl"
-          placeholder="https://youtube.com/... or hudl.com/..."
-          defaultValue={defaultValues?.videoUrl ?? ""}
-        />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="videoUrl">Video highlight URL</Label>
+          <Input
+            id="videoUrl"
+            name="videoUrl"
+            placeholder="https://youtube.com/... or hudl.com/..."
+            defaultValue={defaultValues?.videoUrl ?? ""}
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor="videoTitle">Video title (optional)</Label>
+          <Input
+            id="videoTitle"
+            name="videoTitle"
+            placeholder="e.g. Junior Year Highlights"
+            maxLength={100}
+            defaultValue={defaultValues?.videoTitle ?? ""}
+          />
+          <p className="text-xs text-muted-foreground">
+            Shown as the section heading on the coach-facing profile instead of the
+            generic &ldquo;Highlight video&rdquo; label.
+          </p>
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">

@@ -61,7 +61,7 @@ export async function resolveEditRequest(
   });
 
   if (approve) {
-    await syncVideo(request.playerId, data.videoUrl);
+    await syncVideo(request.playerId, data.videoUrl, data.videoTitle);
     await syncPhotos(request.playerId, data.extraPhotos ?? []);
     await recordPlayerUpdate(request.playerId);
   }

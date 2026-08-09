@@ -38,6 +38,7 @@ const basePlayerFields = {
   extraPhotos: z.array(z.string().trim().max(300)).max(3).default([]),
   photoConsent: z.coerce.boolean().optional(),
   videoUrl: optionalUrl(),
+  videoTitle: optionalString(100),
   instagramHandle: optionalString(30),
   xHandle: optionalString(15),
   cellPhone: optionalString(20),
