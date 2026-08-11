@@ -10,8 +10,9 @@ export default async function NewAthletePage() {
       <div>
         <h1 className="font-heading text-2xl font-bold tracking-tight">Add an Athlete</h1>
         <p className="text-sm text-muted-foreground">
-          Fill in your athlete&apos;s info. You&apos;ll complete the listing fee on the
-          next step before the profile goes live for coaches.
+          This becomes the profile coaches see &mdash; and once it&apos;s live, we
+          start reaching out to coaches directly on your athlete&apos;s behalf.
+          Fill in the details below, then complete the listing fee to publish it.
         </p>
       </div>
       <PlayerForm

@@ -63,8 +63,10 @@ export default async function ParentDashboardPage() {
       {players.length === 0 ? (
         <Card className="border-dashed border-border/60 bg-card/40">
           <CardContent className="flex flex-col items-center gap-3 py-16 text-center">
-            <p className="text-muted-foreground">
-              You haven&apos;t added any athletes yet.
+            <p className="max-w-sm text-muted-foreground">
+              Once your athlete&apos;s profile is live, we start reaching out to
+              coaches directly &mdash; plus a searchable listing they can find
+              on their own. Add your first athlete to get started.
             </p>
             <Button
               className="bg-gold text-gold-foreground hover:bg-gold/90"

@@ -6,7 +6,15 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PaymentButton } from "@/components/parent/payment-button";
 import { PaymentPlanOptions } from "@/components/parent/payment-plan-options";
-import { isValidPromoCode, formatCents, PROMO_ONE_TIME_CENTS, type PackageTier } from "@/lib/pricing";
+import {
+  isValidPromoCode,
+  formatCents,
+  priceForTier,
+  fullPriceForTier,
+  gradYearForTier,
+  PROMO_ONE_TIME_CENTS,
+  type PackageTier,
+} from "@/lib/pricing";
 
 export function PaymentOptions({
   playerId,
@@ -34,6 +42,9 @@ export function PaymentOptions({
   }
 
   const displayPriceLabel = appliedPromo ? formatCents(PROMO_ONE_TIME_CENTS) : priceLabel;
+  const { annualRateCents, totalCents } = priceForTier(tier);
+  const fullCents = fullPriceForTier(tier);
+  const savingsCents = fullCents - totalCents;
 
   return (
     <div className="flex flex-col gap-4">
@@ -101,9 +112,31 @@ export function PaymentOptions({
             <CardTitle className="text-base">Listing fee &mdash; {tier.name}</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">One-time athlete profile listing</span>
-              <span className="font-heading text-2xl font-bold">{displayPriceLabel}</span>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-sm text-muted-foreground">One-time athlete profile listing</span>
+                <div className="flex items-baseline gap-2">
+                  {savingsCents > 0 && !appliedPromo && (
+                    <span className="text-sm text-muted-foreground line-through decoration-muted-foreground/50">
+                      {formatCents(fullCents)}
+                    </span>
+                  )}
+                  <span className="font-heading text-2xl font-bold">{displayPriceLabel}</span>
+                </div>
+              </div>
+              {savingsCents > 0 && !appliedPromo && (
+                <div className="flex items-center justify-end gap-2">
+                  <span className="rounded-full bg-gold/10 px-2 py-0.5 text-xs font-bold text-gold">
+                    Save {formatCents(savingsCents)}
+                  </span>
+                </div>
+              )}
+              {tier.years > 1 && (
+                <p className="text-right text-xs text-muted-foreground">
+                  {formatCents(annualRateCents)}/yr &middot; {tier.years} years covered, through
+                  Class of {gradYearForTier(tier)}
+                </p>
+              )}
             </div>
             <PaymentButton
               playerId={playerId}

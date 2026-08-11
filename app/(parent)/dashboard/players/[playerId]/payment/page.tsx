@@ -37,10 +37,10 @@ export default async function PlayerPaymentPage({
         <CheckCircle className="h-12 w-12 text-gold" weight="fill" aria-hidden />
         <div>
           <h1 className="font-heading text-2xl font-bold">
-            {player.firstName}&apos;s profile is live
+            {player.firstName}&apos;s profile is now live
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Coaches can now find this profile in search.
+            Coaches nationwide can start finding them today.
           </p>
         </div>
         <Button
