@@ -12,6 +12,7 @@ import {
   Globe,
   Handshake,
   ChatsCircle,
+  FilmSlate,
 } from "@phosphor-icons/react/dist/ssr";
 
 export const metadata: Metadata = {
@@ -42,6 +43,12 @@ const recruitingSteps: Step[] = [
       "Contact information and references",
     ],
     closing: "This profile becomes the foundation for everything that follows.",
+  },
+  {
+    icon: FilmSlate,
+    title: "Editing Your Highlight Film",
+    description:
+      "I personally edit your athlete's game and season footage into a highlight reel that shows coaches exactly what they need to see. For football and other sports that use Hudl, I work directly from their Hudl account; for everything else, I work from whatever video format you already have. This is the same hands-on approach I've used with every athlete since I started this service.",
   },
   {
     icon: Globe,

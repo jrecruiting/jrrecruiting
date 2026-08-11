@@ -10,6 +10,7 @@ import { CheckCircle } from "@phosphor-icons/react/dist/ssr";
 const INCLUDED_ITEMS = [
   "A verified, searchable profile coaches can find by state, sport, and grad year",
   "Personal outreach to coaches from our recruiting team, on top of the site listing",
+  "Editing of your athlete's game and season film, done by our team to help it stand out to coaches",
   "One fee, no recurring charges — active through graduation",
 ];
 

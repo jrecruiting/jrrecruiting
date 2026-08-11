@@ -80,8 +80,8 @@ export function OneTimePricingGrid({
                 </div>
 
                 <p className="text-sm text-muted-foreground">
-                  One verified, searchable profile &mdash; covered through
-                  graduation, no renewal needed.
+                  A verified, searchable profile with personal coach outreach
+                  and professional film editing &mdash; covered through graduation.
                 </p>
 
                 <Button
