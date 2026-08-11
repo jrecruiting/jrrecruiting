@@ -56,7 +56,7 @@ const PANEL_COPY = {
   COACH: {
     eyebrow: "For Coaches",
     headline:
-      "Find your next roster addition — verified athletes, filtered by position, grad year, and region.",
+      "Find your next roster addition: verified athletes, filtered by position, grad year, and region.",
     stats: [
       "18 years of coach relationships",
       "100+ athletes placed",
