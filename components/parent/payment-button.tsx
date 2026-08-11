@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { createListingCheckoutSession } from "@/actions/payments";
 import { Button } from "@/components/ui/button";
+import { LockSimple } from "@phosphor-icons/react/dist/ssr";
 
 export function PaymentButton({
   playerId,
@@ -26,6 +27,10 @@ export function PaymentButton({
       >
         {isPending ? "Redirecting to checkout..." : `Pay ${priceLabel} & Publish`}
       </Button>
+      <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+        <LockSimple className="h-3 w-3" aria-hidden />
+        Secure checkout via Stripe &mdash; we never see or store your card details.
+      </p>
       {state?.error && (
         <p role="alert" className="text-sm text-destructive">
           {state.error}

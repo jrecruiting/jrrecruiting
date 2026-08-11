@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { createPaymentPlanCheckoutSession } from "@/actions/payments";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { LockSimple } from "@phosphor-icons/react/dist/ssr";
 import {
   SUBSCRIPTION_PLANS,
   calculateInstallmentSchedule,
@@ -90,6 +91,10 @@ export function PaymentPlanOptions({
           <PlanOption key={plan.upfrontPercent} playerId={playerId} tier={tier} plan={plan} promoCode={promoCode} />
         ))}
       </div>
+      <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <LockSimple className="h-3 w-3 shrink-0" aria-hidden />
+        Secure checkout via Stripe &mdash; we never see or store your card details.
+      </p>
       <p className="text-xs text-muted-foreground">
         Payment plans pay the full listing rate over time and don&apos;t include the
         early-signup discount available when paying in full. Billing stops automatically

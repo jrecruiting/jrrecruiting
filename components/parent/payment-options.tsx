@@ -18,6 +18,7 @@ export function PaymentOptions({
   priceLabel: string;
 }) {
   const [mode, setMode] = useState<"full" | "monthly">("full");
+  const [promoExpanded, setPromoExpanded] = useState(false);
   const [promoInput, setPromoInput] = useState("");
   const [appliedPromo, setAppliedPromo] = useState<string | null>(null);
   const [promoError, setPromoError] = useState<string | null>(null);
@@ -36,34 +37,6 @@ export function PaymentOptions({
 
   return (
     <div className="flex flex-col gap-4">
-      {tier.id === "senior" && (
-        <div className="flex flex-col gap-1.5 rounded-lg border border-border/60 p-3">
-          <label htmlFor="promoCode" className="text-sm font-medium">
-            Have a promo code?
-          </label>
-          <div className="flex gap-2">
-            <Input
-              id="promoCode"
-              value={promoInput}
-              onChange={(e) => setPromoInput(e.target.value)}
-              placeholder="Enter code"
-              className="max-w-[180px]"
-            />
-            <Button type="button" variant="outline" size="sm" onClick={handleApplyPromo}>
-              Apply
-            </Button>
-          </div>
-          {appliedPromo && (
-            <p className="text-sm text-gold">Promo applied &mdash; your price has been updated below.</p>
-          )}
-          {promoError && (
-            <p role="alert" className="text-sm text-destructive">
-              {promoError}
-            </p>
-          )}
-        </div>
-      )}
-
       <div className="inline-flex w-fit items-center gap-[3px] rounded-lg bg-muted p-[3px]">
         <Button
           type="button"
@@ -84,6 +57,43 @@ export function PaymentOptions({
           Payment Plan
         </Button>
       </div>
+
+      {tier.id === "senior" &&
+        (promoExpanded || appliedPromo ? (
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="promoCode" className="text-sm font-medium">
+              Promo code
+            </label>
+            <div className="flex gap-2">
+              <Input
+                id="promoCode"
+                value={promoInput}
+                onChange={(e) => setPromoInput(e.target.value)}
+                placeholder="Enter code"
+                className="max-w-[180px]"
+              />
+              <Button type="button" variant="outline" size="sm" onClick={handleApplyPromo}>
+                Apply
+              </Button>
+            </div>
+            {appliedPromo && (
+              <p className="text-sm text-gold">Promo applied &mdash; your price has been updated below.</p>
+            )}
+            {promoError && (
+              <p role="alert" className="text-sm text-destructive">
+                {promoError}
+              </p>
+            )}
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setPromoExpanded(true)}
+            className="w-fit text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          >
+            Have a promo code?
+          </button>
+        ))}
 
       {mode === "full" ? (
         <Card className="border-border/60">

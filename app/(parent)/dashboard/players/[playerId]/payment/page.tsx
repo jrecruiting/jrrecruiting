@@ -7,6 +7,12 @@ import { PaymentOptions } from "@/components/parent/payment-options";
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "@phosphor-icons/react/dist/ssr";
 
+const INCLUDED_ITEMS = [
+  "A verified, searchable profile coaches can find by state, sport, and grad year",
+  "Personal outreach to coaches from our recruiting team, on top of the site listing",
+  "One fee, no recurring charges — active through graduation",
+];
+
 export default async function PlayerPaymentPage({
   params,
   searchParams,
@@ -57,6 +63,20 @@ export default async function PlayerPaymentPage({
           One more step &mdash; complete the listing fee to make this profile
           searchable by verified college coaches.
         </p>
+      </div>
+
+      <div className="flex flex-col gap-2 rounded-lg border border-border/60 bg-secondary/20 p-4">
+        <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+          What&apos;s included
+        </p>
+        <ul className="flex flex-col gap-1.5">
+          {INCLUDED_ITEMS.map((item) => (
+            <li key={item} className="flex items-start gap-2 text-sm">
+              <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-gold" weight="fill" aria-hidden />
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
       </div>
 
       {canceled && (
