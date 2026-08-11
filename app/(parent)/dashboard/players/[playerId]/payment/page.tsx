@@ -92,6 +92,14 @@ export default async function PlayerPaymentPage({
       )}
 
       <PaymentOptions playerId={playerId} tier={tier} priceLabel={priceLabel} />
+
+      <p className="text-center text-xs text-muted-foreground">
+        Having trouble paying online?{" "}
+        <Link href="/contact" className="underline underline-offset-2 hover:text-foreground">
+          Contact us
+        </Link>{" "}
+        and we&apos;ll help.
+      </p>
     </div>
   );
 }
