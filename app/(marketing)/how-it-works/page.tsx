@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { UL, LI } from "@/components/marketing/blog-prose";
+import { SCHOOLS_SIGNED } from "@/lib/schools-signed";
 import type { Icon } from "@phosphor-icons/react";
 import {
   UserPlus,
@@ -74,49 +75,6 @@ const recruitingSteps: Step[] = [
     description:
       "In addition to direct outreach, your athlete's profile and highlights are also posted on my website, where coaches can search for and review prospects on their own time, giving your athlete a presence that works even outside of active outreach.",
   },
-];
-
-// Pulled directly from schools named in our published testimonials (see
-// /testimonials) -- real, specific, and already ours to reference, unlike
-// an abstract "X programs reached" number.
-const SCHOOLS_SIGNED: string[] = [
-  "Benedictine University",
-  "Black Hills State University",
-  "Bridgewater State University",
-  "Cal Poly San Luis Obispo",
-  "Eastern University",
-  "Erskine College",
-  "Grambling State University",
-  "Hamline University",
-  "Henderson State University",
-  "Hiram College",
-  "Hobart and William Smith College",
-  "Humboldt State University",
-  "Lenoir-Rhyne University",
-  "Liberty University",
-  "Mayville State University",
-  "Minot State University",
-  "Mississippi College",
-  "Penn State University",
-  "Quincy University",
-  "Rocky Mountain College",
-  "Southeast Missouri State University",
-  "Southern Nazarene University",
-  "Southwestern Oklahoma State University",
-  "Tabor College",
-  "Tarleton State University",
-  "University of Colorado",
-  "University of Findlay",
-  "University of Idaho",
-  "University of Minnesota Crookston",
-  "University of New Haven",
-  "UNLV",
-  "Upper Iowa University",
-  "Valdosta State University",
-  "Western Illinois University",
-  "Western New Mexico University",
-  "Western Oregon University",
-  "Winston-Salem State University",
 ];
 
 const coachSteps: Step[] = [

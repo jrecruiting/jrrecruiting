@@ -7,6 +7,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { signUp } from "@/actions/auth";
 import { trackEvent } from "@/lib/analytics";
 import { ATHLETE_PHOTOS, type MarketingPhoto } from "@/lib/marketing-photos";
+import { SCHOOLS_SIGNED } from "@/lib/schools-signed";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -55,13 +56,21 @@ const PANEL_COPY = {
   COACH: {
     eyebrow: "For Coaches",
     headline:
-      "Search verified, up-to-date player profiles — filtered by sport, state, and grad year.",
+      "Find your next roster addition — verified athletes, filtered by position, grad year, and region.",
+    stats: [
+      "18 years of coach relationships",
+      "100+ athletes placed",
+      `${SCHOOLS_SIGNED.length} schools signed`,
+    ],
+    schoolsNote: "Including Penn State, Colorado, and Liberty.",
     trust: ["Manually reviewed accounts", "Free to browse", "Star & get notified"],
   },
   PARENT: {
     eyebrow: "For Parents",
     headline:
       "Get your athlete a verified, searchable profile in front of the coaches looking for them.",
+    stats: null,
+    schoolsNote: null,
     trust: [
       "One-time fee, no subscription",
       "Manually reviewed coaches only",
@@ -109,6 +118,18 @@ export function SignUpForm({
           <h1 className="text-balance font-heading text-2xl font-bold leading-tight sm:text-3xl">
             {panel.headline}
           </h1>
+          {panel.stats && (
+            <div className="flex flex-col gap-1">
+              <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm font-semibold text-foreground/90">
+                {panel.stats.map((stat) => (
+                  <span key={stat}>{stat}</span>
+                ))}
+              </div>
+              {panel.schoolsNote && (
+                <p className="text-xs text-foreground/70">{panel.schoolsNote}</p>
+              )}
+            </div>
+          )}
           <div className="flex flex-wrap gap-2">
             {panel.trust.map((label) => (
               <span
@@ -123,7 +144,25 @@ export function SignUpForm({
         </motion.div>
       </div>
 
-      <div className="flex items-center justify-center bg-secondary/20 px-4 py-12">
+      <div className="flex flex-col items-center justify-center gap-6 bg-secondary/20 px-4 py-12">
+        {panel.stats && (
+          <div className="flex w-full max-w-md flex-col gap-1.5 lg:hidden">
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-gold">
+              {panel.eyebrow}
+            </span>
+            <h1 className="text-balance font-heading text-xl font-bold leading-tight">
+              {panel.headline}
+            </h1>
+            <div className="flex flex-wrap gap-x-3 gap-y-1 text-sm font-semibold text-foreground/90">
+              {panel.stats.map((stat) => (
+                <span key={stat}>{stat}</span>
+              ))}
+            </div>
+            {panel.schoolsNote && (
+              <p className="text-xs text-muted-foreground">{panel.schoolsNote}</p>
+            )}
+          </div>
+        )}
         <motion.div
           initial={{ opacity: 0, y: reduceMotion ? 0 : 16 }}
           animate={{ opacity: 1, y: 0 }}
