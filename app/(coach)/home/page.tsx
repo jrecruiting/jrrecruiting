@@ -14,56 +14,120 @@ export default async function CoachHomePage() {
   });
 
   let feed: FeedItemData[] = [];
+  let activePlayerCount = 0;
+  let sportsCovered: string[] = [];
 
   if (isVerified) {
-    const [newPlayers, newOffers, newSchoolInterests, approvedEdits] = await Promise.all([
-      prisma.player.findMany({
-        where: { listingStatus: "ACTIVE", publishedAt: { not: null } },
-        orderBy: { publishedAt: "desc" },
-        take: FEED_LIMIT,
-        select: { id: true, firstName: true, lastName: true, publishedAt: true, primaryPhotoUrl: true },
-      }),
-      prisma.offer.findMany({
-        where: { status: "APPROVED" },
-        orderBy: { resolvedAt: "desc" },
-        take: FEED_LIMIT,
-        select: {
-          id: true,
-          schoolName: true,
-          resolvedAt: true,
-          playerSport: {
-            select: {
-              player: { select: { id: true, firstName: true, lastName: true, primaryPhotoUrl: true } },
+    const primarySportSelect = {
+      where: { isPrimary: true },
+      take: 1,
+      select: { position: true, sport: { select: { name: true } } },
+    } as const;
+
+    const [newPlayers, newOffers, newSchoolInterests, approvedEdits, playerCount, activeSports] =
+      await Promise.all([
+        prisma.player.findMany({
+          where: { listingStatus: "ACTIVE", publishedAt: { not: null } },
+          orderBy: { publishedAt: "desc" },
+          take: FEED_LIMIT,
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            gradYear: true,
+            publishedAt: true,
+            primaryPhotoUrl: true,
+            sports: primarySportSelect,
+          },
+        }),
+        prisma.offer.findMany({
+          where: { status: "APPROVED" },
+          orderBy: { resolvedAt: "desc" },
+          take: FEED_LIMIT,
+          select: {
+            id: true,
+            schoolName: true,
+            resolvedAt: true,
+            playerSport: {
+              select: {
+                position: true,
+                sport: { select: { name: true } },
+                player: {
+                  select: {
+                    id: true,
+                    firstName: true,
+                    lastName: true,
+                    gradYear: true,
+                    primaryPhotoUrl: true,
+                  },
+                },
+              },
             },
           },
-        },
-      }),
-      prisma.schoolInterest.findMany({
-        where: { status: "APPROVED" },
-        orderBy: { resolvedAt: "desc" },
-        take: FEED_LIMIT,
-        select: {
-          id: true,
-          schoolName: true,
-          resolvedAt: true,
-          playerSport: {
-            select: {
-              player: { select: { id: true, firstName: true, lastName: true, primaryPhotoUrl: true } },
+        }),
+        prisma.schoolInterest.findMany({
+          where: { status: "APPROVED" },
+          orderBy: { resolvedAt: "desc" },
+          take: FEED_LIMIT,
+          select: {
+            id: true,
+            schoolName: true,
+            resolvedAt: true,
+            playerSport: {
+              select: {
+                position: true,
+                sport: { select: { name: true } },
+                player: {
+                  select: {
+                    id: true,
+                    firstName: true,
+                    lastName: true,
+                    gradYear: true,
+                    primaryPhotoUrl: true,
+                  },
+                },
+              },
             },
           },
-        },
-      }),
-      prisma.playerEditRequest.findMany({
-        where: { status: "APPROVED", announced: true, player: { listingStatus: "ACTIVE" } },
-        orderBy: { resolvedAt: "desc" },
-        take: FEED_LIMIT,
-        select: {
-          id: true,
-          resolvedAt: true,
-          player: { select: { id: true, firstName: true, lastName: true, primaryPhotoUrl: true } },
-        },
-      }),
-    ]);
+        }),
+        prisma.playerEditRequest.findMany({
+          where: { status: "APPROVED", announced: true, player: { listingStatus: "ACTIVE" } },
+          orderBy: { resolvedAt: "desc" },
+          take: FEED_LIMIT,
+          select: {
+            id: true,
+            resolvedAt: true,
+            player: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                gradYear: true,
+                primaryPhotoUrl: true,
+                sports: primarySportSelect,
+              },
+            },
+          },
+        }),
+        prisma.player.count({ where: { listingStatus: "ACTIVE" } }),
+        prisma.playerSport.findMany({
+          where: { player: { listingStatus: "ACTIVE" } },
+          distinct: ["sportId"],
+          select: { sport: { select: { name: true } } },
+          orderBy: { sport: { name: "asc" } },
+        }),
+      ]);
+
+    activePlayerCount = playerCount;
+    sportsCovered = activeSports.map((s) => s.sport.name);
+
+    const sportLine = (
+      gradYear: number | null,
+      sport?: { position: string | null; sport: { name: string } }
+    ) =>
+      [sport?.sport.name, sport?.position, gradYear != null ? `Class of ${gradYear}` : null]
+        .filter(Boolean)
+        .join(" · ");
 
     feed = [
       ...newPlayers.map(
@@ -74,6 +138,7 @@ export default async function CoachHomePage() {
           playerId: p.id,
           playerName: `${p.firstName} ${p.lastName}`,
           photoUrl: p.primaryPhotoUrl,
+          sportLine: sportLine(p.gradYear, p.sports[0]),
         })
       ),
       ...newOffers
@@ -87,6 +152,7 @@ export default async function CoachHomePage() {
             playerName: `${o.playerSport.player.firstName} ${o.playerSport.player.lastName}`,
             photoUrl: o.playerSport.player.primaryPhotoUrl,
             schoolName: o.schoolName,
+            sportLine: sportLine(o.playerSport.player.gradYear, o.playerSport),
           })
         ),
       ...newSchoolInterests
@@ -100,6 +166,7 @@ export default async function CoachHomePage() {
             playerName: `${s.playerSport.player.firstName} ${s.playerSport.player.lastName}`,
             photoUrl: s.playerSport.player.primaryPhotoUrl,
             schoolName: s.schoolName,
+            sportLine: sportLine(s.playerSport.player.gradYear, s.playerSport),
           })
         ),
       ...approvedEdits
@@ -112,6 +179,7 @@ export default async function CoachHomePage() {
             playerId: e.player.id,
             playerName: `${e.player.firstName} ${e.player.lastName}`,
             photoUrl: e.player.primaryPhotoUrl,
+            sportLine: sportLine(e.player.gradYear, e.player.sports[0]),
           })
         ),
     ]
@@ -123,8 +191,11 @@ export default async function CoachHomePage() {
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
       {!isVerified && <VerificationBanner />}
       <HomeContent
+        coachName={session.user.name ?? "Coach"}
         announcement={announcement ? { title: announcement.title, body: announcement.body } : null}
         isVerified={isVerified}
+        activePlayerCount={activePlayerCount}
+        sportsCovered={sportsCovered}
         feed={feed}
       />
     </div>

@@ -4,9 +4,17 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { formatDistanceToNow } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { PlayerPhoto } from "@/components/player/player-photo";
 import { renderAnnouncementBody } from "@/lib/announcement-body";
-import { Trophy, ChatsCircle, UserPlus, ArrowsClockwise, PencilSimple } from "@phosphor-icons/react";
+import {
+  Trophy,
+  ChatsCircle,
+  UserPlus,
+  ArrowsClockwise,
+  PencilSimple,
+  MagnifyingGlass,
+} from "@phosphor-icons/react";
 
 export type FeedItemData = {
   key: string;
@@ -16,6 +24,7 @@ export type FeedItemData = {
   playerName: string;
   photoUrl: string | null;
   schoolName?: string;
+  sportLine?: string;
 };
 
 const TYPE_ICON = {
@@ -47,18 +56,58 @@ function feedItemText(item: FeedItemData) {
 }
 
 export function HomeContent({
+  coachName,
   announcement,
   isVerified,
+  activePlayerCount,
+  sportsCovered,
   feed,
 }: {
+  coachName: string;
   announcement: { title: string; body: string } | null;
   isVerified: boolean;
+  activePlayerCount: number;
+  sportsCovered: string[];
   feed: FeedItemData[];
 }) {
   const reduceMotion = useReducedMotion();
+  const firstName = coachName.split(" ")[0];
 
   return (
     <>
+      <div className="flex flex-col gap-1">
+        <h1 className="font-heading text-2xl font-bold tracking-tight">
+          Welcome back, {firstName}
+        </h1>
+        {isVerified && (
+          <p className="text-sm text-muted-foreground">
+            {activePlayerCount} active profile{activePlayerCount === 1 ? "" : "s"}
+            {sportsCovered.length > 0 && <> across {sportsCovered.join(", ")}</>}
+          </p>
+        )}
+      </div>
+
+      {isVerified && (
+        <Card className="border-gold/40 bg-gold/5">
+          <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="font-semibold">Ready to find your next recruit?</p>
+              <p className="text-sm text-muted-foreground">
+                Search the full database of verified athletes.
+              </p>
+            </div>
+            <Button
+              className="w-full shrink-0 bg-gold text-gold-foreground hover:bg-gold/90 sm:w-auto"
+              nativeButton={false}
+              render={<Link href="/search" />}
+            >
+              <MagnifyingGlass className="h-4 w-4" weight="bold" aria-hidden />
+              Search Players
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       {announcement && (
         <motion.div
           initial={{ opacity: 0, y: reduceMotion ? 0 : 16 }}
@@ -123,6 +172,9 @@ export function HomeContent({
                           </Link>{" "}
                           {feedItemText(item)}
                         </p>
+                        {item.sportLine && (
+                          <p className="mt-0.5 text-xs text-muted-foreground">{item.sportLine}</p>
+                        )}
                         <p className="mt-0.5 text-xs text-muted-foreground">
                           {formatDistanceToNow(new Date(item.at), { addSuffix: true })}
                         </p>
