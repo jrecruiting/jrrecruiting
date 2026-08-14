@@ -41,6 +41,10 @@ export default async function TeamCoachPlayerPage({
   });
   if (!player) notFound();
 
+  const schoolSchedule = player.schoolName
+    ? await prisma.schoolFootballSchedule.findUnique({ where: { schoolName: player.schoolName } })
+    : null;
+
   const video = player.media.find((m) => m.type === "VIDEO");
   const extraPhotos = player.media
     .filter((m) => m.type === "PHOTO")
@@ -210,6 +214,24 @@ export default async function TeamCoachPlayerPage({
               className="mt-1 inline-block text-sm text-gold hover:underline"
             >
               {video.url}
+            </a>
+          </CardContent>
+        </Card>
+      )}
+
+      {schoolSchedule && (
+        <Card className="border-border/60">
+          <CardContent>
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">
+              Football Schedule
+            </p>
+            <a
+              href={schoolSchedule.scheduleUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-1 inline-block text-sm text-gold hover:underline"
+            >
+              View {schoolSchedule.schoolName}&apos;s Schedule
             </a>
           </CardContent>
         </Card>

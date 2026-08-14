@@ -342,6 +342,20 @@ model Announcement {
   @@map("announcements")
 }
 
+// Links a school's football schedule (e.g. a MaxPreps page) to be shown on
+// the coach-facing profile of every player whose schoolName matches. Chosen
+// from an existing player's schoolName in the admin UI (never free-typed)
+// so it can't silently drift out of sync with what's actually on file.
+model SchoolFootballSchedule {
+  id          String   @id @default(cuid())
+  schoolName  String   @unique
+  scheduleUrl String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("school_football_schedules")
+}
+
 // ── Claim flow (admin-authored → parent-linked) ────────
 
 enum ClaimStatus {

@@ -38,9 +38,14 @@ export default async function CoachPlayerProfilePage({
 
   await recordProfileView(playerId, session.user.id);
 
-  const myStar = await prisma.star.findUnique({
-    where: { coachId_playerId: { coachId: session.user.id, playerId } },
-  });
+  const [myStar, schoolSchedule] = await Promise.all([
+    prisma.star.findUnique({
+      where: { coachId_playerId: { coachId: session.user.id, playerId } },
+    }),
+    isVerified && player.schoolName
+      ? prisma.schoolFootballSchedule.findUnique({ where: { schoolName: player.schoolName } })
+      : null,
+  ]);
 
   const video = player.media.find((m) => m.type === "VIDEO");
   const extraPhotos = player.media
@@ -241,6 +246,24 @@ export default async function CoachPlayerProfilePage({
                   className="mt-1 inline-block text-sm text-gold hover:underline"
                 >
                   {video.url}
+                </a>
+              </CardContent>
+            </Card>
+          )}
+
+          {schoolSchedule && (
+            <Card className="border-border/60">
+              <CardContent>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Football Schedule
+                </p>
+                <a
+                  href={schoolSchedule.scheduleUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-1 inline-block text-sm text-gold hover:underline"
+                >
+                  View {schoolSchedule.schoolName}&apos;s Schedule
                 </a>
               </CardContent>
             </Card>
