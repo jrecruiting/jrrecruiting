@@ -16,7 +16,7 @@ export default function Post() {
     <>
       <P>
         Junior college athletes and transfers are recruiting under a
-        completely different clock than high schoolers &mdash; often with
+        completely different clock than high schoolers, often with
         less time, fewer eyes on their games, and a narrower academic
         window. The good news: four-year programs actively look to JUCO and
         transfer rosters to fill immediate needs, which means a strong,
@@ -32,7 +32,7 @@ export default function Post() {
         film that shows the player can compete and produce right now matters
         more than long-term projection. If your athlete has a strong
         stretch of games, that film needs to be in front of coaches while
-        it&apos;s still relevant &mdash; not sitting on a hard drive until
+        it&apos;s still relevant, not sitting on a hard drive until
         the season ends.
       </P>
 
@@ -43,7 +43,7 @@ export default function Post() {
         conference. Credits have to transfer, GPA has to hold up, and
         timelines are often tight. Before reaching out to programs, get a
         clear, current read on eligibility status directly from your current
-        school&apos;s academic advisor or compliance office &mdash; it&apos;s
+        school&apos;s academic advisor or compliance office. It&apos;s
         one of the first things a college coach&apos;s staff will check, and
         having the answer ready builds credibility fast.
       </P>
@@ -52,7 +52,7 @@ export default function Post() {
       <UL>
         <LI>
           Update stats and film after every strong outing, not just at the
-          end of the season &mdash; coaches building a transfer class are
+          end of the season. Coaches building a transfer class are
           often working weeks, not months, ahead of a signing period.
         </LI>
         <LI>
@@ -61,8 +61,8 @@ export default function Post() {
           will skip past anything unclear.
         </LI>
         <LI>
-          Reach out directly to programs at the level you&apos;re targeting
-          &mdash; don&apos;t wait to be found. A short, specific message with
+          Reach out directly to programs at the level you&apos;re targeting.
+          Don&apos;t wait to be found. A short, specific message with
           a link to current film and stats gets read far more often than a
           cold general inquiry.
         </LI>
@@ -72,15 +72,15 @@ export default function Post() {
       <P>
         JUCO and transfer athletes often have more leverage than they
         realize, but that leverage depends on targeting the right level.
-        Reaching out broadly across D1, D2, D3, and NAIA programs &mdash; and
-        paying attention to which ones actually respond &mdash; is a far more
+        Reaching out broadly across D1, D2, D3, and NAIA programs (and
+        paying attention to which ones actually respond) is a far more
         effective strategy than fixating on a single target level and going
         quiet if that door doesn&apos;t open right away.
       </P>
 
       <Callout>
         A searchable, verified profile matters just as much for JUCO and
-        transfer athletes as it does for high schoolers &mdash; it&apos;s
+        transfer athletes as it does for high schoolers. It&apos;s
         often the fastest way for a program filling a late roster need to
         find exactly the player they&apos;re looking for.{" "}
         <Link href="/pricing" className="font-semibold text-gold hover:underline">

@@ -25,7 +25,7 @@ export function AboutSection() {
           <p className="max-w-xl text-balance text-muted-foreground">
             Too many talented athletes get missed simply because the right
             coach never saw the right profile at the right time. We built J.R.
-            Recruiting to close that gap &mdash; giving every athlete a
+            Recruiting to close that gap. Every athlete gets a
             verified, searchable presence in front of the coaches actively
             looking for them.
           </p>

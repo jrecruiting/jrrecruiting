@@ -24,8 +24,8 @@ export default function BlogIndexPage() {
           Recruiting advice for parents and athletes
         </h1>
         <p className="mt-4 text-balance text-muted-foreground">
-          Practical guidance on how the recruiting process actually works
-          &mdash; written by people who&apos;ve helped athletes get found.
+          Practical guidance on how the recruiting process actually works,
+          written by people who&apos;ve helped athletes get found.
         </p>
       </div>
 

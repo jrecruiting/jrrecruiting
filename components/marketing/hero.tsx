@@ -157,8 +157,8 @@ export function Hero() {
             className="max-w-xl text-balance text-lg text-muted-foreground"
           >
             J.R. Recruiting gets your athlete in front of college coaches through
-            direct, personal outreach &mdash; built on 18 years of real coach
-            relationships &mdash; plus a verified, searchable profile coaches can
+            direct, personal outreach built on 18 years of real coach
+            relationships, plus a verified, searchable profile coaches can
             find by state, country, and sport.
           </motion.p>
 

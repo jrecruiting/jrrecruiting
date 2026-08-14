@@ -20,7 +20,7 @@ import {
 export const metadata: Metadata = {
   title: "How It Works",
   description:
-    "How Javier builds your athlete's profile, distributes it directly to college coaches, and personally follows up until you get results — for football and every other sport we work with.",
+    "How Javier builds your athlete's profile, distributes it directly to college coaches, and personally follows up until you get results, for football and every other sport we work with.",
 };
 
 type Step = {
@@ -41,7 +41,7 @@ const recruitingSteps: Step[] = [
       "Game stats and season highlights",
       "Highlight and full-game film",
       "Academic record (GPA, test scores)",
-      "Measurables (height, weight, and the key numbers for your sport — 40-yard dash, exit velocity, event times, and more)",
+      "Measurables (height, weight, and the key numbers for your sport: 40-yard dash, exit velocity, event times, and more)",
       "Contact information and references",
     ],
     closing: "This profile becomes the foundation for everything that follows.",
@@ -56,7 +56,7 @@ const recruitingSteps: Step[] = [
     icon: Globe,
     title: "National Distribution",
     description:
-      "Once the profile is complete, it's put directly in front of coaches. For football, that means our established Prospect List — sent to coaches at over 700 college programs across FBS, FCS, D2, D3, and NAIA, with weekly updates so your athlete stays visible on an ongoing basis, not just after one initial send. For other sports, I build that same kind of direct distribution to the programs and coaches relevant to your athlete, using the same hands-on approach.",
+      "Once the profile is complete, it's put directly in front of coaches. For football, that means our established Prospect List, sent to coaches at over 700 college programs across FBS, FCS, D2, D3, and NAIA, with weekly updates so your athlete stays visible on an ongoing basis, not just after one initial send. For other sports, I build that same kind of direct distribution to the programs and coaches relevant to your athlete, using the same hands-on approach.",
   },
   {
     icon: Handshake,
@@ -68,7 +68,7 @@ const recruitingSteps: Step[] = [
     icon: ChatsCircle,
     title: "Keeping You in the Loop",
     description:
-      "Recruiting only works when everyone — you, me, and the coaches — is communicating. Every two weeks, I'll share whatever feedback I've gathered from coaches directly with you, so we're always on the same page about where things stand with each school and what the right next move is.",
+      "Recruiting only works when everyone (you, me, and the coaches) is communicating. Every two weeks, I'll share whatever feedback I've gathered from coaches directly with you, so we're always on the same page about where things stand with each school and what the right next move is.",
   },
   {
     icon: MagnifyingGlass,

@@ -21,7 +21,7 @@ export default function ContactPage() {
         </h1>
         <p className="mt-4 text-balance text-muted-foreground">
           Questions about listing your athlete, coach access, or anything
-          else &mdash; send us a message and we&apos;ll get back to you.
+          else: send us a message and we&apos;ll get back to you.
         </p>
       </div>
 

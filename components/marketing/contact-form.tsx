@@ -20,7 +20,7 @@ export function ContactForm() {
       >
         <h2 className="font-heading text-xl font-semibold">Message sent</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Thanks for reaching out &mdash; we&apos;ll get back to you soon.
+          Thanks for reaching out. We&apos;ll get back to you soon.
         </p>
       </div>
     );

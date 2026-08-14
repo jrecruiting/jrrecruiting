@@ -81,7 +81,7 @@ export function OneTimePricingGrid({
 
                 <p className="text-sm text-muted-foreground">
                   A verified, searchable profile with personal coach outreach
-                  and professional film editing &mdash; covered through graduation.
+                  and professional film editing, covered through graduation.
                 </p>
 
                 <Button

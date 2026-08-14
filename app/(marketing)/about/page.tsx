@@ -107,8 +107,8 @@ export default function AboutPage() {
             athletes across every sport, built on that same direct,
             personal approach. Too many talented athletes get missed
             simply because the right coach never saw the right profile at
-            the right time. We built J.R. Recruiting to close that gap
-            &mdash; giving every athlete a verified, searchable presence
+            the right time. We built J.R. Recruiting to close that gap.
+            Every athlete gets a verified, searchable presence
             in front of the coaches actively looking for them.
           </p>
         </div>

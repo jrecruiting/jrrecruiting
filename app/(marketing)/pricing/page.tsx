@@ -22,7 +22,7 @@ export default function PricingPage() {
         <p className="mt-4 text-balance text-muted-foreground">
           Pay in full and lock in a discount for signing up early, or spread
           the cost out with a monthly payment plan. Either way, it&apos;s a
-          one-time purchase &mdash; no recurring renewals once you&apos;re
+          one-time purchase. No recurring renewals once you&apos;re
           paid off.
         </p>
       </div>
