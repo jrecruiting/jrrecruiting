@@ -7,12 +7,14 @@ import { buildPlayerWhere } from "@/lib/search/build-where";
 import { playerTypeLabel } from "@/lib/player-types";
 import { maskLastName } from "@/lib/coach-visibility";
 import { formatHeight } from "@/lib/player-data";
-import { QuickStarButton } from "@/components/coach/quick-star-button";
-import { PlayerPhoto } from "@/components/player/player-photo";
 import { FilterSidebar } from "@/components/search/filter-sidebar";
+import {
+  PlayerResultsGrid,
+  ResultsPendingIndicator,
+  type PlayerCardData,
+} from "@/components/search/player-results-grid";
+import { SearchTransitionProvider } from "@/components/search/search-transition-context";
 import { VerificationBanner } from "@/components/coach/verification-banner";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 const PAGE_SIZE = 12;
@@ -65,131 +67,103 @@ export default async function CoachSearchPage({
     return `/search?${params.toString()}`;
   };
 
+  const cards: PlayerCardData[] = players.map((player) => {
+    const displayLastName = isVerified ? player.lastName : maskLastName(player.lastName);
+    const displayLocation = [isVerified ? player.city : null, player.state, player.country]
+      .filter(Boolean)
+      .join(", ");
+    const measurables = [
+      player.heightIn ? formatHeight(player.heightIn) : null,
+      player.weightLb ? `${player.weightLb} lb` : null,
+    ]
+      .filter(Boolean)
+      .join(" · ");
+    const offerCount = player.sports.reduce((sum, s) => sum + s._count.offers, 0);
+    const sportLine =
+      player.sports
+        .map(
+          (s) =>
+            `${s.sport.name}${s.position ? ` · ${s.position}` : ""}${s.projections.length > 0 ? ` · ${s.projections.join(", ")}` : ""}`
+        )
+        .join(", ") || "No sport set";
+    const genderLocationLine = [
+      player.gender === "MALE" ? "Boy" : "Girl",
+      player.gradYear != null ? `Class of ${player.gradYear}` : null,
+      displayLocation || null,
+    ]
+      .filter(Boolean)
+      .join(" · ");
+
+    return {
+      id: player.id,
+      displayName: `${player.firstName} ${displayLastName}`,
+      sportLine,
+      photoUrl: player.primaryPhotoUrl,
+      starred: starredIds.has(player.id),
+      offerCount,
+      playerTypeLabel: playerTypeLabel(player.playerType),
+      genderLocationLine,
+      measurables: measurables || null,
+    };
+  });
+
   return (
-    <div className="grid gap-8 lg:grid-cols-[240px_1fr]">
-      <aside className="lg:sticky lg:top-24 lg:self-start">
-        <FilterSidebar sports={sports} />
-      </aside>
+    <SearchTransitionProvider>
+      <div className="grid gap-8 lg:grid-cols-[240px_1fr]">
+        <aside className="lg:sticky lg:top-24 lg:self-start">
+          <FilterSidebar sports={sports} />
+        </aside>
 
-      <div className="flex flex-col gap-6">
-        <div className="flex items-baseline justify-between">
-          <h1 className="font-heading text-2xl font-bold tracking-tight">Search Players</h1>
-          <p className="text-sm text-muted-foreground">
-            {total} player{total === 1 ? "" : "s"}
-          </p>
+        <div className="flex flex-col gap-6">
+          <div className="flex items-baseline justify-between gap-3">
+            <h1 className="font-heading text-2xl font-bold tracking-tight">Search Players</h1>
+            <div className="flex items-center gap-3">
+              <ResultsPendingIndicator />
+              <p className="text-sm text-muted-foreground">
+                {total} player{total === 1 ? "" : "s"}
+              </p>
+            </div>
+          </div>
+
+          {!isVerified && <VerificationBanner />}
+
+          {cards.length === 0 ? (
+            <p className="text-muted-foreground">
+              No players match these filters. Try broadening your search.
+            </p>
+          ) : (
+            <PlayerResultsGrid players={cards} isVerified={isVerified} />
+          )}
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-border/60"
+                disabled={page <= 1}
+                nativeButton={false}
+                render={<Link href={paramsForPage(page - 1)} aria-disabled={page <= 1} />}
+              >
+                Previous
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                Page {page} of {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-border/60"
+                disabled={page >= totalPages}
+                nativeButton={false}
+                render={<Link href={paramsForPage(page + 1)} aria-disabled={page >= totalPages} />}
+              >
+                Next
+              </Button>
+            </div>
+          )}
         </div>
-
-        {!isVerified && <VerificationBanner />}
-
-        {players.length === 0 ? (
-          <p className="text-muted-foreground">
-            No players match these filters. Try broadening your search.
-          </p>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {players.map((player) => {
-              const displayLastName = isVerified
-                ? player.lastName
-                : maskLastName(player.lastName);
-              const displayLocation = [
-                isVerified ? player.city : null,
-                player.state,
-                player.country,
-              ]
-                .filter(Boolean)
-                .join(", ");
-              const displayMeasurables = [
-                player.heightIn ? formatHeight(player.heightIn) : null,
-                player.weightLb ? `${player.weightLb} lb` : null,
-              ]
-                .filter(Boolean)
-                .join(" · ");
-              const offerCount = player.sports.reduce((sum, s) => sum + s._count.offers, 0);
-
-              return (
-                <Card key={player.id} className="border-border/60">
-                  <CardContent className="flex flex-col gap-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-start gap-3">
-                        <PlayerPhoto
-                          pathname={isVerified ? player.primaryPhotoUrl : null}
-                          alt={`${player.firstName} ${displayLastName}`}
-                          size="sm"
-                        />
-                        <div>
-                          <Link
-                            href={`/players/${player.id}`}
-                            className="font-heading text-base font-semibold hover:text-gold"
-                          >
-                            {player.firstName} {displayLastName}
-                          </Link>
-                          <p className="text-xs text-muted-foreground">
-                            {player.sports
-                              .map(
-                                (s) =>
-                                  `${s.sport.name}${s.position ? ` · ${s.position}` : ""}${s.projections.length > 0 ? ` · ${s.projections.join(", ")}` : ""}`
-                              )
-                              .join(", ") || "No sport set"}
-                          </p>
-                        </div>
-                      </div>
-                      <QuickStarButton
-                        playerId={player.id}
-                        initialStarred={starredIds.has(player.id)}
-                        className="-mr-2 -mt-2 shrink-0"
-                      />
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {isVerified && offerCount > 0 && (
-                        <Badge className="bg-gold font-semibold text-gold-foreground">
-                          {offerCount} Offer{offerCount === 1 ? "" : "s"}
-                        </Badge>
-                      )}
-                      <Badge variant="secondary">{playerTypeLabel(player.playerType)}</Badge>
-                    </div>
-                    <p className="text-xs text-foreground/85">
-                      {player.gender === "MALE" ? "Boy" : "Girl"}
-                      {player.gradYear != null ? ` · Class of ${player.gradYear}` : ""}
-                      {displayLocation ? ` · ${displayLocation}` : ""}
-                    </p>
-                    {displayMeasurables && (
-                      <p className="text-[0.7rem] text-muted-foreground/70">{displayMeasurables}</p>
-                    )}
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        )}
-
-        {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-3 pt-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-border/60"
-              disabled={page <= 1}
-              nativeButton={false}
-              render={<Link href={paramsForPage(page - 1)} aria-disabled={page <= 1} />}
-            >
-              Previous
-            </Button>
-            <span className="text-sm text-muted-foreground">
-              Page {page} of {totalPages}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-border/60"
-              disabled={page >= totalPages}
-              nativeButton={false}
-              render={<Link href={paramsForPage(page + 1)} aria-disabled={page >= totalPages} />}
-            >
-              Next
-            </Button>
-          </div>
-        )}
       </div>
-    </div>
+    </SearchTransitionProvider>
   );
 }

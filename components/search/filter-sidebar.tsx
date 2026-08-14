@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useRef, useState, useTransition } from "react";
+import { useCallback, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchTransition } from "@/components/search/search-transition-context";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import {
@@ -26,7 +27,7 @@ export function FilterSidebar({ sports }: { sports: { id: string; name: string }
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [, startTransition] = useTransition();
+  const { startTransition } = useSearchTransition();
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Bumped only on "Clear all" to force the uncontrolled text inputs to
   // remount (and thus drop their stale defaultValue) — normal typing or
