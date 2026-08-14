@@ -26,8 +26,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Plus, X } from "@phosphor-icons/react/dist/ssr";
 
 type SportOption = { id: string; name: string };
+
+type VideoRow = { key: string; url?: string; title?: string };
+
+let videoRowCounter = 0;
+function newVideoRowKey() {
+  videoRowCounter += 1;
+  return `video-${videoRowCounter}`;
+}
 
 type PlayerDefaults = {
   firstName?: string;
@@ -48,8 +57,7 @@ type PlayerDefaults = {
   photoConsent?: boolean;
   sportId?: string;
   position?: string | null;
-  videoUrl?: string;
-  videoTitle?: string | null;
+  videos?: { url: string; title?: string | null }[];
   instagramHandle?: string | null;
   xHandle?: string | null;
   cellPhone?: string | null;
@@ -86,6 +94,21 @@ export function PlayerForm({
   const announceInputRef = useRef<HTMLInputElement>(null);
   const [playerType, setPlayerType] = useState(defaultValues?.playerType);
   const [announceDialogOpen, setAnnounceDialogOpen] = useState(false);
+  const [videoRows, setVideoRows] = useState<VideoRow[]>(() =>
+    (defaultValues?.videos ?? []).map((v) => ({
+      key: newVideoRowKey(),
+      url: v.url,
+      title: v.title ?? "",
+    }))
+  );
+
+  function addVideoRow() {
+    setVideoRows((rows) => [...rows, { key: newVideoRowKey() }]);
+  }
+
+  function removeVideoRow(key: string) {
+    setVideoRows((rows) => rows.filter((r) => r.key !== key));
+  }
 
   function clearAllPhotos() {
     photoUploadRef.current?.clear();
@@ -319,30 +342,55 @@ export function PlayerForm({
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="videoUrl">Video highlight URL</Label>
-          <Input
-            id="videoUrl"
-            name="videoUrl"
-            placeholder="https://youtube.com/... or hudl.com/..."
-            defaultValue={defaultValues?.videoUrl ?? ""}
-          />
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <Label>Highlight videos</Label>
+          <Button type="button" variant="outline" size="sm" onClick={addVideoRow}>
+            <Plus className="h-3.5 w-3.5" weight="bold" aria-hidden />
+            Add Video
+          </Button>
         </div>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="videoTitle">Video title (optional)</Label>
-          <Input
-            id="videoTitle"
-            name="videoTitle"
-            placeholder="e.g. Junior Year Highlights"
-            maxLength={100}
-            defaultValue={defaultValues?.videoTitle ?? ""}
-          />
-          <p className="text-xs text-muted-foreground">
-            Shown as the section heading on the coach-facing profile instead of the
-            generic &ldquo;Highlight video&rdquo; label.
-          </p>
-        </div>
+        <p className="text-xs text-muted-foreground">
+          Add as many clips as you&apos;d like -- YouTube, Hudl, Vimeo, or any other link.
+          The first video&apos;s title is used as its section heading on the coach-facing
+          profile.
+        </p>
+
+        {videoRows.map((row) => (
+          <div
+            key={row.key}
+            className="grid grid-cols-[1fr_1fr_auto] items-end gap-3 rounded-lg border border-border/60 p-3"
+          >
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor={`videoUrl-${row.key}`}>Video URL</Label>
+              <Input
+                id={`videoUrl-${row.key}`}
+                name="videoUrl"
+                placeholder="https://youtube.com/... or hudl.com/..."
+                defaultValue={row.url ?? ""}
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor={`videoTitle-${row.key}`}>Title (optional)</Label>
+              <Input
+                id={`videoTitle-${row.key}`}
+                name="videoTitle"
+                placeholder="e.g. Junior Year Highlights"
+                maxLength={100}
+                defaultValue={row.title ?? ""}
+              />
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => removeVideoRow(row.key)}
+              aria-label="Remove video"
+            >
+              <X className="h-4 w-4" aria-hidden />
+            </Button>
+          </div>
+        ))}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">

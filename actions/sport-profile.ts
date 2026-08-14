@@ -30,15 +30,18 @@ async function createSpinoffProfile(
       sports: {
         create: { sportId: data.sportId, position: data.position || null, isPrimary: true },
       },
-      media: data.videoUrl
-        ? {
-            create: {
-              type: "VIDEO",
-              provider: guessVideoProvider(data.videoUrl),
-              url: data.videoUrl,
-            },
-          }
-        : undefined,
+      media:
+        data.videos.length > 0
+          ? {
+              create: data.videos.map((v, i) => ({
+                type: "VIDEO" as const,
+                provider: guessVideoProvider(v.url),
+                url: v.url,
+                title: v.title || null,
+                sortOrder: i,
+              })),
+            }
+          : undefined,
     },
   });
 

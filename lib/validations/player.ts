@@ -9,8 +9,10 @@ const optionalInt = (min: number, max: number) =>
 const optionalString = (max: number) =>
   z.preprocess(emptyToUndefined, z.string().trim().max(max).optional());
 
-const optionalUrl = () =>
-  z.preprocess(emptyToUndefined, z.string().trim().url("Enter a valid URL").optional());
+const videoEntrySchema = z.object({
+  url: z.string().trim().url("Enter a valid video URL"),
+  title: optionalString(100),
+});
 
 const basePlayerFields = {
   firstName: z.string().trim().min(1, "First name is required").max(60),
@@ -37,8 +39,9 @@ const basePlayerFields = {
   // ordered list, never sparse.
   extraPhotos: z.array(z.string().trim().max(300)).max(3).default([]),
   photoConsent: z.coerce.boolean().optional(),
-  videoUrl: optionalUrl(),
-  videoTitle: optionalString(100),
+  // No fixed cap on how many highlight clips a player can list -- the 50
+  // ceiling is only an anti-abuse backstop, not a product limit.
+  videos: z.array(videoEntrySchema).max(50).default([]),
   instagramHandle: optionalString(30),
   xHandle: optionalString(15),
   cellPhone: optionalString(20),

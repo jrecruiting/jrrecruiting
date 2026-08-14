@@ -10,7 +10,7 @@ import {
   parseCreatePlayerForm,
   parseUpdatePlayerForm,
   buildPlayerData,
-  syncVideo,
+  syncVideos,
   syncPhotos,
   guessVideoProvider,
 } from "@/lib/player-data";
@@ -39,16 +39,18 @@ export async function createPlayerAdmin(
         sports: {
           create: { sportId: data.sportId, position: data.position || null, isPrimary: true },
         },
-        media: data.videoUrl
-          ? {
-              create: {
-                type: "VIDEO",
-                provider: guessVideoProvider(data.videoUrl),
-                url: data.videoUrl,
-                title: data.videoTitle || null,
-              },
-            }
-          : undefined,
+        media:
+          data.videos.length > 0
+            ? {
+                create: data.videos.map((v, i) => ({
+                  type: "VIDEO" as const,
+                  provider: guessVideoProvider(v.url),
+                  url: v.url,
+                  title: v.title || null,
+                  sortOrder: i,
+                })),
+              }
+            : undefined,
       },
     });
     playerId = player.id;
@@ -74,7 +76,7 @@ export async function updatePlayerAdmin(
   try {
     const data = parseUpdatePlayerForm(formData);
     await prisma.player.update({ where: { id: playerId }, data: buildPlayerData(data) });
-    await syncVideo(playerId, data.videoUrl, data.videoTitle);
+    await syncVideos(playerId, data.videos);
     await syncPhotos(playerId, data.extraPhotos);
     await recordPlayerUpdate(playerId);
 
@@ -136,16 +138,18 @@ export async function createPlayerParent(
         sports: {
           create: { sportId: data.sportId, position: data.position || null, isPrimary: true },
         },
-        media: data.videoUrl
-          ? {
-              create: {
-                type: "VIDEO",
-                provider: guessVideoProvider(data.videoUrl),
-                url: data.videoUrl,
-                title: data.videoTitle || null,
-              },
-            }
-          : undefined,
+        media:
+          data.videos.length > 0
+            ? {
+                create: data.videos.map((v, i) => ({
+                  type: "VIDEO" as const,
+                  provider: guessVideoProvider(v.url),
+                  url: v.url,
+                  title: v.title || null,
+                  sortOrder: i,
+                })),
+              }
+            : undefined,
       },
     });
     playerId = player.id;

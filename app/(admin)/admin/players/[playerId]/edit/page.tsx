@@ -41,7 +41,10 @@ export default async function EditPlayerPage({
   const sortedSports = player.sports
     .slice()
     .sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary));
-  const primaryVideo = player.media.find((m) => m.type === "VIDEO");
+  const videos = player.media
+    .filter((m) => m.type === "VIDEO")
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((m) => ({ url: m.url, title: m.title }));
   const extraPhotos = player.media
     .filter((m) => m.type === "PHOTO")
     .sort((a, b) => a.sortOrder - b.sortOrder)
@@ -105,8 +108,7 @@ export default async function EditPlayerPage({
           primaryPhotoUrl: player.primaryPhotoUrl,
           extraPhotos,
           photoConsent: player.photoConsent,
-          videoUrl: primaryVideo?.url,
-          videoTitle: primaryVideo?.title,
+          videos,
           instagramHandle: player.instagramHandle,
           xHandle: player.xHandle,
           cellPhone: player.cellPhone,

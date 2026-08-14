@@ -63,7 +63,11 @@ export default async function AdminEditRequestsPage() {
             const proposed = request.proposedData as unknown as UpdatePlayerFormValues;
             const proposedRow = buildPlayerData(proposed) as unknown as Record<string, unknown>;
             const currentPlayer = request.player as unknown as Record<string, unknown>;
-            const currentVideo = request.player.media.find((m) => m.type === "VIDEO");
+            const currentVideos = request.player.media
+              .filter((m) => m.type === "VIDEO")
+              .sort((a, b) => a.sortOrder - b.sortOrder)
+              .map((m) => m.url);
+            const proposedVideos = (proposed.videos ?? []).map((v) => v.url);
             const currentPhotos = request.player.media
               .filter((m) => m.type === "PHOTO")
               .sort((a, b) => a.sortOrder - b.sortOrder)
@@ -78,19 +82,11 @@ export default async function AdminEditRequestsPage() {
               if (before !== after) rows.push({ label: FIELD_LABELS[key], before, after });
             }
 
-            const beforeVideo = currentVideo?.url ?? "—";
-            const afterVideo = proposed.videoUrl || "—";
-            if (beforeVideo !== afterVideo) {
-              rows.push({ label: "Highlight video", before: beforeVideo, after: afterVideo });
-            }
-
-            const beforeVideoTitle = currentVideo?.title ?? "—";
-            const afterVideoTitle = proposed.videoTitle || "—";
-            if (beforeVideoTitle !== afterVideoTitle) {
+            if (currentVideos.join("|") !== proposedVideos.join("|")) {
               rows.push({
-                label: "Highlight video title",
-                before: beforeVideoTitle,
-                after: afterVideoTitle,
+                label: "Highlight videos",
+                before: currentVideos.length > 0 ? `${currentVideos.length} video(s)` : "—",
+                after: proposedVideos.length > 0 ? `${proposedVideos.length} video(s)` : "—",
               });
             }
 

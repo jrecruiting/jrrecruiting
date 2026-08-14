@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { PlayerPhotoGallery } from "@/components/player/player-photo-gallery";
+import { HighlightVideos } from "@/components/player/highlight-videos";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { playerTypeLabel } from "@/lib/player-types";
@@ -45,7 +46,9 @@ export default async function TeamCoachPlayerPage({
     ? await prisma.schoolFootballSchedule.findUnique({ where: { schoolName: player.schoolName } })
     : null;
 
-  const video = player.media.find((m) => m.type === "VIDEO");
+  const videos = player.media
+    .filter((m) => m.type === "VIDEO")
+    .sort((a, b) => a.sortOrder - b.sortOrder);
   const extraPhotos = player.media
     .filter((m) => m.type === "PHOTO")
     .sort((a, b) => a.sortOrder - b.sortOrder)
@@ -201,23 +204,7 @@ export default async function TeamCoachPlayerPage({
         );
       })}
 
-      {video && (
-        <Card className="border-border/60">
-          <CardContent>
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">
-              {video.title || "Highlight video"}
-            </p>
-            <a
-              href={video.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-1 inline-block text-sm text-gold hover:underline"
-            >
-              {video.url}
-            </a>
-          </CardContent>
-        </Card>
-      )}
+      <HighlightVideos videos={videos} />
 
       {schoolSchedule && (
         <Card className="border-border/60">

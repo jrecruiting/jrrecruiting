@@ -20,10 +20,24 @@ function extraPhotosFromFormData(formData: FormData): string[] {
     .filter(Boolean);
 }
 
+// Video rows submit as repeated same-name url/title inputs (one pair per
+// row in the form's "Add Video" repeater), so they need to be zipped back
+// into an array before validation, same as stats' label/value pairs. Rows
+// with no URL are dropped rather than validated, since an empty row just
+// means the parent added then didn't fill in a slot.
+function videosFromFormData(formData: FormData): { url: string; title?: string }[] {
+  const urls = formData.getAll("videoUrl").map(String);
+  const titles = formData.getAll("videoTitle").map(String);
+  return urls
+    .map((url, i) => ({ url: url.trim(), title: (titles[i] ?? "").trim() }))
+    .filter((v) => v.url);
+}
+
 export function parseCreatePlayerForm(formData: FormData): CreatePlayerFormValues {
   return createPlayerFormSchema.parse({
     ...Object.fromEntries(formData.entries()),
     extraPhotos: extraPhotosFromFormData(formData),
+    videos: videosFromFormData(formData),
   });
 }
 
@@ -31,6 +45,7 @@ export function parseUpdatePlayerForm(formData: FormData): UpdatePlayerFormValue
   return updatePlayerFormSchema.parse({
     ...Object.fromEntries(formData.entries()),
     extraPhotos: extraPhotosFromFormData(formData),
+    videos: videosFromFormData(formData),
   });
 }
 
@@ -77,29 +92,45 @@ export function buildPlayerData(data: UpdatePlayerFormValues) {
   };
 }
 
-export async function syncVideo(
-  playerId: string,
-  videoUrl: string | undefined,
-  videoTitle?: string
-) {
-  if (!videoUrl) return;
-
-  const title = videoTitle || null;
-  const existing = await prisma.mediaAsset.findFirst({
-    where: { playerId, type: "VIDEO", url: videoUrl },
+// Reconciles a player's video MediaAsset rows (type VIDEO) to exactly match
+// the submitted ordered list of {url, title} entries -- same match-by-url,
+// delete-what's-gone, rewrite-sortOrder approach as syncPhotos, plus a title
+// update for rows that kept the same URL but got a new title.
+export async function syncVideos(playerId: string, videos: { url: string; title?: string }[]) {
+  const existing = await prisma.mediaAsset.findMany({
+    where: { playerId, type: "VIDEO" },
   });
-  if (!existing) {
-    await prisma.mediaAsset.create({
-      data: {
-        playerId,
-        type: "VIDEO",
-        provider: guessVideoProvider(videoUrl),
-        url: videoUrl,
-        title,
-      },
-    });
-  } else if (existing.title !== title) {
-    await prisma.mediaAsset.update({ where: { id: existing.id }, data: { title } });
+  const existingByUrl = new Map(existing.map((m) => [m.url, m]));
+  const keep = new Set(videos.map((v) => v.url));
+
+  const toDelete = existing.filter((m) => !keep.has(m.url));
+  if (toDelete.length > 0) {
+    await prisma.mediaAsset.deleteMany({ where: { id: { in: toDelete.map((m) => m.id) } } });
+  }
+
+  for (let i = 0; i < videos.length; i++) {
+    const { url, title } = videos[i];
+    const normalizedTitle = title || null;
+    const existingRow = existingByUrl.get(url);
+    if (existingRow) {
+      if (existingRow.sortOrder !== i || existingRow.title !== normalizedTitle) {
+        await prisma.mediaAsset.update({
+          where: { id: existingRow.id },
+          data: { sortOrder: i, title: normalizedTitle },
+        });
+      }
+    } else {
+      await prisma.mediaAsset.create({
+        data: {
+          playerId,
+          type: "VIDEO",
+          provider: guessVideoProvider(url),
+          url,
+          title: normalizedTitle,
+          sortOrder: i,
+        },
+      });
+    }
   }
 }
 

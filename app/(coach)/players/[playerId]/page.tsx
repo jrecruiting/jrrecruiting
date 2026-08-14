@@ -5,6 +5,7 @@ import { recordProfileView } from "@/lib/notifications/profile-view";
 import { maskLastName } from "@/lib/coach-visibility";
 import { QuickStarButton } from "@/components/coach/quick-star-button";
 import { PlayerPhotoGallery } from "@/components/player/player-photo-gallery";
+import { HighlightVideos } from "@/components/player/highlight-videos";
 import { VerificationBanner } from "@/components/coach/verification-banner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -47,7 +48,9 @@ export default async function CoachPlayerProfilePage({
       : null,
   ]);
 
-  const video = player.media.find((m) => m.type === "VIDEO");
+  const videos = player.media
+    .filter((m) => m.type === "VIDEO")
+    .sort((a, b) => a.sortOrder - b.sortOrder);
   const extraPhotos = player.media
     .filter((m) => m.type === "PHOTO")
     .sort((a, b) => a.sortOrder - b.sortOrder)
@@ -233,23 +236,7 @@ export default async function CoachPlayerProfilePage({
             );
           })}
 
-          {video && (
-            <Card className="border-border/60">
-              <CardContent>
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                  {video.title || "Highlight video"}
-                </p>
-                <a
-                  href={video.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-1 inline-block text-sm text-gold hover:underline"
-                >
-                  {video.url}
-                </a>
-              </CardContent>
-            </Card>
-          )}
+          <HighlightVideos videos={videos} />
 
           {schoolSchedule && (
             <Card className="border-border/60">
@@ -302,7 +289,7 @@ export default async function CoachPlayerProfilePage({
         </>
       ) : (
         (hasAnyBio ||
-          video ||
+          videos.length > 0 ||
           player.instagramHandle ||
           player.xHandle ||
           player.cellPhone) && (
