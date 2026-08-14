@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { formatDistanceToNow } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
@@ -34,6 +35,41 @@ const TYPE_ICON = {
   update: PencilSimple,
 } as const;
 
+// A dependency-free rAF count-up. Keeps this simple: Motion's imperative
+// `animate()` is built for tweening MotionValues/DOM properties, and its
+// numeric-tween overload didn't reliably fire onUpdate in this setup --
+// not worth chasing when a plain rAF loop does exactly what's needed.
+function AnimatedCount({ value, reduceMotion }: { value: number; reduceMotion: boolean }) {
+  const [display, setDisplay] = useState(reduceMotion ? value : 0);
+  const frameRef = useRef<number | undefined>(undefined);
+
+  useEffect(() => {
+    if (reduceMotion) {
+      setDisplay(value);
+      return;
+    }
+    const duration = 800;
+    const start = performance.now();
+
+    function tick(now: number) {
+      const elapsed = now - start;
+      const t = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setDisplay(Math.round(eased * value));
+      if (t < 1) {
+        frameRef.current = requestAnimationFrame(tick);
+      }
+    }
+
+    frameRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (frameRef.current !== undefined) cancelAnimationFrame(frameRef.current);
+    };
+  }, [value, reduceMotion]);
+
+  return <span className="tabular-nums">{display}</span>;
+}
+
 function feedItemText(item: FeedItemData) {
   switch (item.type) {
     case "player":
@@ -61,6 +97,7 @@ export function HomeContent({
   isVerified,
   activePlayerCount,
   sportsCovered,
+  newThisWeekCount,
   feed,
 }: {
   coachName: string;
@@ -68,6 +105,7 @@ export function HomeContent({
   isVerified: boolean;
   activePlayerCount: number;
   sportsCovered: string[];
+  newThisWeekCount: number;
   feed: FeedItemData[];
 }) {
   const reduceMotion = useReducedMotion();
@@ -75,20 +113,30 @@ export function HomeContent({
 
   return (
     <>
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1.5">
         <h1 className="font-heading text-2xl font-bold tracking-tight">
           Welcome back, {firstName}
         </h1>
         {isVerified && (
-          <p className="text-sm text-muted-foreground">
-            {activePlayerCount} active profile{activePlayerCount === 1 ? "" : "s"}
-            {sportsCovered.length > 0 && <> across {sportsCovered.join(", ")}</>}
-          </p>
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            <span className="font-heading text-3xl font-bold tabular-nums">
+              <AnimatedCount value={activePlayerCount} reduceMotion={Boolean(reduceMotion)} />
+            </span>
+            <span className="text-sm text-muted-foreground">
+              active profile{activePlayerCount === 1 ? "" : "s"}
+              {sportsCovered.length > 0 && <> across {sportsCovered.join(", ")}</>}
+            </span>
+            {newThisWeekCount > 0 && (
+              <span className="rounded-full bg-gold/10 px-2 py-0.5 text-xs font-bold text-gold">
+                +{newThisWeekCount} this week
+              </span>
+            )}
+          </div>
         )}
       </div>
 
       {isVerified && (
-        <Card className="border-gold/40 bg-gold/5">
+        <Card className="border-gold/40 bg-gold/5 transition-all duration-200 hover:-translate-y-0.5 hover:border-gold/60 hover:shadow-lg hover:shadow-gold/10">
           <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="font-semibold">Ready to find your next recruit?</p>
@@ -154,31 +202,30 @@ export function HomeContent({
                         delay: reduceMotion ? 0 : Math.min(i, 8) * 0.05,
                         ease: "easeOut",
                       }}
-                      className="flex items-center gap-3 px-4 py-3"
                     >
-                      <div className="relative shrink-0">
-                        <PlayerPhoto pathname={item.photoUrl} alt={item.playerName} size="sm" />
-                        <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-gold text-gold-foreground">
-                          <Icon className="h-3 w-3" weight="bold" aria-hidden />
-                        </span>
-                      </div>
-                      <div>
-                        <p className="text-sm">
-                          <Link
-                            href={`/players/${item.playerId}`}
-                            className="font-semibold hover:text-gold"
-                          >
-                            {item.playerName}
-                          </Link>{" "}
-                          {feedItemText(item)}
-                        </p>
-                        {item.sportLine && (
-                          <p className="mt-0.5 text-xs text-muted-foreground">{item.sportLine}</p>
-                        )}
-                        <p className="mt-0.5 text-xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(item.at), { addSuffix: true })}
-                        </p>
-                      </div>
+                      <Link
+                        href={`/players/${item.playerId}`}
+                        className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-secondary/50"
+                      >
+                        <div className="relative shrink-0">
+                          <PlayerPhoto pathname={item.photoUrl} alt={item.playerName} size="sm" />
+                          <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-gold text-gold-foreground">
+                            <Icon className="h-3 w-3" weight="bold" aria-hidden />
+                          </span>
+                        </div>
+                        <div>
+                          <p className="text-sm">
+                            <span className="font-semibold">{item.playerName}</span>{" "}
+                            {feedItemText(item)}
+                          </p>
+                          {item.sportLine && (
+                            <p className="mt-0.5 text-xs text-muted-foreground">{item.sportLine}</p>
+                          )}
+                          <p className="mt-0.5 text-xs text-muted-foreground">
+                            {formatDistanceToNow(new Date(item.at), { addSuffix: true })}
+                          </p>
+                        </div>
+                      </Link>
                     </motion.div>
                   );
                 })}

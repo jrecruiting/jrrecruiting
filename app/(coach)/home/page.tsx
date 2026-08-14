@@ -16,6 +16,7 @@ export default async function CoachHomePage() {
   let feed: FeedItemData[] = [];
   let activePlayerCount = 0;
   let sportsCovered: string[] = [];
+  let newThisWeekCount = 0;
 
   if (isVerified) {
     const primarySportSelect = {
@@ -24,8 +25,15 @@ export default async function CoachHomePage() {
       select: { position: true, sport: { select: { name: true } } },
     } as const;
 
-    const [newPlayers, newOffers, newSchoolInterests, approvedEdits, playerCount, activeSports] =
-      await Promise.all([
+    const [
+      newPlayers,
+      newOffers,
+      newSchoolInterests,
+      approvedEdits,
+      playerCount,
+      activeSports,
+      newThisWeek,
+    ] = await Promise.all([
         prisma.player.findMany({
           where: { listingStatus: "ACTIVE", publishedAt: { not: null } },
           orderBy: { publishedAt: "desc" },
@@ -116,10 +124,17 @@ export default async function CoachHomePage() {
           select: { sport: { select: { name: true } } },
           orderBy: { sport: { name: "asc" } },
         }),
+        prisma.player.count({
+          where: {
+            listingStatus: "ACTIVE",
+            publishedAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+          },
+        }),
       ]);
 
     activePlayerCount = playerCount;
     sportsCovered = activeSports.map((s) => s.sport.name);
+    newThisWeekCount = newThisWeek;
 
     const sportLine = (
       gradYear: number | null,
@@ -196,6 +211,7 @@ export default async function CoachHomePage() {
         isVerified={isVerified}
         activePlayerCount={activePlayerCount}
         sportsCovered={sportsCovered}
+        newThisWeekCount={newThisWeekCount}
         feed={feed}
       />
     </div>
