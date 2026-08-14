@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 const testimonials = [
   {
     quote:
-      "Javier gave me the chance to showcase my talent nationwide. I'll always be grateful—he helped land me at Penn State University.",
+      "Javier gave me the chance to showcase my talent nationwide. I'll always be grateful - he helped land me at Penn State University.",
     attribution: "2019 Transfer Player",
   },
   {
@@ -17,7 +17,7 @@ const testimonials = [
   },
   {
     quote:
-      "We were skeptical of recruiting services, but Javier's transparency turned zero offers into twelve—and a scholarship to Rocky Mountain College.",
+      "We were skeptical of recruiting services, but Javier's transparency turned zero offers into twelve - and a scholarship to Rocky Mountain College.",
     attribution: "Parent from 2025 Class",
   },
 ];
