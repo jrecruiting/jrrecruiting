@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ContactForm } from "@/components/marketing/contact-form";
+import { Reveal } from "@/components/marketing/reveal";
 import { EnvelopeSimple, Clock } from "@phosphor-icons/react/dist/ssr";
 
 export const metadata: Metadata = {
@@ -25,7 +26,7 @@ export default function ContactPage() {
       </div>
 
       <div className="grid gap-10 md:grid-cols-[1fr_1.3fr]">
-        <div className="flex flex-col gap-6">
+        <Reveal className="flex flex-col gap-6">
           <div className="flex items-start gap-3">
             <EnvelopeSimple className="mt-0.5 h-5 w-5 shrink-0 text-gold" weight="duotone" aria-hidden />
             <div>
@@ -47,9 +48,11 @@ export default function ContactPage() {
               </p>
             </div>
           </div>
-        </div>
+        </Reveal>
 
-        <ContactForm />
+        <Reveal delay={0.1}>
+          <ContactForm />
+        </Reveal>
       </div>
     </div>
   );

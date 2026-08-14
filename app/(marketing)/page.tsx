@@ -5,6 +5,7 @@ import { Features } from "@/components/marketing/features";
 import { Testimonials } from "@/components/marketing/testimonials";
 import { AboutSection } from "@/components/marketing/about-section";
 import { Faq } from "@/components/marketing/faq";
+import { Reveal } from "@/components/marketing/reveal";
 
 export default function HomePage() {
   return (
@@ -17,7 +18,7 @@ export default function HomePage() {
 
       <section className="border-t border-border/60 bg-secondary/30">
         <div className="mx-auto max-w-3xl px-4 py-20 sm:px-6">
-          <div className="flex flex-col items-center gap-6 rounded-2xl border border-border/60 bg-card/60 px-6 py-12 text-center sm:px-12">
+          <Reveal className="flex flex-col items-center gap-6 rounded-2xl border border-border/60 bg-card/60 px-6 py-12 text-center sm:px-12">
             <h2 className="text-balance font-heading text-2xl font-bold tracking-tight sm:text-3xl">
               Ready to get your athlete in front of college coaches?
             </h2>
@@ -42,7 +43,7 @@ export default function HomePage() {
                 </span>
               ))}
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
     </>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Reveal } from "@/components/marketing/reveal";
 import { Eye, Users, ShieldCheck, Target } from "@phosphor-icons/react/dist/ssr";
 
 export const metadata: Metadata = {
@@ -53,7 +54,7 @@ export default function AboutPage() {
         </h1>
       </div>
 
-      <div className="grid items-center gap-12 lg:grid-cols-[0.85fr_1.15fr]">
+      <Reveal className="grid items-center gap-12 lg:grid-cols-[0.85fr_1.15fr]">
         <div className="relative aspect-[4/5] w-full overflow-hidden rounded-xl border border-border/60">
           {FOUNDER_PHOTO ? (
             <Image
@@ -111,7 +112,7 @@ export default function AboutPage() {
             in front of the coaches actively looking for them.
           </p>
         </div>
-      </div>
+      </Reveal>
 
       <div className="mx-auto mb-8 mt-20 flex max-w-2xl flex-col gap-2">
         <span className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">
@@ -122,7 +123,7 @@ export default function AboutPage() {
         </h2>
       </div>
 
-      <div className="grid grid-cols-1 divide-y divide-border/60 lg:grid-cols-4 lg:divide-x lg:divide-y-0">
+      <Reveal className="grid grid-cols-1 divide-y divide-border/60 lg:grid-cols-4 lg:divide-x lg:divide-y-0">
         {values.map((value) => (
           <div
             key={value.title}
@@ -133,9 +134,9 @@ export default function AboutPage() {
             <p className="text-sm text-muted-foreground">{value.description}</p>
           </div>
         ))}
-      </div>
+      </Reveal>
 
-      <div className="mt-20 flex flex-col items-center gap-4 rounded-2xl border border-border/60 bg-secondary/30 px-6 py-14 text-center">
+      <Reveal className="mt-20 flex flex-col items-center gap-4 rounded-2xl border border-border/60 bg-secondary/30 px-6 py-14 text-center">
         <h2 className="text-balance font-heading text-2xl font-bold tracking-tight sm:text-3xl">
           Ready to get your athlete in front of college coaches?
         </h2>
@@ -145,7 +146,7 @@ export default function AboutPage() {
           nativeButton={false}
           render={<Link href="/sign-up">Get Started Now</Link>}
         />
-      </div>
+      </Reveal>
     </div>
   );
 }

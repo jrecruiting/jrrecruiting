@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { UL, LI } from "@/components/marketing/blog-prose";
+import { Reveal } from "@/components/marketing/reveal";
 import { SCHOOLS_SIGNED } from "@/lib/schools-signed";
 import type { Icon } from "@phosphor-icons/react";
 import {
@@ -152,9 +153,11 @@ export default function HowItWorksPage() {
       </div>
 
       <div className="mx-auto max-w-3xl">
-        <StepList steps={recruitingSteps} />
+        <Reveal>
+          <StepList steps={recruitingSteps} />
+        </Reveal>
 
-        <div className="mt-14 flex flex-col gap-6">
+        <Reveal className="mt-14 flex flex-col gap-6">
           <h2 className="font-heading text-2xl font-bold tracking-tight sm:text-3xl">
             The Track Record
           </h2>
@@ -204,9 +207,9 @@ export default function HowItWorksPage() {
             If you have any questions about the process or want to talk about your
             athlete specifically, I&apos;d love to hear from you.
           </p>
-        </div>
+        </Reveal>
 
-        <div className="mt-20 flex flex-col gap-8">
+        <Reveal className="mt-20 flex flex-col gap-8">
           <div>
             <span className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">
               For Coaches
@@ -219,10 +222,10 @@ export default function HowItWorksPage() {
             </p>
           </div>
           <StepList steps={coachSteps} />
-        </div>
+        </Reveal>
       </div>
 
-      <div className="mx-auto mt-20 flex max-w-5xl flex-col items-center gap-4 rounded-2xl border border-border/60 bg-secondary/30 px-6 py-14 text-center">
+      <Reveal className="mx-auto mt-20 flex max-w-5xl flex-col items-center gap-4 rounded-2xl border border-border/60 bg-secondary/30 px-6 py-14 text-center">
         <h2 className="text-balance font-heading text-2xl font-bold tracking-tight sm:text-3xl">
           Ready to get started?
         </h2>
@@ -241,7 +244,7 @@ export default function HowItWorksPage() {
             render={<Link href="/sign-up?role=coach">I&apos;m a Coach</Link>}
           />
         </div>
-      </div>
+      </Reveal>
     </div>
   );
 }

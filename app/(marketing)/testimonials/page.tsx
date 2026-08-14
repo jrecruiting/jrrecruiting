@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { allTestimonials } from "@/lib/testimonials-data";
 import { TestimonialsContent } from "@/components/marketing/testimonials-content";
+import { Reveal } from "@/components/marketing/reveal";
 
 export const metadata: Metadata = {
   title: "Testimonials",
@@ -28,7 +29,7 @@ export default function TestimonialsPage() {
 
       <TestimonialsContent />
 
-      <div className="mx-auto mt-16 flex max-w-5xl flex-col items-center gap-4 rounded-2xl border border-border/60 bg-secondary/30 px-6 py-14 text-center">
+      <Reveal className="mx-auto mt-16 flex max-w-5xl flex-col items-center gap-4 rounded-2xl border border-border/60 bg-secondary/30 px-6 py-14 text-center">
         <h2 className="text-balance font-heading text-2xl font-bold tracking-tight sm:text-3xl">
           Ready to get your athlete in front of college coaches?
         </h2>
@@ -38,7 +39,7 @@ export default function TestimonialsPage() {
           nativeButton={false}
           render={<Link href="/sign-up">Get Started Now</Link>}
         />
-      </div>
+      </Reveal>
     </div>
   );
 }
