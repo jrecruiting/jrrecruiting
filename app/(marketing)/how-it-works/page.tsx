@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { UL, LI } from "@/components/marketing/blog-prose";
 import { Reveal } from "@/components/marketing/reveal";
+import { ProofBand } from "@/components/marketing/proof-band";
 import { SCHOOLS_SIGNED } from "@/lib/schools-signed";
 import type { Icon } from "@phosphor-icons/react";
 import {
@@ -136,7 +137,7 @@ function StepList({ steps }: { steps: Step[] }) {
 
 export default function HowItWorksPage() {
   return (
-    <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+    <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-24">
       <div className="mx-auto mb-16 max-w-2xl text-center">
         <span className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">
           How It Works
@@ -157,9 +158,13 @@ export default function HowItWorksPage() {
           <StepList steps={recruitingSteps} />
         </Reveal>
 
+        <div className="mt-14">
+          <ProofBand />
+        </div>
+
         <Reveal className="mt-14 flex flex-col gap-6">
           <h2 className="font-heading text-2xl font-bold tracking-tight sm:text-3xl">
-            The Track Record
+            Behind the numbers
           </h2>
           <p className="text-muted-foreground">
             A lot of this work happens behind the scenes: the calls, the follow-ups, and
