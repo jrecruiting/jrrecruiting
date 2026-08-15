@@ -42,26 +42,17 @@ export function Testimonials() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.45, delay: i * 0.08, ease: "easeOut" }}
-              className="flex flex-col gap-4 rounded-xl border border-border/60 bg-card/60 p-6"
+              className="flex gap-4 rounded-xl border border-border/60 bg-card/60 p-6"
             >
-              <div className="flex items-center gap-3">
-                {/* Placeholder avatar — swap for a real, cleared photo per testimonial */}
-                <div
-                  aria-hidden
-                  className="h-11 w-11 shrink-0 rounded-full border border-border/60"
-                  style={{
-                    background:
-                      "radial-gradient(circle at 32% 28%, color-mix(in oklch, var(--gold), transparent 45%), transparent 60%), linear-gradient(160deg, color-mix(in oklch, var(--card), white 6%), var(--card))",
-                  }}
-                />
-                <span className="h-0.5 w-6 bg-gold" aria-hidden />
+              <span className="w-[3px] shrink-0 rounded-full bg-gold" aria-hidden />
+              <div className="flex flex-col gap-4">
+                <blockquote className="text-balance text-sm leading-relaxed text-foreground/90">
+                  &ldquo;{t.quote}&rdquo;
+                </blockquote>
+                <figcaption className="mt-auto text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {t.attribution}
+                </figcaption>
               </div>
-              <blockquote className="text-balance text-sm leading-relaxed text-foreground/90">
-                &ldquo;{t.quote}&rdquo;
-              </blockquote>
-              <figcaption className="mt-auto text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {t.attribution}
-              </figcaption>
             </motion.figure>
           ))}
         </div>
