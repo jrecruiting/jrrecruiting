@@ -5,12 +5,11 @@ import { recordProfileView } from "@/lib/notifications/profile-view";
 import { maskLastName } from "@/lib/coach-visibility";
 import { QuickStarButton } from "@/components/coach/quick-star-button";
 import { PlayerPhotoGallery } from "@/components/player/player-photo-gallery";
-import { HighlightVideos } from "@/components/player/highlight-videos";
+import { PlayerProfileSections } from "@/components/coach/player-profile-sections";
 import { VerificationBanner } from "@/components/coach/verification-banner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { playerTypeLabel } from "@/lib/player-types";
-import { formatHeight } from "@/lib/player-data";
 
 export default async function CoachPlayerProfilePage({
   params,
@@ -120,173 +119,23 @@ export default async function CoachPlayerProfilePage({
         <QuickStarButton playerId={player.id} initialStarred={Boolean(myStar)} />
       </div>
 
-      <Card className="border-border/60">
-        <CardContent className="grid gap-4 sm:grid-cols-3">
-          <div>
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Height</p>
-            <p className="font-medium">{player.heightIn ? formatHeight(player.heightIn) : "—"}</p>
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">Weight</p>
-            <p className="font-medium">{player.weightLb ? `${player.weightLb} lb` : "—"}</p>
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">GPA</p>
-            <p className="font-medium">{player.gpa ? player.gpa.toString() : "—"}</p>
-          </div>
-        </CardContent>
-      </Card>
-
       {isVerified ? (
-        <>
-          {showGeneralBio && (
-            <Card className="border-border/60">
-              <CardContent>
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">Bio</p>
-                <p className="mt-1 whitespace-pre-wrap text-sm">{player.bio}</p>
-              </CardContent>
-            </Card>
-          )}
-
-          {sportsWithBio.map((s) => (
-            <Card key={s.id} className="border-border/60">
-              <CardContent>
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                  {s.sport.name} Bio
-                </p>
-                <p className="mt-1 whitespace-pre-wrap text-sm">{s.bio}</p>
-              </CardContent>
-            </Card>
-          ))}
-
-          {sportsWithOffers.length > 0 && (
-            <Card className="border-border/60">
-              <CardContent className="flex flex-col gap-3">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">Offers</p>
-                {sportsWithOffers.map((s) => (
-                  <div key={s.id}>
-                    {sportsWithOffers.length > 1 && (
-                      <p className="text-xs font-medium text-muted-foreground">{s.sport.name}</p>
-                    )}
-                    <div className="mt-1 flex flex-wrap gap-1.5">
-                      {s.offers.map((offer) => (
-                        <Badge
-                          key={offer.id}
-                          className="border-gold/40 bg-gold/10 font-semibold text-gold"
-                        >
-                          {offer.schoolName}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          )}
-
-          {sportsWithSchoolInterests.length > 0 && (
-            <Card className="border-border/60">
-              <CardContent className="flex flex-col gap-3">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                  Schools Currently in Contact
-                </p>
-                {sportsWithSchoolInterests.map((s) => (
-                  <div key={s.id}>
-                    {sportsWithSchoolInterests.length > 1 && (
-                      <p className="text-xs font-medium text-muted-foreground">{s.sport.name}</p>
-                    )}
-                    <div className="mt-1 flex flex-wrap gap-1.5">
-                      {s.schoolInterests.map((entry) => (
-                        <Badge key={entry.id} variant="secondary">
-                          {entry.schoolName}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-                <p className="text-xs text-muted-foreground">
-                  Schools that have reached out and started a conversation &mdash; not yet a
-                  formal offer.
-                </p>
-              </CardContent>
-            </Card>
-          )}
-
-          {sortedSports.map((s) => {
-            const stats = Array.isArray(s.stats) ? (s.stats as { label: string; value: string }[]) : [];
-            if (stats.length === 0) return null;
-            return (
-              <Card key={s.id} className="border-border/60">
-                <CardContent className="flex flex-col gap-3">
-                  <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                    {s.sport.name} stats
-                  </p>
-                  <div className="grid gap-3 sm:grid-cols-3">
-                    {stats.map((stat, i) => (
-                      <div key={i}>
-                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                          {stat.label}
-                        </p>
-                        <p className="font-medium">{stat.value}</p>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-
-          <HighlightVideos videos={videos} />
-
-          {schoolSchedule && (
-            <Card className="border-border/60">
-              <CardContent>
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                  Football Schedule
-                </p>
-                <a
-                  href={schoolSchedule.scheduleUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-1 inline-block text-sm text-gold hover:underline"
-                >
-                  View {schoolSchedule.schoolName}&apos;s Schedule
-                </a>
-              </CardContent>
-            </Card>
-          )}
-
-          {(player.instagramHandle || player.xHandle || player.cellPhone) && (
-            <Card className="border-border/60">
-              <CardContent className="grid gap-4 sm:grid-cols-3">
-                {player.instagramHandle && (
-                  <div>
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                      Instagram
-                    </p>
-                    <p className="font-medium">@{player.instagramHandle}</p>
-                  </div>
-                )}
-                {player.xHandle && (
-                  <div>
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                      X (Twitter)
-                    </p>
-                    <p className="font-medium">@{player.xHandle}</p>
-                  </div>
-                )}
-                {player.cellPhone && (
-                  <div>
-                    <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                      Cell
-                    </p>
-                    <p className="font-medium">{player.cellPhone}</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-        </>
+        <PlayerProfileSections
+          heightIn={player.heightIn}
+          weightLb={player.weightLb}
+          gpa={player.gpa ? player.gpa.toString() : null}
+          showGeneralBio={showGeneralBio}
+          generalBio={player.bio}
+          sportsWithBio={sportsWithBio}
+          sportsWithOffers={sportsWithOffers}
+          sportsWithSchoolInterests={sportsWithSchoolInterests}
+          sortedSports={sortedSports}
+          videos={videos}
+          schoolSchedule={schoolSchedule}
+          instagramHandle={player.instagramHandle}
+          xHandle={player.xHandle}
+          cellPhone={player.cellPhone}
+        />
       ) : (
         (hasAnyBio ||
           videos.length > 0 ||
