@@ -4,7 +4,9 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { tierForPlayer, priceForTier, formatCents } from "@/lib/pricing";
 import { PaymentOptions } from "@/components/parent/payment-options";
+import { MountReveal } from "@/components/parent/mount-reveal";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle } from "@phosphor-icons/react/dist/ssr";
 
 const INCLUDED_ITEMS = [
@@ -66,33 +68,43 @@ export default async function PlayerPaymentPage({
         </p>
       </div>
 
-      <div className="flex flex-col gap-2 rounded-lg border border-border/60 bg-secondary/20 p-4">
-        <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-          What&apos;s included
-        </p>
-        <ul className="flex flex-col gap-1.5">
-          {INCLUDED_ITEMS.map((item) => (
-            <li key={item} className="flex items-start gap-2 text-sm">
-              <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-gold" weight="fill" aria-hidden />
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <MountReveal>
+        <Card className="bg-secondary/20">
+          <CardContent className="flex flex-col gap-2">
+            <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+              What&apos;s included
+            </p>
+            <ul className="flex flex-col gap-1.5">
+              {INCLUDED_ITEMS.map((item) => (
+                <li key={item} className="flex items-start gap-2 text-sm">
+                  <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-gold" weight="fill" aria-hidden />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      </MountReveal>
 
       {canceled && (
-        <p className="rounded-md border border-border/60 bg-secondary/40 px-4 py-3 text-sm text-muted-foreground">
-          Checkout was canceled. You can try again below.
-        </p>
+        <MountReveal delay={0.05}>
+          <p className="rounded-md border border-border/60 bg-secondary/40 px-4 py-3 text-sm text-muted-foreground">
+            Checkout was canceled. You can try again below.
+          </p>
+        </MountReveal>
       )}
       {success && (
-        <p className="rounded-md border border-gold/30 bg-gold/10 px-4 py-3 text-sm text-gold">
-          Payment received &mdash; activating the profile now. This page will
-          update automatically once it&apos;s live.
-        </p>
+        <MountReveal delay={0.05}>
+          <p className="rounded-md border border-gold/30 bg-gold/10 px-4 py-3 text-sm text-gold">
+            Payment received &mdash; activating the profile now. This page will
+            update automatically once it&apos;s live.
+          </p>
+        </MountReveal>
       )}
 
-      <PaymentOptions playerId={playerId} tier={tier} priceLabel={priceLabel} />
+      <MountReveal delay={0.1}>
+        <PaymentOptions playerId={playerId} tier={tier} priceLabel={priceLabel} />
+      </MountReveal>
 
       <p className="text-center text-xs text-muted-foreground">
         Having trouble paying online?{" "}

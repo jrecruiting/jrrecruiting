@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -106,48 +107,58 @@ export function PaymentOptions({
           </button>
         ))}
 
-      {mode === "full" ? (
-        <Card className="border-border/60">
-          <CardHeader>
-            <CardTitle className="text-base">Listing fee &mdash; {tier.name}</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-sm text-muted-foreground">One-time athlete profile listing</span>
-                <div className="flex items-baseline gap-2">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={mode}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+        >
+          {mode === "full" ? (
+            <Card className="border-border/60">
+              <CardHeader>
+                <CardTitle className="text-base">Listing fee &mdash; {tier.name}</CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-4">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm text-muted-foreground">One-time athlete profile listing</span>
+                    <div className="flex items-baseline gap-2">
+                      {savingsCents > 0 && !appliedPromo && (
+                        <span className="text-sm text-muted-foreground line-through decoration-muted-foreground/50">
+                          {formatCents(fullCents)}
+                        </span>
+                      )}
+                      <span className="font-heading text-2xl font-bold">{displayPriceLabel}</span>
+                    </div>
+                  </div>
                   {savingsCents > 0 && !appliedPromo && (
-                    <span className="text-sm text-muted-foreground line-through decoration-muted-foreground/50">
-                      {formatCents(fullCents)}
-                    </span>
+                    <div className="flex items-center justify-end gap-2">
+                      <span className="rounded-full bg-gold/10 px-2 py-0.5 text-xs font-bold text-gold">
+                        Save {formatCents(savingsCents)}
+                      </span>
+                    </div>
                   )}
-                  <span className="font-heading text-2xl font-bold">{displayPriceLabel}</span>
+                  {tier.years > 1 && (
+                    <p className="text-right text-xs text-muted-foreground">
+                      {formatCents(annualRateCents)}/yr &middot; {tier.years} years covered, through
+                      Class of {gradYearForTier(tier)}
+                    </p>
+                  )}
                 </div>
-              </div>
-              {savingsCents > 0 && !appliedPromo && (
-                <div className="flex items-center justify-end gap-2">
-                  <span className="rounded-full bg-gold/10 px-2 py-0.5 text-xs font-bold text-gold">
-                    Save {formatCents(savingsCents)}
-                  </span>
-                </div>
-              )}
-              {tier.years > 1 && (
-                <p className="text-right text-xs text-muted-foreground">
-                  {formatCents(annualRateCents)}/yr &middot; {tier.years} years covered, through
-                  Class of {gradYearForTier(tier)}
-                </p>
-              )}
-            </div>
-            <PaymentButton
-              playerId={playerId}
-              priceLabel={displayPriceLabel}
-              promoCode={appliedPromo ?? undefined}
-            />
-          </CardContent>
-        </Card>
-      ) : (
-        <PaymentPlanOptions playerId={playerId} tier={tier} promoCode={appliedPromo ?? undefined} />
-      )}
+                <PaymentButton
+                  playerId={playerId}
+                  priceLabel={displayPriceLabel}
+                  promoCode={appliedPromo ?? undefined}
+                />
+              </CardContent>
+            </Card>
+          ) : (
+            <PaymentPlanOptions playerId={playerId} tier={tier} promoCode={appliedPromo ?? undefined} />
+          )}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }
