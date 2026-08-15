@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/marketing/reveal";
+import { PHOTO_GRADE_FILTER, PhotoTreatmentOverlay } from "@/components/marketing/photo-treatment";
 import { Eye, Users, ShieldCheck, Target } from "@phosphor-icons/react/dist/ssr";
 
 export const metadata: Metadata = {
@@ -11,9 +12,10 @@ export const metadata: Metadata = {
     "J.R. Recruiting was built to close the gap between talented student-athletes and the college coaches actively looking for them.",
 };
 
-// Placeholder until a real photo of Javier is ready — set to a
-// { src, alt } object to swap it in (matches the hero rotation pattern).
-const FOUNDER_PHOTO: { src: string; alt: string } | null = null;
+const FOUNDER_PHOTO: { src: string; alt: string } | null = {
+  src: "/marketing/hero/IMG_20240815_061657_164.jpg",
+  alt: "Javier Rodriguez, founder of J.R. Recruiting",
+};
 
 const values = [
   {
@@ -44,7 +46,7 @@ const values = [
 
 export default function AboutPage() {
   return (
-    <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+    <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-24">
       <div className="mx-auto mb-14 max-w-2xl text-center">
         <span className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">
           About Us
@@ -55,14 +57,18 @@ export default function AboutPage() {
       </div>
 
       <Reveal className="grid items-center gap-12 lg:grid-cols-[0.85fr_1.15fr]">
-        <div className="relative aspect-[4/5] w-full overflow-hidden rounded-xl border border-border/60">
+        <div className="relative aspect-[4/5] w-full overflow-hidden rounded-xl">
           {FOUNDER_PHOTO ? (
-            <Image
-              src={FOUNDER_PHOTO.src}
-              alt={FOUNDER_PHOTO.alt}
-              fill
-              className="object-cover"
-            />
+            <>
+              <Image
+                src={FOUNDER_PHOTO.src}
+                alt={FOUNDER_PHOTO.alt}
+                fill
+                className="object-cover"
+                style={{ filter: PHOTO_GRADE_FILTER }}
+              />
+              <PhotoTreatmentOverlay />
+            </>
           ) : (
             <>
               <div
@@ -114,7 +120,7 @@ export default function AboutPage() {
         </div>
       </Reveal>
 
-      <div className="mx-auto mb-8 mt-20 flex max-w-2xl flex-col gap-2">
+      <div className="mx-auto mb-8 mt-20 flex max-w-2xl flex-col gap-2 sm:mt-24">
         <span className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">
           What we stand for
         </span>
@@ -136,7 +142,7 @@ export default function AboutPage() {
         ))}
       </Reveal>
 
-      <Reveal className="mt-20 flex flex-col items-center gap-4 rounded-2xl border border-border/60 bg-secondary/30 px-6 py-14 text-center">
+      <Reveal className="mt-20 flex flex-col items-center gap-4 rounded-2xl border border-border/60 bg-secondary/30 px-6 py-14 text-center sm:mt-24">
         <h2 className="text-balance font-heading text-2xl font-bold tracking-tight sm:text-3xl">
           Ready to get your athlete in front of college coaches?
         </h2>
