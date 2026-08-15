@@ -25,7 +25,7 @@ const testimonials = [
 export function Testimonials() {
   return (
     <section className="border-y border-border/60 bg-secondary/30">
-      <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+      <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 sm:py-28">
         <div className="mx-auto mb-14 max-w-2xl text-center">
           <span className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">
             See for yourself

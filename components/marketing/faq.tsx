@@ -36,7 +36,7 @@ const faqs = [
 
 export function Faq() {
   return (
-    <section className="mx-auto max-w-5xl px-4 py-24 sm:px-6">
+    <section className="mx-auto max-w-5xl px-4 py-24 sm:px-6 sm:py-28">
       <Reveal className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-14">
         <div className="flex flex-col gap-3 text-left">
           <span className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">

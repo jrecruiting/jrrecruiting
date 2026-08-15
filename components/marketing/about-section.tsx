@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 export function AboutSection() {
   return (
-    <section className="mx-auto max-w-4xl px-4 py-24 sm:px-6">
+    <section className="mx-auto max-w-4xl px-4 py-24 sm:px-6 sm:py-28">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}

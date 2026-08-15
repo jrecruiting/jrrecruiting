@@ -37,7 +37,7 @@ const features = [
 
 export function Features() {
   return (
-    <section className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
+    <section className="mx-auto max-w-6xl px-4 py-24 sm:px-6 sm:py-28">
       <div className="mx-auto mb-14 flex max-w-xl flex-col items-center gap-3 text-center">
         <span className="text-xs font-semibold uppercase tracking-[0.25em] text-gold">
           Built for recruiting
