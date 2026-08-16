@@ -11,6 +11,7 @@ export function buildPlayerWhere(params: SearchParamsValues): Prisma.PlayerWhere
   if (params.gender) where.gender = params.gender;
   if (params.playerType) where.playerType = params.playerType;
   if (params.gradYear) where.gradYear = params.gradYear;
+  if (params.gpaMin != null) where.gpa = { gte: params.gpaMin };
 
   if (params.sportId || params.position || params.projection) {
     where.sports = {

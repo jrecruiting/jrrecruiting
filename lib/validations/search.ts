@@ -18,6 +18,7 @@ export const searchParamsSchema = z.object({
     z.enum(["HIGH_SCHOOL", "JUCO", "TRANSFER"]).optional()
   ),
   gradYear: z.preprocess(emptyToUndefined, z.coerce.number().int().optional()),
+  gpaMin: z.preprocess(emptyToUndefined, z.coerce.number().min(0).max(5).optional()),
   page: z.preprocess(emptyToUndefined, z.coerce.number().int().min(1).optional()),
 });
 

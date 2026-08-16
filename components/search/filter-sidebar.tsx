@@ -214,6 +214,22 @@ export function FilterSidebar({ sports }: { sports: { id: string; name: string }
         </Select>
       </div>
 
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="filter-gpa-min">Minimum GPA</Label>
+        <Input
+          key={`gpa-min-${resetKey}`}
+          id="filter-gpa-min"
+          type="number"
+          inputMode="decimal"
+          min={0}
+          max={5}
+          step={0.1}
+          placeholder="e.g. 3.0"
+          defaultValue={searchParams.get("gpaMin") ?? ""}
+          onChange={(e) => handleTextChange("gpaMin", e.target.value)}
+        />
+      </div>
+
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="filter-country">Country</Label>
