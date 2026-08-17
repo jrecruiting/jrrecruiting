@@ -10,6 +10,7 @@ import { ListingPaidEmail } from "./listing-paid";
 import { ContactInquiryEmail } from "./contact-inquiry";
 import { PasswordResetEmail } from "./password-reset";
 import { NewClaimRequestEmail } from "./new-claim-request";
+import { NewEditRequestEmail } from "./new-edit-request";
 import { NewCoachSignupEmail } from "./new-coach-signup";
 import { NewOfferSubmittedEmail } from "./new-offer-submitted";
 import { OfferApprovedEmail } from "./offer-approved";
@@ -35,6 +36,7 @@ export type EmailTemplateKey =
   | "contact-inquiry"
   | "password-reset"
   | "new-claim-request"
+  | "new-edit-request"
   | "new-coach-signup"
   | "new-offer-submitted"
   | "offer-approved"
@@ -128,6 +130,17 @@ export function renderEmailTemplate(
             playerName={payload.playerName as string}
             requesterName={payload.requesterName as string}
             requesterEmail={payload.requesterEmail as string}
+          />
+        ),
+      };
+    case "new-edit-request":
+      return {
+        subject: `New profile edit request for ${payload.playerName as string}`,
+        react: (
+          <NewEditRequestEmail
+            playerName={payload.playerName as string}
+            submitterName={payload.submitterName as string}
+            submitterEmail={payload.submitterEmail as string}
           />
         ),
       };

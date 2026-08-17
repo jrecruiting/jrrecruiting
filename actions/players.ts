@@ -6,6 +6,8 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/permissions";
 import { recordPlayerUpdate } from "@/lib/notifications/player-update";
+import { scheduleOutboxFlush } from "@/lib/email/send";
+import { ADMIN_EMAIL } from "@/lib/email/resend";
 import {
   parseCreatePlayerForm,
   parseUpdatePlayerForm,
@@ -177,7 +179,7 @@ export async function updatePlayerParent(
   formData: FormData
 ): Promise<PlayerFormState> {
   const session = await requireRole("PARENT");
-  await requireOwnedPlayer(playerId, session.user.id);
+  const player = await requireOwnedPlayer(playerId, session.user.id);
 
   try {
     const data = parseUpdatePlayerForm(formData);
@@ -200,6 +202,19 @@ export async function updatePlayerParent(
         data: { playerId, submittedBy: session.user.id, proposedData: data },
       });
     }
+
+    await prisma.emailOutbox.create({
+      data: {
+        toEmail: ADMIN_EMAIL,
+        templateKey: "new-edit-request",
+        payload: {
+          playerName: `${player.firstName} ${player.lastName}`,
+          submitterName: session.user.name,
+          submitterEmail: session.user.email,
+        },
+      },
+    });
+    scheduleOutboxFlush();
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { error: error.issues[0]?.message ?? "Please check the form for errors." };
