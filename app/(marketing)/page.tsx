@@ -4,9 +4,14 @@ import { Hero } from "@/components/marketing/hero";
 import { ProofBand } from "@/components/marketing/proof-band";
 import { Features } from "@/components/marketing/features";
 import { Testimonials } from "@/components/marketing/testimonials";
+import { AlumniTeaser } from "@/components/marketing/alumni-teaser";
 import { AboutSection } from "@/components/marketing/about-section";
 import { Faq } from "@/components/marketing/faq";
 import { Reveal } from "@/components/marketing/reveal";
+
+// AlumniTeaser reads live from the database, so this page can't be
+// statically prerendered at build time -- render per-request instead.
+export const dynamic = "force-dynamic";
 
 export default function HomePage() {
   return (
@@ -17,6 +22,7 @@ export default function HomePage() {
       </div>
       <Features />
       <Testimonials />
+      <AlumniTeaser />
       <AboutSection />
       <Faq />
 
