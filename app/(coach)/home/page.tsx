@@ -4,6 +4,7 @@ import { VerificationBanner } from "@/components/coach/verification-banner";
 import { HomeContent, type FeedItemData } from "@/components/coach/home-content";
 
 const FEED_LIMIT = 15;
+const SCHOOL_INTEREST_LIMIT = 5;
 
 export default async function CoachHomePage() {
   const session = await requireRole("COACH");
@@ -14,6 +15,7 @@ export default async function CoachHomePage() {
   });
 
   let feed: FeedItemData[] = [];
+  let schoolInterestFeed: FeedItemData[] = [];
   let activePlayerCount = 0;
   let sportsCovered: string[] = [];
   let newThisWeekCount = 0;
@@ -144,6 +146,23 @@ export default async function CoachHomePage() {
         .filter(Boolean)
         .join(" · ");
 
+    schoolInterestFeed = newSchoolInterests
+      .filter((s) => s.resolvedAt)
+      .map(
+        (s): FeedItemData => ({
+          key: `interest-${s.id}`,
+          at: s.resolvedAt!.toISOString(),
+          type: "interest",
+          playerId: s.playerSport.player.id,
+          playerName: `${s.playerSport.player.firstName} ${s.playerSport.player.lastName}`,
+          photoUrl: s.playerSport.player.primaryPhotoUrl,
+          schoolName: s.schoolName,
+          sportLine: sportLine(s.playerSport.player.gradYear, s.playerSport),
+        })
+      )
+      .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
+      .slice(0, SCHOOL_INTEREST_LIMIT);
+
     feed = [
       ...newPlayers.map(
         (p): FeedItemData => ({
@@ -168,20 +187,6 @@ export default async function CoachHomePage() {
             photoUrl: o.playerSport.player.primaryPhotoUrl,
             schoolName: o.schoolName,
             sportLine: sportLine(o.playerSport.player.gradYear, o.playerSport),
-          })
-        ),
-      ...newSchoolInterests
-        .filter((s) => s.resolvedAt)
-        .map(
-          (s): FeedItemData => ({
-            key: `interest-${s.id}`,
-            at: s.resolvedAt!.toISOString(),
-            type: "interest",
-            playerId: s.playerSport.player.id,
-            playerName: `${s.playerSport.player.firstName} ${s.playerSport.player.lastName}`,
-            photoUrl: s.playerSport.player.primaryPhotoUrl,
-            schoolName: s.schoolName,
-            sportLine: sportLine(s.playerSport.player.gradYear, s.playerSport),
           })
         ),
       ...approvedEdits
@@ -212,6 +217,7 @@ export default async function CoachHomePage() {
         activePlayerCount={activePlayerCount}
         sportsCovered={sportsCovered}
         newThisWeekCount={newThisWeekCount}
+        schoolInterestFeed={schoolInterestFeed}
         feed={feed}
       />
     </div>

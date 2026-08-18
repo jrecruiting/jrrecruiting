@@ -91,6 +91,55 @@ function feedItemText(item: FeedItemData) {
   }
 }
 
+// Shared row for both the School Interest spotlight and the general
+// Recent activity feed, since they render identically -- only which items
+// feed into each list differs.
+function FeedRow({
+  item,
+  index,
+  reduceMotion,
+}: {
+  item: FeedItemData;
+  index: number;
+  reduceMotion: boolean;
+}) {
+  const Icon = TYPE_ICON[item.type];
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: reduceMotion ? 0 : 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: 0.35,
+        delay: reduceMotion ? 0 : Math.min(index, 8) * 0.05,
+        ease: "easeOut",
+      }}
+    >
+      <Link
+        href={`/players/${item.playerId}`}
+        className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-secondary/50"
+      >
+        <div className="relative shrink-0">
+          <PlayerPhoto pathname={item.photoUrl} alt={item.playerName} size="sm" />
+          <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-gold text-gold-foreground">
+            <Icon className="h-3 w-3" weight="bold" aria-hidden />
+          </span>
+        </div>
+        <div>
+          <p className="text-sm">
+            <span className="font-semibold">{item.playerName}</span> {feedItemText(item)}
+          </p>
+          {item.sportLine && (
+            <p className="mt-0.5 text-xs text-muted-foreground">{item.sportLine}</p>
+          )}
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {formatDistanceToNow(new Date(item.at), { addSuffix: true })}
+          </p>
+        </div>
+      </Link>
+    </motion.div>
+  );
+}
+
 export function HomeContent({
   coachName,
   announcement,
@@ -98,6 +147,7 @@ export function HomeContent({
   activePlayerCount,
   sportsCovered,
   newThisWeekCount,
+  schoolInterestFeed,
   feed,
 }: {
   coachName: string;
@@ -106,6 +156,7 @@ export function HomeContent({
   activePlayerCount: number;
   sportsCovered: string[];
   newThisWeekCount: number;
+  schoolInterestFeed: FeedItemData[];
   feed: FeedItemData[];
 }) {
   const reduceMotion = useReducedMotion();
@@ -177,6 +228,22 @@ export function HomeContent({
         </motion.div>
       )}
 
+      {isVerified && schoolInterestFeed.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <h2 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <ChatsCircle className="h-3.5 w-3.5 text-gold" weight="bold" aria-hidden />
+            Schools reaching out
+          </h2>
+          <Card className="border-gold/40 bg-gold/5">
+            <CardContent className="flex flex-col divide-y divide-gold/20 p-0">
+              {schoolInterestFeed.map((item, i) => (
+                <FeedRow key={item.key} item={item} index={i} reduceMotion={Boolean(reduceMotion)} />
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {isVerified && (
         <div className="flex flex-col gap-3">
           <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -190,45 +257,9 @@ export function HomeContent({
           ) : (
             <Card className="border-border/60">
               <CardContent className="flex flex-col divide-y divide-border/60 p-0">
-                {feed.map((item, i) => {
-                  const Icon = TYPE_ICON[item.type];
-                  return (
-                    <motion.div
-                      key={item.key}
-                      initial={{ opacity: 0, y: reduceMotion ? 0 : 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{
-                        duration: 0.35,
-                        delay: reduceMotion ? 0 : Math.min(i, 8) * 0.05,
-                        ease: "easeOut",
-                      }}
-                    >
-                      <Link
-                        href={`/players/${item.playerId}`}
-                        className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-secondary/50"
-                      >
-                        <div className="relative shrink-0">
-                          <PlayerPhoto pathname={item.photoUrl} alt={item.playerName} size="sm" />
-                          <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-gold text-gold-foreground">
-                            <Icon className="h-3 w-3" weight="bold" aria-hidden />
-                          </span>
-                        </div>
-                        <div>
-                          <p className="text-sm">
-                            <span className="font-semibold">{item.playerName}</span>{" "}
-                            {feedItemText(item)}
-                          </p>
-                          {item.sportLine && (
-                            <p className="mt-0.5 text-xs text-muted-foreground">{item.sportLine}</p>
-                          )}
-                          <p className="mt-0.5 text-xs text-muted-foreground">
-                            {formatDistanceToNow(new Date(item.at), { addSuffix: true })}
-                          </p>
-                        </div>
-                      </Link>
-                    </motion.div>
-                  );
-                })}
+                {feed.map((item, i) => (
+                  <FeedRow key={item.key} item={item} index={i} reduceMotion={Boolean(reduceMotion)} />
+                ))}
               </CardContent>
             </Card>
           )}
