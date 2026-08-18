@@ -1,6 +1,5 @@
 "use client";
 
-import { createAlumniUpdate } from "@/actions/alumni-updates";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,17 +16,45 @@ import {
 
 type SportOption = { id: string; name: string };
 
-export function AlumniUpdateForm({ sports }: { sports: SportOption[] }) {
+type AlumniUpdateDefaults = {
+  athleteName?: string;
+  sportId?: string;
+  schoolName?: string;
+  eventDate?: string;
+  updateText?: string;
+  linkUrl?: string | null;
+  photoUrl?: string | null;
+  featured?: boolean;
+};
+
+export function AlumniUpdateForm({
+  sports,
+  action,
+  defaultValues,
+  submitLabel = "Post Update",
+}: {
+  sports: SportOption[];
+  action: (formData: FormData) => void;
+  defaultValues?: AlumniUpdateDefaults;
+  submitLabel?: string;
+}) {
   return (
-    <form action={createAlumniUpdate} className="flex flex-col gap-4">
+    <form action={action} className="flex flex-col gap-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="athleteName">Athlete name</Label>
-          <Input id="athleteName" name="athleteName" placeholder="e.g. Collyn Gillies" maxLength={120} required />
+          <Input
+            id="athleteName"
+            name="athleteName"
+            placeholder="e.g. Collyn Gillies"
+            maxLength={120}
+            defaultValue={defaultValues?.athleteName}
+            required
+          />
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="sportId">Sport</Label>
-          <Select name="sportId">
+          <Select name="sportId" defaultValue={defaultValues?.sportId}>
             <SelectTrigger id="sportId" className="w-full">
               <SelectValue placeholder="Choose a sport">
                 {(value: string | null) =>
@@ -49,11 +76,24 @@ export function AlumniUpdateForm({ sports }: { sports: SportOption[] }) {
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="schoolName">School</Label>
-          <Input id="schoolName" name="schoolName" placeholder="e.g. Penn State University" maxLength={120} required />
+          <Input
+            id="schoolName"
+            name="schoolName"
+            placeholder="e.g. Penn State University"
+            maxLength={120}
+            defaultValue={defaultValues?.schoolName}
+            required
+          />
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="eventDate">Date</Label>
-          <Input id="eventDate" name="eventDate" type="date" required />
+          <Input
+            id="eventDate"
+            name="eventDate"
+            type="date"
+            defaultValue={defaultValues?.eventDate}
+            required
+          />
         </div>
       </div>
 
@@ -65,6 +105,7 @@ export function AlumniUpdateForm({ sports }: { sports: SportOption[] }) {
           rows={4}
           maxLength={2000}
           placeholder="e.g. Threw for 285 yards and 3 TDs in Penn State's win over Ohio State this weekend."
+          defaultValue={defaultValues?.updateText}
           required
         />
       </div>
@@ -76,23 +117,29 @@ export function AlumniUpdateForm({ sports }: { sports: SportOption[] }) {
           name="linkUrl"
           type="url"
           placeholder="https://... (article, highlight, box score)"
+          defaultValue={defaultValues?.linkUrl ?? ""}
         />
       </div>
 
       <div className="flex flex-col gap-1.5">
         <Label>Photo (optional)</Label>
-        <PhotoUpload name="photoUrl" uploadEndpoint="/api/blob/alumni-photo" publicUrl />
+        <PhotoUpload
+          name="photoUrl"
+          uploadEndpoint="/api/blob/alumni-photo"
+          publicUrl
+          defaultValue={defaultValues?.photoUrl}
+        />
       </div>
 
       <div className="flex items-center gap-2">
-        <Checkbox id="featured" name="featured" />
+        <Checkbox id="featured" name="featured" defaultChecked={defaultValues?.featured} />
         <Label htmlFor="featured" className="font-normal">
           Feature on homepage
         </Label>
       </div>
 
       <Button type="submit" className="w-fit bg-gold text-gold-foreground hover:bg-gold/90">
-        Post Update
+        {submitLabel}
       </Button>
     </form>
   );

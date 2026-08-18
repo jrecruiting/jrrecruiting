@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/permissions";
 
@@ -48,6 +48,35 @@ export async function createAlumniUpdate(formData: FormData): Promise<void> {
   });
 
   revalidateAlumniPaths();
+}
+
+export async function updateAlumniUpdate(updateId: string, formData: FormData): Promise<void> {
+  await requireRole("ADMIN");
+
+  const existing = await prisma.alumniUpdate.findUnique({ where: { id: updateId } });
+  if (!existing) notFound();
+
+  const parsed = alumniUpdateSchema.safeParse({
+    athleteName: formData.get("athleteName"),
+    sportId: formData.get("sportId"),
+    schoolName: formData.get("schoolName"),
+    updateText: formData.get("updateText"),
+    eventDate: formData.get("eventDate"),
+    photoUrl: formData.get("photoUrl"),
+    linkUrl: formData.get("linkUrl"),
+    featured: formData.get("featured"),
+  });
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues[0]?.message ?? "Please check the form for errors.");
+  }
+
+  await prisma.alumniUpdate.update({
+    where: { id: updateId },
+    data: parsed.data,
+  });
+
+  revalidateAlumniPaths();
+  redirect("/admin/alumni");
 }
 
 export async function deleteAlumniUpdate(updateId: string) {

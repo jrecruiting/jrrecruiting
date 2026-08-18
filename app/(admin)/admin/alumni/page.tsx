@@ -1,12 +1,16 @@
+import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
-import { deleteAlumniUpdate } from "@/actions/alumni-updates";
+import { requireRole } from "@/lib/permissions";
+import { createAlumniUpdate, deleteAlumniUpdate } from "@/actions/alumni-updates";
 import { AlumniUpdateForm } from "@/components/admin/alumni-update-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 export default async function AdminAlumniPage() {
+  await requireRole("ADMIN");
+
   const [updates, sports] = await Promise.all([
     prisma.alumniUpdate.findMany({
       include: { sport: { select: { name: true } } },
@@ -30,7 +34,7 @@ export default async function AdminAlumniPage() {
 
       <Card className="max-w-2xl border-border/60">
         <CardContent>
-          <AlumniUpdateForm sports={sports} />
+          <AlumniUpdateForm sports={sports} action={createAlumniUpdate} />
         </CardContent>
       </Card>
 
@@ -74,11 +78,19 @@ export default async function AdminAlumniPage() {
                     </p>
                     <p className="mt-1 text-sm">{update.updateText}</p>
                   </div>
-                  <form action={deleteAlumniUpdate.bind(null, update.id)}>
-                    <Button type="submit" variant="ghost" size="sm">
-                      Delete
-                    </Button>
-                  </form>
+                  <div className="flex shrink-0 flex-col items-end gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      nativeButton={false}
+                      render={<Link href={`/admin/alumni/${update.id}/edit`}>Edit</Link>}
+                    />
+                    <form action={deleteAlumniUpdate.bind(null, update.id)}>
+                      <Button type="submit" variant="ghost" size="sm">
+                        Delete
+                      </Button>
+                    </form>
+                  </div>
                 </CardContent>
               </Card>
             ))}
