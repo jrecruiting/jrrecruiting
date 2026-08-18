@@ -9,6 +9,10 @@ import { AboutSection } from "@/components/marketing/about-section";
 import { Faq } from "@/components/marketing/faq";
 import { Reveal } from "@/components/marketing/reveal";
 
+// AlumniTeaser reads live from the database, so this page can't be
+// statically prerendered at build time -- render per-request instead.
+export const dynamic = "force-dynamic";
+
 export default function HomePage() {
   return (
     <>

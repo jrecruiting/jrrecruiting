@@ -13,6 +13,10 @@ export const metadata: Metadata = {
     "See how the athletes J.R. Recruiting helped get recruited are doing in their college careers.",
 };
 
+// Reads live from the database (admin-posted updates), so this can't be
+// statically prerendered at build time -- render per-request instead.
+export const dynamic = "force-dynamic";
+
 export default async function AlumniPage() {
   const updates = await prisma.alumniUpdate.findMany({
     include: { sport: { select: { name: true } } },
