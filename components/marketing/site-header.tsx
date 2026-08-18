@@ -15,6 +15,7 @@ const navLinks = [
   { href: "/pricing", label: "Pricing" },
   { href: "/about", label: "About" },
   { href: "/testimonials", label: "Testimonials" },
+  { href: "/alumni", label: "Alumni" },
   { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Contact" },
 ];
@@ -27,7 +28,7 @@ export function SiteHeader() {
           <Logo size="sm" />
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden items-center gap-6 lg:flex">
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -40,7 +41,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <div className="hidden items-center gap-2 md:flex">
+          <div className="hidden items-center gap-2 lg:flex">
             <Button
               variant="ghost"
               size="sm"
@@ -58,7 +59,7 @@ export function SiteHeader() {
           <Sheet>
             <SheetTrigger
               render={
-                <Button variant="ghost" size="icon" aria-label="Open menu" className="md:hidden" />
+                <Button variant="ghost" size="icon" aria-label="Open menu" className="lg:hidden" />
               }
             >
               <List className="h-5 w-5" aria-hidden />

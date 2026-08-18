@@ -45,6 +45,7 @@ model User {
   schoolInterests          SchoolInterest[]
   resolvedSchoolInterests  SchoolInterest[]          @relation("SchoolInterestResolvedBy")
   announcements            Announcement[]
+  alumniUpdates            AlumniUpdate[]
   profileViews             ProfileViewEvent[]
   payments                 Payment[]
   createdPlayers           Player[]                  @relation("AdminAuthoredPlayers")
@@ -218,6 +219,7 @@ model Sport {
   // at /admin/stat-suggestions -- always an array of strings.
   statSuggestions Json @default("[]")
   players   PlayerSport[]
+  alumniUpdates AlumniUpdate[]
 
   @@map("sports")
 }
@@ -340,6 +342,31 @@ model Announcement {
 
   @@index([createdAt])
   @@map("announcements")
+}
+
+// ── Public marketing ────────────────────────────────────
+
+// An admin-posted update about a former client now playing in college --
+// shown on the public /alumni page and teased on the homepage. Distinct
+// from Testimonial (a one-time quote): this is meant to be added to on an
+// ongoing basis as athletes' college careers develop.
+model AlumniUpdate {
+  id          String   @id @default(cuid())
+  athleteName String
+  sportId     String
+  sport       Sport    @relation(fields: [sportId], references: [id])
+  schoolName  String
+  updateText  String   @db.Text
+  eventDate   DateTime
+  photoUrl    String?
+  linkUrl     String?
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  createdBy   String
+  author      User     @relation(fields: [createdBy], references: [id])
+
+  @@index([eventDate])
+  @@map("alumni_updates")
 }
 
 // Links a school's football schedule (e.g. a MaxPreps page) to be shown on

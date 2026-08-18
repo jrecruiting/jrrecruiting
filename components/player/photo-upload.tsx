@@ -15,15 +15,20 @@ export type PhotoUploadHandle = {
 export function PhotoUpload({
   name = "primaryPhotoUrl",
   defaultValue,
+  uploadEndpoint = "/api/blob/upload",
+  publicUrl = false,
   ref,
 }: {
   name?: string;
   defaultValue?: string | null;
+  // Player photos are private (uploaded to /api/blob/upload, viewed via the
+  // /api/blob/photo proxy so auth rules apply). Public uploads -- e.g. the
+  // /admin/alumni photo, meant for a public marketing page -- hit a
+  // different endpoint and get back a directly-fetchable URL instead.
+  uploadEndpoint?: string;
+  publicUrl?: boolean;
   ref?: Ref<PhotoUploadHandle>;
 }) {
-  // Stores the blob's pathname (not a directly-fetchable URL, since photos
-  // are private -- viewing one always goes through /api/blob/photo so we
-  // can enforce the same auth rules as the rest of a player's profile).
   const [pathname, setPathname] = useState<string | null>(defaultValue ?? null);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -36,7 +41,9 @@ export function PhotoUpload({
   }));
 
   const previewSrc = pathname
-    ? `/api/blob/photo?pathname=${encodeURIComponent(pathname)}`
+    ? publicUrl
+      ? pathname
+      : `/api/blob/photo?pathname=${encodeURIComponent(pathname)}`
     : null;
 
   async function handleFile(file: File) {
@@ -59,7 +66,7 @@ export function PhotoUpload({
 
       const result = await new Promise<{ pathname: string }>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        xhr.open("POST", "/api/blob/upload");
+        xhr.open("POST", uploadEndpoint);
         xhr.upload.addEventListener("progress", (e) => {
           if (e.lengthComputable) setProgress(Math.round((e.loaded / e.total) * 100));
         });

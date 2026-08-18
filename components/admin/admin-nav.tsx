@@ -18,12 +18,14 @@ import {
   Megaphone,
   ListChecks,
   CalendarBlank,
+  GraduationCap,
 } from "@phosphor-icons/react/dist/ssr";
 
 const navItems = [
   { href: "/admin", label: "Overview", icon: Gauge },
   { href: "/admin/announcements", label: "Announcements", icon: Megaphone },
   { href: "/admin/players", label: "Players", icon: UsersThree },
+  { href: "/admin/alumni", label: "Alumni Updates", icon: GraduationCap },
   { href: "/admin/school-schedules", label: "School Schedules", icon: CalendarBlank },
   { href: "/admin/profile-views", label: "Profile Views", icon: Eye },
   { href: "/admin/parent-views", label: "Parent Visits", icon: UserCircle },
