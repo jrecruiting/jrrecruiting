@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import { PlayerUpdatedEmail } from "./player-updated";
 import { CoachApprovedEmail } from "./coach-approved";
 import { CoachRejectedEmail } from "./coach-rejected";
+import { CoachWelcomeEmail } from "./coach-welcome";
 import { ClaimApprovedEmail } from "./claim-approved";
 import { ClaimRejectedEmail } from "./claim-rejected";
 import { EditApprovedEmail } from "./edit-approved";
@@ -28,6 +29,7 @@ export type EmailTemplateKey =
   | "player-updated"
   | "coach-approved"
   | "coach-rejected"
+  | "coach-welcome"
   | "claim-approved"
   | "claim-rejected"
   | "edit-approved"
@@ -78,6 +80,16 @@ export function renderEmailTemplate(
           <CoachRejectedEmail
             coachName={(payload.coachName as string) || "Coach"}
             reason={payload.reason as string | undefined}
+          />
+        ),
+      };
+    case "coach-welcome":
+      return {
+        subject: "Your J.R. Recruiting coach account is ready",
+        react: (
+          <CoachWelcomeEmail
+            coachName={(payload.coachName as string) || "Coach"}
+            setPasswordUrl={payload.setPasswordUrl as string}
           />
         ),
       };

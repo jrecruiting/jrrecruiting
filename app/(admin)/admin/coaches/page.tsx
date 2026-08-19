@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { approveCoach, rejectCoach } from "@/actions/coaches";
 import { Button } from "@/components/ui/button";
@@ -5,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { DeleteCoachButton } from "@/components/admin/delete-coach-button";
 import { TestAccountToggle } from "@/components/admin/test-account-toggle";
+import { Plus } from "@phosphor-icons/react/dist/ssr";
 
 const statusVariant: Record<string, "default" | "secondary" | "destructive"> = {
   PENDING: "secondary",
@@ -21,7 +23,13 @@ export default async function AdminCoachesPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="font-heading text-2xl font-bold tracking-tight">Coach Verification</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="font-heading text-2xl font-bold tracking-tight">Coach Verification</h1>
+        <Button nativeButton={false} render={<Link href="/admin/coaches/new" />}>
+          <Plus className="h-4 w-4" weight="bold" aria-hidden />
+          Add Coach
+        </Button>
+      </div>
 
       {coaches.length === 0 ? (
         <p className="text-muted-foreground">No coach sign-ups yet.</p>
