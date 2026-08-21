@@ -9,6 +9,7 @@ import { recordParentView } from "@/lib/notifications/parent-view";
 import { PlayerForm } from "@/components/player/player-form";
 import { PlayerSportsList } from "@/components/player/player-sports-list";
 import { AddSportForm } from "@/components/player/add-sport-form";
+import { LocalDateTime } from "@/components/shared/local-date-time";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -71,7 +72,8 @@ export default async function EditAthletePage({
         <Card className="border-gold/50 bg-gold/5">
           <CardContent>
             <p className="text-sm">
-              You have changes submitted on {pendingEdit.createdAt.toLocaleDateString()} that
+              You have changes submitted on{" "}
+              <LocalDateTime iso={pendingEdit.createdAt.toISOString()} dateOnly /> that
               are waiting on admin review. The profile coaches see still reflects the current
               approved version until those changes are approved. Submitting the form below will
               update your pending request with the latest changes.

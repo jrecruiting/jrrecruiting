@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/permissions";
 import { resendEmail } from "@/actions/admin-email-log";
+import { LocalDateTime } from "@/components/shared/local-date-time";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -63,12 +64,13 @@ export default async function AdminEmailLogPage({
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {row.templateKey} &middot; created{" "}
-                    {row.createdAt.toLocaleString("en-US", {
-                      dateStyle: "medium",
-                      timeStyle: "short",
-                    })}
-                    {row.sentAt &&
-                      ` · sent ${row.sentAt.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}`}
+                    <LocalDateTime iso={row.createdAt.toISOString()} />
+                    {row.sentAt && (
+                      <>
+                        {" "}
+                        &middot; sent <LocalDateTime iso={row.sentAt.toISOString()} />
+                      </>
+                    )}
                     {row.attempts > 0 && ` · ${row.attempts} attempt${row.attempts === 1 ? "" : "s"}`}
                   </p>
                   {row.lastError && (
