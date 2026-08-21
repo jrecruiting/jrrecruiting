@@ -75,13 +75,11 @@ export default async function AdminEmailLogPage({
                     <p className="text-xs text-destructive">{row.lastError}</p>
                   )}
                 </div>
-                {row.status !== "SENT" && (
-                  <form action={resendEmail.bind(null, row.id)}>
-                    <Button type="submit" size="sm" variant="outline" className="border-border/60">
-                      Resend
-                    </Button>
-                  </form>
-                )}
+                <form action={resendEmail.bind(null, row.id)}>
+                  <Button type="submit" size="sm" variant="outline" className="border-border/60">
+                    Resend
+                  </Button>
+                </form>
               </CardContent>
             </Card>
           ))}

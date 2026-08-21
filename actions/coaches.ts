@@ -9,10 +9,7 @@ import { requireRole } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 import { scheduleOutboxFlush } from "@/lib/email/send";
 import { APP_URL } from "@/lib/email/resend";
-
-const WELCOME_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days -- this is a first-time
-// setup link, not an urgent lockout reset, so it gets a longer window than
-// the 1-hour forgot-password flow.
+import { WELCOME_TOKEN_TTL_MS } from "@/lib/email/token-ttl";
 
 export type CoachFormState = { error?: string } | undefined;
 
