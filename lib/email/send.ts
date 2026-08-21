@@ -81,3 +81,31 @@ export async function flushPendingOutbox() {
 
   return { sent, failed, skipped: false };
 }
+
+/**
+ * Sends a single outbox row immediately, regardless of its current status
+ * or attempt count -- for the admin "Resend" action, where a human is
+ * explicitly asking for another try right now rather than waiting on the
+ * next automatic sweep.
+ */
+export async function resendOutboxRow(rowId: string): Promise<{ error?: string }> {
+  const row = await prisma.emailOutbox.findUnique({ where: { id: rowId } });
+  if (!row) return { error: "Email not found." };
+  if (!resend) return { error: "Resend is not configured (missing RESEND_API_KEY)." };
+
+  try {
+    await sendOutboxRow(row);
+    await prisma.emailOutbox.update({
+      where: { id: row.id },
+      data: { status: "SENT", sentAt: new Date() },
+    });
+    return {};
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    await prisma.emailOutbox.update({
+      where: { id: row.id },
+      data: { status: "FAILED", attempts: { increment: 1 }, lastError: message },
+    });
+    return { error: message };
+  }
+}

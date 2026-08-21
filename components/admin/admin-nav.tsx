@@ -19,6 +19,7 @@ import {
   ListChecks,
   CalendarBlank,
   GraduationCap,
+  PaperPlaneTilt,
 } from "@phosphor-icons/react/dist/ssr";
 
 const navItems = [
@@ -39,6 +40,7 @@ const navItems = [
   { href: "/admin/claims", label: "Claims", icon: ArrowsClockwise },
   { href: "/admin/payments", label: "Payments", icon: HandCoins },
   { href: "/admin/payment-plans", label: "Payment Plans", icon: CalendarCheck },
+  { href: "/admin/email-log", label: "Email Log", icon: PaperPlaneTilt },
 ];
 
 export function AdminNav() {
