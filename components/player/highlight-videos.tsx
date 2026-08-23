@@ -26,7 +26,7 @@ export function HighlightVideos({ videos }: { videos: MediaAsset[] }) {
           return (
             <div key={video.id} className="flex flex-col gap-1.5">
               {videos.length > 1 && video.title && (
-                <p className="text-xs font-medium text-muted-foreground">{video.title}</p>
+                <p className="text-sm font-medium text-muted-foreground">{video.title}</p>
               )}
               {video.notes && (
                 <p className="whitespace-pre-wrap text-sm text-foreground/90">{video.notes}</p>
