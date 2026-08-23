@@ -321,6 +321,11 @@ model MediaAsset {
   provider  MediaProvider
   url       String
   title     String?
+  // Admin-entered context for a highlight clip -- e.g. stats from the play
+  // or what to watch for. Only ever set from the admin side (never exposed
+  // on the parent-facing form) and shown between the video's title and its
+  // embed/link on the coach-facing profile.
+  notes     String?       @db.Text
   sortOrder Int           @default(0)
   createdAt DateTime      @default(now())
 

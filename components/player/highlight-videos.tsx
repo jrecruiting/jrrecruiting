@@ -28,6 +28,9 @@ export function HighlightVideos({ videos }: { videos: MediaAsset[] }) {
               {videos.length > 1 && video.title && (
                 <p className="text-xs font-medium text-muted-foreground">{video.title}</p>
               )}
+              {video.notes && (
+                <p className="whitespace-pre-wrap text-sm text-foreground/90">{video.notes}</p>
+              )}
               {embedUrl ? (
                 <div className="aspect-video w-full overflow-hidden rounded-lg border border-border/60">
                   <iframe

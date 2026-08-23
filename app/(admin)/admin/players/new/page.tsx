@@ -11,6 +11,7 @@ export default async function NewPlayerPage() {
       <PlayerForm
         sports={sports}
         showSportField
+        showVideoNotesField
         action={createPlayerAdmin}
         submitLabel="Create Player"
       />

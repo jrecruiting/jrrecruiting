@@ -38,6 +38,7 @@ async function createSpinoffProfile(
                 provider: guessVideoProvider(v.url),
                 url: v.url,
                 title: v.title || null,
+                notes: v.notes || null,
                 sortOrder: i,
               })),
             }

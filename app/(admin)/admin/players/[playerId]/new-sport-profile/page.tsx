@@ -64,6 +64,7 @@ export default async function NewSportProfileAdminPage({
       <PlayerForm
         sports={availableSports}
         showSportField
+        showVideoNotesField
         action={boundCreate}
         submitLabel="Create Profile"
         defaultValues={{

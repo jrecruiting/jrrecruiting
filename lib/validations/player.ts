@@ -12,6 +12,7 @@ const optionalString = (max: number) =>
 const videoEntrySchema = z.object({
   url: z.string().trim().url("Enter a valid video URL"),
   title: optionalString(100),
+  notes: optionalString(500),
 });
 
 const basePlayerFields = {

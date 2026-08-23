@@ -25,11 +25,19 @@ function extraPhotosFromFormData(formData: FormData): string[] {
 // into an array before validation, same as stats' label/value pairs. Rows
 // with no URL are dropped rather than validated, since an empty row just
 // means the parent added then didn't fill in a slot.
-function videosFromFormData(formData: FormData): { url: string; title?: string }[] {
+function videosFromFormData(formData: FormData): { url: string; title?: string; notes?: string }[] {
   const urls = formData.getAll("videoUrl").map(String);
   const titles = formData.getAll("videoTitle").map(String);
+  // Submitted as a hidden input on the parent-facing form (no visible field
+  // there) so a parent's resubmission round-trips an admin's existing notes
+  // unchanged instead of quietly wiping them out.
+  const notesList = formData.getAll("videoNotes").map(String);
   return urls
-    .map((url, i) => ({ url: url.trim(), title: (titles[i] ?? "").trim() }))
+    .map((url, i) => ({
+      url: url.trim(),
+      title: (titles[i] ?? "").trim(),
+      notes: (notesList[i] ?? "").trim(),
+    }))
     .filter((v) => v.url);
 }
 
@@ -93,10 +101,13 @@ export function buildPlayerData(data: UpdatePlayerFormValues) {
 }
 
 // Reconciles a player's video MediaAsset rows (type VIDEO) to exactly match
-// the submitted ordered list of {url, title} entries -- same match-by-url,
-// delete-what's-gone, rewrite-sortOrder approach as syncPhotos, plus a title
-// update for rows that kept the same URL but got a new title.
-export async function syncVideos(playerId: string, videos: { url: string; title?: string }[]) {
+// the submitted ordered list of {url, title, notes} entries -- same
+// match-by-url, delete-what's-gone, rewrite-sortOrder approach as
+// syncPhotos, plus title/notes updates for rows that kept the same URL.
+export async function syncVideos(
+  playerId: string,
+  videos: { url: string; title?: string; notes?: string }[]
+) {
   const existing = await prisma.mediaAsset.findMany({
     where: { playerId, type: "VIDEO" },
   });
@@ -109,14 +120,19 @@ export async function syncVideos(playerId: string, videos: { url: string; title?
   }
 
   for (let i = 0; i < videos.length; i++) {
-    const { url, title } = videos[i];
+    const { url, title, notes } = videos[i];
     const normalizedTitle = title || null;
+    const normalizedNotes = notes || null;
     const existingRow = existingByUrl.get(url);
     if (existingRow) {
-      if (existingRow.sortOrder !== i || existingRow.title !== normalizedTitle) {
+      if (
+        existingRow.sortOrder !== i ||
+        existingRow.title !== normalizedTitle ||
+        existingRow.notes !== normalizedNotes
+      ) {
         await prisma.mediaAsset.update({
           where: { id: existingRow.id },
-          data: { sortOrder: i, title: normalizedTitle },
+          data: { sortOrder: i, title: normalizedTitle, notes: normalizedNotes },
         });
       }
     } else {
@@ -127,6 +143,7 @@ export async function syncVideos(playerId: string, videos: { url: string; title?
           provider: guessVideoProvider(url),
           url,
           title: normalizedTitle,
+          notes: normalizedNotes,
           sortOrder: i,
         },
       });

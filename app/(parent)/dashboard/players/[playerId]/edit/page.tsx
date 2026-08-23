@@ -43,7 +43,7 @@ export default async function EditAthletePage({
   const videos = player.media
     .filter((m) => m.type === "VIDEO")
     .sort((a, b) => a.sortOrder - b.sortOrder)
-    .map((m) => ({ url: m.url, title: m.title }));
+    .map((m) => ({ url: m.url, title: m.title, notes: m.notes }));
   const extraPhotos = player.media
     .filter((m) => m.type === "PHOTO")
     .sort((a, b) => a.sortOrder - b.sortOrder)

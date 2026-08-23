@@ -67,7 +67,7 @@ function FormSection({
 
 type SportOption = { id: string; name: string };
 
-type VideoRow = { key: string; url?: string; title?: string };
+type VideoRow = { key: string; url?: string; title?: string; notes?: string };
 
 type PlayerDefaults = {
   firstName?: string;
@@ -88,7 +88,7 @@ type PlayerDefaults = {
   photoConsent?: boolean;
   sportId?: string;
   position?: string | null;
-  videos?: { url: string; title?: string | null }[];
+  videos?: { url: string; title?: string | null; notes?: string | null }[];
   instagramHandle?: string | null;
   xHandle?: string | null;
   cellPhone?: string | null;
@@ -97,6 +97,7 @@ type PlayerDefaults = {
 export function PlayerForm({
   sports = [],
   showSportField = false,
+  showVideoNotesField = false,
   action,
   defaultValues,
   submitLabel,
@@ -105,6 +106,11 @@ export function PlayerForm({
 }: {
   sports?: SportOption[];
   showSportField?: boolean;
+  // Video notes/stats are admin-entered context (see MediaAsset.notes) --
+  // never exposed as an editable field on the parent-facing form, only
+  // preserved there via a hidden input so a parent's resubmission doesn't
+  // wipe out notes an admin already set.
+  showVideoNotesField?: boolean;
   action: (state: PlayerFormState, formData: FormData) => Promise<PlayerFormState>;
   defaultValues?: PlayerDefaults;
   submitLabel: string;
@@ -141,6 +147,7 @@ export function PlayerForm({
       key: newVideoRowKey(),
       url: v.url,
       title: v.title ?? "",
+      notes: v.notes ?? "",
     }))
   );
 
@@ -426,36 +433,53 @@ export function PlayerForm({
           {videoRows.map((row) => (
             <div
               key={row.key}
-              className="grid grid-cols-[1fr_1fr_auto] items-end gap-3 rounded-lg border border-border/60 p-3"
+              className="flex flex-col gap-3 rounded-lg border border-border/60 p-3"
             >
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor={`videoUrl-${row.key}`}>Video URL</Label>
-                <Input
-                  id={`videoUrl-${row.key}`}
-                  name="videoUrl"
-                  placeholder="https://youtube.com/... or hudl.com/..."
-                  defaultValue={row.url ?? ""}
-                />
+              <div className="grid grid-cols-[1fr_1fr_auto] items-end gap-3">
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor={`videoUrl-${row.key}`}>Video URL</Label>
+                  <Input
+                    id={`videoUrl-${row.key}`}
+                    name="videoUrl"
+                    placeholder="https://youtube.com/... or hudl.com/..."
+                    defaultValue={row.url ?? ""}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor={`videoTitle-${row.key}`}>Title (optional)</Label>
+                  <Input
+                    id={`videoTitle-${row.key}`}
+                    name="videoTitle"
+                    placeholder="e.g. Junior Year Highlights"
+                    maxLength={100}
+                    defaultValue={row.title ?? ""}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeVideoRow(row.key)}
+                  aria-label="Remove video"
+                >
+                  <X className="h-4 w-4" aria-hidden />
+                </Button>
               </div>
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor={`videoTitle-${row.key}`}>Title (optional)</Label>
-                <Input
-                  id={`videoTitle-${row.key}`}
-                  name="videoTitle"
-                  placeholder="e.g. Junior Year Highlights"
-                  maxLength={100}
-                  defaultValue={row.title ?? ""}
-                />
-              </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={() => removeVideoRow(row.key)}
-                aria-label="Remove video"
-              >
-                <X className="h-4 w-4" aria-hidden />
-              </Button>
+              {showVideoNotesField ? (
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor={`videoNotes-${row.key}`}>Notes / stats (optional)</Label>
+                  <Textarea
+                    id={`videoNotes-${row.key}`}
+                    name="videoNotes"
+                    rows={2}
+                    maxLength={500}
+                    placeholder="e.g. 12 tackles, 2 sacks, 1 forced fumble"
+                    defaultValue={row.notes ?? ""}
+                  />
+                </div>
+              ) : (
+                <input type="hidden" name="videoNotes" defaultValue={row.notes ?? ""} />
+              )}
             </div>
           ))}
         </div>

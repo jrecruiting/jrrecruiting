@@ -44,7 +44,7 @@ export default async function EditPlayerPage({
   const videos = player.media
     .filter((m) => m.type === "VIDEO")
     .sort((a, b) => a.sortOrder - b.sortOrder)
-    .map((m) => ({ url: m.url, title: m.title }));
+    .map((m) => ({ url: m.url, title: m.title, notes: m.notes }));
   const extraPhotos = player.media
     .filter((m) => m.type === "PHOTO")
     .sort((a, b) => a.sortOrder - b.sortOrder)
@@ -91,6 +91,7 @@ export default async function EditPlayerPage({
         action={boundUpdate}
         submitLabel="Save Changes"
         promptAnnounceOnSave
+        showVideoNotesField
         defaultValues={{
           firstName: player.firstName,
           lastName: player.lastName,
