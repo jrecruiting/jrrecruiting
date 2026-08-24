@@ -9,7 +9,7 @@ export function PasswordResetEmail({ resetUrl }: { resetUrl: string }) {
     >
       <Text style={emailTextStyle}>
         We received a request to reset your password. Click the button below
-        to choose a new one. This link expires in 1 hour.
+        to choose a new one. This link expires in 24 hours.
       </Text>
       <EmailButton href={resetUrl}>Reset Password</EmailButton>
       <Text style={emailTextStyle}>

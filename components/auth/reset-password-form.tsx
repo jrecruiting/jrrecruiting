@@ -57,7 +57,11 @@ export function ResetPasswordForm({ token }: { token: string | null }) {
               </div>
               {state.status === "error" && (
                 <p role="alert" className="text-sm text-destructive">
-                  {state.message}
+                  {state.message}{" "}
+                  <Link href="/forgot-password" className="font-medium underline">
+                    request a new link
+                  </Link>
+                  .
                 </p>
               )}
               <Button type="submit" disabled={isPending} className="mt-2">

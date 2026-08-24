@@ -140,7 +140,12 @@ export async function signOutAction() {
   await signOut({ redirectTo: "/" });
 }
 
-const RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
+// 24 hours -- 1 hour was too tight for real-world email delays and turned
+// into a support issue: a parent who requested a reset more than once
+// would click an older email's link (now superseded, see the deleteMany
+// below) and see "expired" within minutes, indistinguishable from a link
+// that had genuinely timed out.
+const RESET_TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
 // Generic message shown regardless of whether the email matched an
 // account, so this endpoint can't be used to enumerate registered emails.
 const FORGOT_PASSWORD_GENERIC_MESSAGE =
@@ -236,7 +241,13 @@ export async function resetPassword(
   if (!resetToken || resetToken.usedAt || resetToken.expiresAt < new Date()) {
     return {
       status: "error",
-      message: "This reset link is invalid or has expired. Please request a new one.",
+      // Covers three cases (no matching token, already used, genuinely
+      // expired) with one message -- but the most common in practice is
+      // that a newer reset request superseded this link (only one active
+      // link exists per account at a time), so the copy leads with that
+      // rather than implying the link simply timed out.
+      message:
+        "This link is no longer valid. If you requested a reset more than once, only the most recent email works -- check your inbox for the latest one, or",
     };
   }
 
