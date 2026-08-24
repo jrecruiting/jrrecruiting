@@ -26,7 +26,18 @@ export function EmailLayout({
 }) {
   return (
     <Html>
-      <Head />
+      <Head>
+        {/* This template is deliberately light-themed and isn't designed
+            to survive automatic recoloring -- without this, some clients
+            (seen with Gmail's iOS app) apply their own dark-mode inversion
+            to the raw HTML, which can visibly break specific elements
+            (e.g. a colored button losing contrast, or its containing
+            table failing to render) in ways that are otherwise very hard
+            to reproduce or debug. This opts the whole email out of that
+            automatic reprocessing. */}
+        <meta name="color-scheme" content="light" />
+        <meta name="supported-color-schemes" content="light" />
+      </Head>
       <Preview>{preview}</Preview>
       <Body style={{ backgroundColor: "#f4f4f5", fontFamily: "Helvetica, Arial, sans-serif" }}>
         <Container
