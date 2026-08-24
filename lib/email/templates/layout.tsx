@@ -71,23 +71,37 @@ export function EmailLayout({
 
 export function EmailButton({ href, children }: { href: string; children: ReactNode }) {
   return (
-    <Section style={{ margin: "24px 0" }}>
-      <a
-        href={href}
-        style={{
-          backgroundColor: GOLD,
-          color: "#1a1204",
-          padding: "12px 20px",
-          borderRadius: "8px",
-          fontSize: "14px",
-          fontWeight: 700,
-          textDecoration: "none",
-          display: "inline-block",
-        }}
-      >
-        {children}
-      </a>
-    </Section>
+    <>
+      <Section style={{ margin: "24px 0 12px" }}>
+        <a
+          href={href}
+          style={{
+            backgroundColor: GOLD,
+            color: "#1a1204",
+            padding: "12px 20px",
+            borderRadius: "8px",
+            fontSize: "14px",
+            fontWeight: 700,
+            textDecoration: "none",
+            display: "inline-block",
+          }}
+        >
+          {children}
+        </a>
+      </Section>
+      {/* A true sibling of the Section above, not nested inside it --
+          some mail apps (seen with Gmail's iOS app in dark mode) fail to
+          render the styled button's table at all, dropping it and
+          everything inside that same table with no visible error. Kept
+          as its own top-level element so it survives even when that
+          happens, instead of being dropped along with the button. */}
+      <Text style={{ fontSize: "12px", color: MUTED, margin: "0 0 16px" }}>
+        Or copy and paste this link into your browser:{" "}
+        <a href={href} style={{ color: GOLD }}>
+          {href}
+        </a>
+      </Text>
+    </>
   );
 }
 
