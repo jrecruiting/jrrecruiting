@@ -40,7 +40,10 @@ export async function resolveEditRequest(
     });
 
     if (approve) {
-      await tx.player.update({ where: { id: request.playerId }, data: buildPlayerData(data) });
+      await tx.player.update({
+        where: { id: request.playerId },
+        data: { ...buildPlayerData(data), profileUpdatedAt: new Date() },
+      });
     }
 
     await tx.notification.create({

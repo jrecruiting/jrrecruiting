@@ -78,7 +78,13 @@ export async function updatePlayerAdmin(
 
   try {
     const data = parseUpdatePlayerForm(formData);
-    await prisma.player.update({ where: { id: playerId }, data: buildPlayerData(data) });
+    // profileUpdatedAt (distinct from the general updatedAt) marks this as a
+    // real edit to the profile fields, so a pending edit request submitted
+    // before this save can be flagged stale on the review page.
+    await prisma.player.update({
+      where: { id: playerId },
+      data: { ...buildPlayerData(data), profileUpdatedAt: new Date() },
+    });
     await syncVideos(playerId, data.videos);
     await syncPhotos(playerId, data.extraPhotos);
     await recordPlayerUpdate(playerId);

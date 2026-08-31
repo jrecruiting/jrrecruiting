@@ -99,14 +99,21 @@ export default async function AdminEditRequestsPage() {
             }
 
             // The proposed values above are a snapshot from when this request
-            // was submitted -- if the player has been edited more recently
-            // (e.g. an admin changed the bio or GPA directly while this sat
-            // pending), approving will silently overwrite that newer edit
-            // with the stale proposed value. The diff table's "Current"
-            // column already reflects the live data, so nothing here is
-            // hidden, but it's easy to approve without reading every row --
-            // flag it explicitly so it can't be missed.
-            const isStale = request.status === "PENDING" && request.player.updatedAt > request.createdAt;
+            // was submitted -- if the player's profile has been edited more
+            // recently (e.g. an admin changed the bio or GPA directly while
+            // this sat pending), approving will silently overwrite that
+            // newer edit with the stale proposed value. The diff table's
+            // "Current" column already reflects the live data, so nothing
+            // here is hidden, but it's easy to approve without reading every
+            // row -- flag it explicitly so it can't be missed.
+            //
+            // Deliberately checks profileUpdatedAt, not the general
+            // updatedAt: the latter also bumps for claim transfers, checkout
+            // status changes, and the Stripe webhook, none of which touch
+            // the fields this diff is about -- using it here would trigger
+            // false alarms on requests nothing here actually put at risk.
+            const isStale =
+              request.status === "PENDING" && request.player.profileUpdatedAt > request.createdAt;
 
             const approveAndAnnounce = resolveEditRequest.bind(null, request.id, true, true);
             const approveOnly = resolveEditRequest.bind(null, request.id, true, false);

@@ -190,6 +190,13 @@ model Player {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  // Set explicitly (not @updatedAt) only where the profile fields above are
+  // written directly -- updatePlayerAdmin and an edit-request approval.
+  // Unlike `updatedAt`, this does NOT bump for claim transfers, checkout
+  // status changes, or the Stripe webhook, so the edit-requests page can use
+  // it to warn "this profile was edited since the request was submitted"
+  // without false-alarming on unrelated writes to the row.
+  profileUpdatedAt DateTime @default(now())
 
   sports                  PlayerSport[]
   media                   MediaAsset[]
