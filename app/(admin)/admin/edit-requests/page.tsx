@@ -98,6 +98,16 @@ export default async function AdminEditRequestsPage() {
               });
             }
 
+            // The proposed values above are a snapshot from when this request
+            // was submitted -- if the player has been edited more recently
+            // (e.g. an admin changed the bio or GPA directly while this sat
+            // pending), approving will silently overwrite that newer edit
+            // with the stale proposed value. The diff table's "Current"
+            // column already reflects the live data, so nothing here is
+            // hidden, but it's easy to approve without reading every row --
+            // flag it explicitly so it can't be missed.
+            const isStale = request.status === "PENDING" && request.player.updatedAt > request.createdAt;
+
             const approveAndAnnounce = resolveEditRequest.bind(null, request.id, true, true);
             const approveOnly = resolveEditRequest.bind(null, request.id, true, false);
             const reject = resolveEditRequest.bind(null, request.id, false, false);
@@ -117,6 +127,14 @@ export default async function AdminEditRequestsPage() {
                     </div>
                     <Badge variant={statusVariant[request.status]}>{request.status}</Badge>
                   </div>
+
+                  {isStale && (
+                    <div className="rounded-md border border-amber-500/50 bg-amber-500/10 px-3 py-2 text-sm text-amber-700 dark:text-amber-400">
+                      This player was edited after this request was submitted. Approving will
+                      overwrite those newer changes with the proposed values below — review the
+                      diff carefully before approving.
+                    </div>
+                  )}
 
                   {rows.length === 0 ? (
                     <p className="text-sm text-muted-foreground">No field changes detected.</p>
