@@ -61,8 +61,12 @@ export async function resolveEditRequest(
   });
 
   if (approve) {
-    await syncVideos(request.playerId, data.videos ?? []);
-    await syncPhotos(request.playerId, data.extraPhotos ?? []);
+    // Pass the request's own submission time so a video/photo an admin
+    // touched more recently than that (added, edited, or removed directly
+    // on the player while this request sat pending) isn't clobbered by this
+    // now-stale snapshot -- see syncVideos' comment in lib/player-data.ts.
+    await syncVideos(request.playerId, data.videos ?? [], request.createdAt);
+    await syncPhotos(request.playerId, data.extraPhotos ?? [], request.createdAt);
     await recordPlayerUpdate(request.playerId);
   }
 

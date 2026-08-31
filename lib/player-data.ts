@@ -104,20 +104,41 @@ export function buildPlayerData(data: UpdatePlayerFormValues) {
 // the submitted ordered list of {url, title, notes} entries -- same
 // match-by-url, delete-what's-gone, rewrite-sortOrder approach as
 // syncPhotos, plus title/notes updates for rows that kept the same URL.
+//
+// `protectSince` guards against a real bug: approving a parent's edit
+// request replays a *snapshot* taken when they loaded their form, which
+// goes stale the moment an admin makes a direct edit to the same player
+// afterward -- e.g. adding a video, or setting notes on one -- while that
+// request sits pending. Approving it later would otherwise blindly delete
+// the video the stale snapshot never knew about, or reset its notes back
+// to whatever the snapshot had. When set (edit-request approval passes the
+// request's createdAt), a row touched more recently than that cutoff is
+// left alone: not deleted even if the snapshot omits it, and not
+// overwritten even if the snapshot's title/notes differ. Direct saves
+// (admin/parent forms) don't pass this -- there's no snapshot staleness
+// risk when the data came from the live form just submitted.
 export async function syncVideos(
   playerId: string,
-  videos: { url: string; title?: string; notes?: string }[]
+  videos: { url: string; title?: string; notes?: string }[],
+  protectSince?: Date
 ) {
   const existing = await prisma.mediaAsset.findMany({
     where: { playerId, type: "VIDEO" },
   });
   const existingByUrl = new Map(existing.map((m) => [m.url, m]));
   const keep = new Set(videos.map((v) => v.url));
+  const isProtected = (m: (typeof existing)[number]) =>
+    protectSince != null && m.updatedAt > protectSince;
 
-  const toDelete = existing.filter((m) => !keep.has(m.url));
+  const toDelete = existing.filter((m) => !keep.has(m.url) && !isProtected(m));
   if (toDelete.length > 0) {
     await prisma.mediaAsset.deleteMany({ where: { id: { in: toDelete.map((m) => m.id) } } });
   }
+
+  // sortOrder still needs to make room for protected rows the incoming
+  // list doesn't know about, so they don't end up sharing a position with
+  // one of the submitted videos -- append them after everything submitted.
+  let nextSortOrder = videos.length;
 
   for (let i = 0; i < videos.length; i++) {
     const { url, title, notes } = videos[i];
@@ -125,6 +146,12 @@ export async function syncVideos(
     const normalizedNotes = notes || null;
     const existingRow = existingByUrl.get(url);
     if (existingRow) {
+      if (isProtected(existingRow)) {
+        if (existingRow.sortOrder !== i) {
+          await prisma.mediaAsset.update({ where: { id: existingRow.id }, data: { sortOrder: i } });
+        }
+        continue;
+      }
       if (
         existingRow.sortOrder !== i ||
         existingRow.title !== normalizedTitle ||
@@ -149,23 +176,35 @@ export async function syncVideos(
       });
     }
   }
+
+  for (const m of existing) {
+    if (isProtected(m) && !keep.has(m.url)) {
+      await prisma.mediaAsset.update({ where: { id: m.id }, data: { sortOrder: nextSortOrder } });
+      nextSortOrder += 1;
+    }
+  }
 }
 
 // Reconciles a player's extra-photo MediaAsset rows (type PHOTO) to exactly
 // match the submitted ordered list -- unlike syncVideo's append-only
 // behavior, photo slots can be reordered, replaced, or cleared, so this
 // deletes what's no longer present and rewrites sortOrder for the rest.
-export async function syncPhotos(playerId: string, photoUrls: string[]) {
+// See syncVideos above for what protectSince guards against.
+export async function syncPhotos(playerId: string, photoUrls: string[], protectSince?: Date) {
   const existing = await prisma.mediaAsset.findMany({
     where: { playerId, type: "PHOTO" },
   });
   const existingByUrl = new Map(existing.map((m) => [m.url, m]));
   const keep = new Set(photoUrls);
+  const isProtected = (m: (typeof existing)[number]) =>
+    protectSince != null && m.updatedAt > protectSince;
 
-  const toDelete = existing.filter((m) => !keep.has(m.url));
+  const toDelete = existing.filter((m) => !keep.has(m.url) && !isProtected(m));
   if (toDelete.length > 0) {
     await prisma.mediaAsset.deleteMany({ where: { id: { in: toDelete.map((m) => m.id) } } });
   }
+
+  let nextSortOrder = photoUrls.length;
 
   for (let i = 0; i < photoUrls.length; i++) {
     const url = photoUrls[i];
@@ -178,6 +217,13 @@ export async function syncPhotos(playerId: string, photoUrls: string[]) {
       await prisma.mediaAsset.create({
         data: { playerId, type: "PHOTO", provider: "VERCEL_BLOB", url, sortOrder: i },
       });
+    }
+  }
+
+  for (const m of existing) {
+    if (isProtected(m) && !keep.has(m.url)) {
+      await prisma.mediaAsset.update({ where: { id: m.id }, data: { sortOrder: nextSortOrder } });
+      nextSortOrder += 1;
     }
   }
 }

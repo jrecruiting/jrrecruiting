@@ -328,6 +328,9 @@ model MediaAsset {
   notes     String?       @db.Text
   sortOrder Int           @default(0)
   createdAt DateTime      @default(now())
+  // Used to detect when a row was touched more recently than a pending
+  // edit request's snapshot -- see syncVideos/syncPhotos's protectSince.
+  updatedAt DateTime      @updatedAt
 
   @@map("media_assets")
 }
