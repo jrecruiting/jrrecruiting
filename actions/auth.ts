@@ -57,12 +57,42 @@ export async function signInWithCredentials(
   }
 }
 
+// A minimum viable form-fill time: a real person, even with browser
+// autofill, needs at least this long to load the page, have autofill
+// populate the fields, and click Submit. A script that fills every field
+// and posts immediately does it in milliseconds. See the "website" honeypot
+// field and formLoadedAt hidden field in SignUpForm for the client half of
+// this. Both checks fail the same way -- no specific error message, just
+// silently declining to create the account -- so an automated submitter
+// gets no signal about which one it tripped, or that it was caught at all.
+const MIN_SIGN_UP_FILL_TIME_MS = 1500;
+
 export async function signUp(
   _prevState: string | undefined,
   formData: FormData
 ): Promise<string | undefined> {
+  const honeypot = formData.get("website");
+  if (typeof honeypot === "string" && honeypot.trim() !== "") {
+    return undefined;
+  }
+
+  const formLoadedAt = Number(formData.get("formLoadedAt"));
+  if (!formLoadedAt || Date.now() - formLoadedAt < MIN_SIGN_UP_FILL_TIME_MS) {
+    return undefined;
+  }
+
   const ip = await getClientIp();
-  const { success } = await rateLimit(`sign-up:${ip}`, { limit: 5, windowMs: 60 * 60 * 1000 });
+  // Coach sign-ups are the ones being targeted, so they get a tighter
+  // per-IP cap than parents; kept separate (rather than one shared bucket)
+  // so a burst of bot coach attempts can't also lock out a real parent on
+  // the same network, or vice versa.
+  const role = formData.get("role");
+  const rateLimitKey = role === "COACH" ? `sign-up:coach:${ip}` : `sign-up:parent:${ip}`;
+  const rateLimitOptions =
+    role === "COACH"
+      ? { limit: 3, windowMs: 60 * 60 * 1000 }
+      : { limit: 5, windowMs: 60 * 60 * 1000 };
+  const { success } = await rateLimit(rateLimitKey, rateLimitOptions);
   if (!success) {
     return "Too many accounts created from this network. Please try again later.";
   }

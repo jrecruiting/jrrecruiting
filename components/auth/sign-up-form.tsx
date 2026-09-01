@@ -91,6 +91,16 @@ export function SignUpForm({
   const reduceMotion = useReducedMotion();
   const panel = PANEL_COPY[initialRole];
 
+  // Bot defense (see signUp in actions/auth.ts for the server-side checks):
+  // starts null so the server-rendered markup matches the client's first
+  // render (same reasoning as SignUpPanelPhoto above), then gets set once
+  // mounted so the server can tell "loaded, waited, then submitted" apart
+  // from a script that fills and posts the form in one shot.
+  const [formLoadedAt, setFormLoadedAt] = useState<number | null>(null);
+  useEffect(() => {
+    setFormLoadedAt(Date.now());
+  }, []);
+
   function handleFirstInteraction() {
     if (hasStarted.current) return;
     hasStarted.current = true;
@@ -187,6 +197,28 @@ export function SignUpForm({
                 className="flex flex-col gap-4"
               >
                 <input type="hidden" name="role" value={initialRole} />
+                <input type="hidden" name="formLoadedAt" value={formLoadedAt ?? ""} />
+
+                {/* Honeypot: real visitors never see or reach this field
+                    (aria-hidden + tabIndex -1 skip it for keyboard and
+                    screen-reader users; it's positioned off-screen rather
+                    than display:none because some bots specifically skip
+                    display:none fields). A script that blindly fills every
+                    input it finds in the raw HTML fills this one too, which
+                    is exactly the tell the server checks for. */}
+                <div
+                  className="absolute left-[-9999px] top-0 h-px w-px overflow-hidden"
+                  aria-hidden="true"
+                >
+                  <label htmlFor="website">Website</label>
+                  <input
+                    type="text"
+                    id="website"
+                    name="website"
+                    tabIndex={-1}
+                    autoComplete="off"
+                  />
+                </div>
 
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="name">Full name</Label>
