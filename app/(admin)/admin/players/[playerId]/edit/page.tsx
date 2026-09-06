@@ -11,6 +11,19 @@ import { formatPacificDate, formatPacificDateTime } from "@/lib/format-date";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
+// Forces this page's HTTP response to carry Next's full dynamic-route
+// Cache-Control ("private, no-cache, no-store, max-age=0, must-revalidate"
+// in production -- see node_modules/next/dist/docs/01-app/02-guides/
+// cdn-caching.md), which also makes it ineligible for the browser's
+// back/forward cache (bfcache requires the absence of no-store). This is a
+// belt-and-suspenders layer on top of updatePlayerAdmin's protectSince/
+// dataFetchedAt conflict checks: those already stop a stale save from
+// losing or overwriting data no matter what the browser shows, but this
+// keeps the browser from ever displaying a stale copy of this page in the
+// first place (e.g. via the Back button after leaving it), which is
+// confusing even when nothing actually gets lost.
+export const dynamic = "force-dynamic";
+
 export default async function EditPlayerPage({
   params,
 }: {

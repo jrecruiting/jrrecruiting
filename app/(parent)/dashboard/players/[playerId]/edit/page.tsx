@@ -13,6 +13,12 @@ import { LocalDateTime } from "@/components/shared/local-date-time";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
+// See the admin edit page's identical directive for the full reasoning --
+// makes this page ineligible for the browser's back/forward cache, so a
+// parent can't be shown a stale copy of their athlete's videos/photos/bio
+// after editing elsewhere (another tab, or an admin's own direct edit).
+export const dynamic = "force-dynamic";
+
 export default async function EditAthletePage({
   params,
 }: {
