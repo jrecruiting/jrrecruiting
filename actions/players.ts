@@ -78,6 +78,40 @@ export async function updatePlayerAdmin(
 
   try {
     const data = parseUpdatePlayerForm(formData);
+
+    // Guards against the same class of bug the edit-request approval flow
+    // had (see syncVideos in lib/player-data.ts): this form's data reflects
+    // whatever the browser had loaded, which isn't always "right now" --
+    // the browser's own back/forward cache can resurrect an older render
+    // of this exact page (from before a change was made in another tab or
+    // a later visit) and resubmit its stale state. formLoadedAt, set
+    // client-side when this form instance mounted, is how the server tells
+    // a stale submission apart from a fresh one.
+    const formLoadedAtRaw = Number(formData.get("formLoadedAt"));
+    const protectSince = formLoadedAtRaw ? new Date(formLoadedAtRaw) : undefined;
+
+    // Videos/photos are protected row-by-row inside syncVideos/syncPhotos
+    // (each has its own updatedAt), but the profile fields below --bio,
+    // GPA, measurables, etc.-- all live on one Player row with a single
+    // timestamp, so there's no way to merge at the field level: it's not
+    // possible to tell which specific field changed, only that *something*
+    // did. Rather than silently overwrite a change made elsewhere with
+    // this stale form's older values, refuse the whole save and ask the
+    // admin to reload -- the same conflict a wiki or shared doc surfaces
+    // when two edits collide, instead of quietly discarding one of them.
+    if (protectSince) {
+      const current = await prisma.player.findUnique({
+        where: { id: playerId },
+        select: { profileUpdatedAt: true },
+      });
+      if (current && current.profileUpdatedAt > protectSince) {
+        return {
+          error:
+            "This player's profile was updated elsewhere after you opened this page, so saving now could overwrite that change. Please reload the page and reapply your edit.",
+        };
+      }
+    }
+
     // profileUpdatedAt (distinct from the general updatedAt) marks this as a
     // real edit to the profile fields, so a pending edit request submitted
     // before this save can be flagged stale on the review page.
@@ -85,18 +119,6 @@ export async function updatePlayerAdmin(
       where: { id: playerId },
       data: { ...buildPlayerData(data), profileUpdatedAt: new Date() },
     });
-
-    // Guards against the same class of bug the edit-request approval flow
-    // had (see syncVideos in lib/player-data.ts): this form's video/photo
-    // list reflects whatever the browser had loaded, which isn't always
-    // "right now" -- the browser's own back/forward cache can resurrect an
-    // older render of this exact page (from before a video was added in
-    // another tab or a later visit) and resubmit its stale, video-less
-    // state. formLoadedAt, set client-side when this form instance
-    // mounted, lets a row touched more recently than that survive even
-    // though this stale submission doesn't know about it.
-    const formLoadedAtRaw = Number(formData.get("formLoadedAt"));
-    const protectSince = formLoadedAtRaw ? new Date(formLoadedAtRaw) : undefined;
 
     await syncVideos(playerId, data.videos, protectSince);
     await syncPhotos(playerId, data.extraPhotos, protectSince);

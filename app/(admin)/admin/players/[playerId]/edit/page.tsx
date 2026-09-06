@@ -36,6 +36,14 @@ export default async function EditPlayerPage({
     }),
   ]);
 
+  // Baked into this render's HTML as a hidden field (see PlayerForm's
+  // dataFetchedAt), not read from the client's clock -- if this exact
+  // render gets served again later from a cache (the browser's
+  // back/forward cache, or Next re-mounting the client form from a cached
+  // router payload), the stamp still correctly reflects when the data
+  // below was actually queried, not whenever that replay happens to occur.
+  const dataFetchedAt = Date.now();
+
   if (!player) notFound();
 
   const sortedSports = player.sports
@@ -92,6 +100,7 @@ export default async function EditPlayerPage({
         submitLabel="Save Changes"
         promptAnnounceOnSave
         showVideoNotesField
+        dataFetchedAt={dataFetchedAt}
         defaultValues={{
           firstName: player.firstName,
           lastName: player.lastName,
