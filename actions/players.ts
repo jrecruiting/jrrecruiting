@@ -85,8 +85,21 @@ export async function updatePlayerAdmin(
       where: { id: playerId },
       data: { ...buildPlayerData(data), profileUpdatedAt: new Date() },
     });
-    await syncVideos(playerId, data.videos);
-    await syncPhotos(playerId, data.extraPhotos);
+
+    // Guards against the same class of bug the edit-request approval flow
+    // had (see syncVideos in lib/player-data.ts): this form's video/photo
+    // list reflects whatever the browser had loaded, which isn't always
+    // "right now" -- the browser's own back/forward cache can resurrect an
+    // older render of this exact page (from before a video was added in
+    // another tab or a later visit) and resubmit its stale, video-less
+    // state. formLoadedAt, set client-side when this form instance
+    // mounted, lets a row touched more recently than that survive even
+    // though this stale submission doesn't know about it.
+    const formLoadedAtRaw = Number(formData.get("formLoadedAt"));
+    const protectSince = formLoadedAtRaw ? new Date(formLoadedAtRaw) : undefined;
+
+    await syncVideos(playerId, data.videos, protectSince);
+    await syncPhotos(playerId, data.extraPhotos, protectSince);
     await recordPlayerUpdate(playerId);
 
     // A direct admin edit has no PlayerEditRequest of its own to flag --

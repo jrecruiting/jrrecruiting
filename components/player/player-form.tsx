@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -151,6 +151,18 @@ export function PlayerForm({
     }))
   );
 
+  // When this page was rendered, so the server can tell a stale form
+  // submission apart from a fresh one -- e.g. the browser's own
+  // back/forward cache restoring this page exactly as it looked before a
+  // video was added in a later tab or a later visit, then resubmitting
+  // that older, video-less snapshot. Starts null so server and client
+  // agree on first render (see SignUpPanelPhoto's identical reasoning),
+  // then gets set once mounted.
+  const [formLoadedAt, setFormLoadedAt] = useState<number | null>(null);
+  useEffect(() => {
+    setFormLoadedAt(Date.now());
+  }, []);
+
   function addVideoRow() {
     setVideoRows((rows) => [...rows, { key: newVideoRowKey() }]);
   }
@@ -179,6 +191,7 @@ export function PlayerForm({
       {promptAnnounceOnSave && (
         <input type="hidden" name="announce" ref={announceInputRef} defaultValue="false" />
       )}
+      <input type="hidden" name="formLoadedAt" value={formLoadedAt ?? ""} />
 
       <FormSection icon={IdentificationCard} label="Athlete Info">
         <div className="grid gap-4 sm:grid-cols-2">
