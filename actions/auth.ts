@@ -146,6 +146,18 @@ export async function signUp(
       },
     });
     scheduleOutboxFlush();
+  } else if (data.role === "PARENT") {
+    await prisma.emailOutbox.create({
+      data: {
+        toEmail: ADMIN_EMAIL,
+        templateKey: "new-parent-signup",
+        payload: {
+          parentName: data.name,
+          parentEmail: data.email,
+        },
+      },
+    });
+    scheduleOutboxFlush();
   }
 
   // Coaches can browse/search immediately with reduced info; full detail

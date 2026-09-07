@@ -13,6 +13,7 @@ import { PasswordResetEmail } from "./password-reset";
 import { NewClaimRequestEmail } from "./new-claim-request";
 import { NewEditRequestEmail } from "./new-edit-request";
 import { NewCoachSignupEmail } from "./new-coach-signup";
+import { NewParentSignupEmail } from "./new-parent-signup";
 import { NewOfferSubmittedEmail } from "./new-offer-submitted";
 import { OfferApprovedEmail } from "./offer-approved";
 import { OfferRejectedEmail } from "./offer-rejected";
@@ -40,6 +41,7 @@ export type EmailTemplateKey =
   | "new-claim-request"
   | "new-edit-request"
   | "new-coach-signup"
+  | "new-parent-signup"
   | "new-offer-submitted"
   | "offer-approved"
   | "offer-rejected"
@@ -164,6 +166,16 @@ export function renderEmailTemplate(
             coachName={payload.coachName as string}
             coachEmail={payload.coachEmail as string}
             organization={payload.organization as string}
+          />
+        ),
+      };
+    case "new-parent-signup":
+      return {
+        subject: `New parent account created: ${payload.parentName as string}`,
+        react: (
+          <NewParentSignupEmail
+            parentName={payload.parentName as string}
+            parentEmail={payload.parentEmail as string}
           />
         ),
       };
