@@ -92,6 +92,7 @@ type PlayerDefaults = {
   instagramHandle?: string | null;
   xHandle?: string | null;
   cellPhone?: string | null;
+  parentCellPhone?: string | null;
 };
 
 export function PlayerForm({
@@ -104,6 +105,7 @@ export function PlayerForm({
   requireConsentDialog = false,
   promptAnnounceOnSave = false,
   dataFetchedAt,
+  showParentPhoneField = false,
 }: {
   sports?: SportOption[];
   showSportField?: boolean;
@@ -116,6 +118,13 @@ export function PlayerForm({
   defaultValues?: PlayerDefaults;
   submitLabel: string;
   requireConsentDialog?: boolean;
+  // The parent's own cell number lives on their User record, not this
+  // player, so there's nowhere to save it unless a parent account is
+  // actually attached -- true for every parent-facing form, but only true
+  // on the admin form when this specific player has one linked. Omitted on
+  // admin's create-player form entirely, since an admin-authored player has
+  // no parent account yet at that point.
+  showParentPhoneField?: boolean;
   // Editing an existing player directly (admin only) applies immediately --
   // when true, saving pops the same "announce this on the coach home page?"
   // choice the parent-edit approval flow uses, instead of submitting right
@@ -500,7 +509,7 @@ export function PlayerForm({
       </FormSection>
 
       <FormSection icon={AddressBook} label="Social & Contact">
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="instagramHandle">Instagram</Label>
             <Input
@@ -520,7 +529,7 @@ export function PlayerForm({
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="cellPhone">Cell number</Label>
+            <Label htmlFor="cellPhone">Athlete&apos;s cell number</Label>
             <Input
               id="cellPhone"
               name="cellPhone"
@@ -529,6 +538,18 @@ export function PlayerForm({
               defaultValue={defaultValues?.cellPhone ?? ""}
             />
           </div>
+          {showParentPhoneField && (
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="parentCellPhone">Parent&apos;s cell number</Label>
+              <Input
+                id="parentCellPhone"
+                name="parentCellPhone"
+                type="tel"
+                placeholder="(555) 555-5555"
+                defaultValue={defaultValues?.parentCellPhone ?? ""}
+              />
+            </div>
+          )}
         </div>
       </FormSection>
 

@@ -23,6 +23,11 @@ model User {
   passwordHash  String?
   role          Role
   name          String
+  // Parent-only in practice (coaches/admins have no UI to set it) -- shown
+  // and edited from the athlete-profile form since parents have no separate
+  // account-settings page. Shared across every athlete a parent adds,
+  // rather than duplicated per player.
+  cellPhone     String?
   emailVerified DateTime?
   image         String?
   createdAt     DateTime  @default(now())

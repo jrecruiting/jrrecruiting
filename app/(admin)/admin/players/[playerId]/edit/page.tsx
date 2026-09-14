@@ -34,7 +34,11 @@ export default async function EditPlayerPage({
   const [player, sports, pendingEdit, parentViews] = await Promise.all([
     prisma.player.findUnique({
       where: { id: playerId },
-      include: { sports: { include: { sport: true } }, media: true },
+      include: {
+        sports: { include: { sport: true } },
+        media: true,
+        parent: { select: { cellPhone: true } },
+      },
     }),
     getSports(),
     prisma.playerEditRequest.findFirst({
@@ -114,7 +118,9 @@ export default async function EditPlayerPage({
         promptAnnounceOnSave
         showVideoNotesField
         dataFetchedAt={dataFetchedAt}
+        showParentPhoneField={!!player.parentId}
         defaultValues={{
+          parentCellPhone: player.parent?.cellPhone,
           firstName: player.firstName,
           lastName: player.lastName,
           gender: player.gender,

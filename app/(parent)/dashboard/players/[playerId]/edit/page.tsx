@@ -30,7 +30,11 @@ export default async function EditAthletePage({
   const [player, sports, pendingEdit] = await Promise.all([
     prisma.player.findUnique({
       where: { id: playerId },
-      include: { sports: { include: { sport: true } }, media: true },
+      include: {
+        sports: { include: { sport: true } },
+        media: true,
+        parent: { select: { cellPhone: true } },
+      },
     }),
     getSports(),
     prisma.playerEditRequest.findFirst({
@@ -92,7 +96,9 @@ export default async function EditAthletePage({
         action={boundUpdate}
         submitLabel="Save Changes"
         requireConsentDialog
+        showParentPhoneField
         defaultValues={{
+          parentCellPhone: player.parent?.cellPhone,
           firstName: player.firstName,
           lastName: player.lastName,
           gender: player.gender,

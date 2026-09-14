@@ -46,6 +46,13 @@ const basePlayerFields = {
   instagramHandle: optionalString(30),
   xHandle: optionalString(15),
   cellPhone: optionalString(20),
+  // The parent's own number, not the athlete's -- lives on User.cellPhone,
+  // not Player, since one parent can add several athletes and shouldn't
+  // have to repeat (or risk desyncing) the same number per profile. Only
+  // meaningful on the parent-facing forms and the admin edit form when a
+  // parent account is actually linked; see createPlayerParent/
+  // updatePlayerParent/updatePlayerAdmin for where it's written.
+  parentCellPhone: optionalString(20),
 };
 
 // Graduation year only applies to High School athletes -- JUCO/Transfer

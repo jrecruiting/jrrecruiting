@@ -99,17 +99,18 @@ export async function updatePlayerAdmin(
     // this stale form's older values, refuse the whole save and ask the
     // admin to reload -- the same conflict a wiki or shared doc surfaces
     // when two edits collide, instead of quietly discarding one of them.
-    if (protectSince) {
-      const current = await prisma.player.findUnique({
-        where: { id: playerId },
-        select: { profileUpdatedAt: true },
-      });
-      if (current && current.profileUpdatedAt > protectSince) {
-        return {
-          error:
-            "This player's profile was updated elsewhere after you opened this page, so saving now could overwrite that change. Please reload the page and reapply your edit.",
-        };
-      }
+    // parentId is also needed below regardless of protectSince, to know
+    // whether there's a linked parent account to save the parent's cell
+    // number to.
+    const current = await prisma.player.findUnique({
+      where: { id: playerId },
+      select: { profileUpdatedAt: true, parentId: true },
+    });
+    if (protectSince && current && current.profileUpdatedAt > protectSince) {
+      return {
+        error:
+          "This player's profile was updated elsewhere after you opened this page, so saving now could overwrite that change. Please reload the page and reapply your edit.",
+      };
     }
 
     // profileUpdatedAt (distinct from the general updatedAt) marks this as a
@@ -123,6 +124,17 @@ export async function updatePlayerAdmin(
     await syncVideos(playerId, data.videos, protectSince);
     await syncPhotos(playerId, data.extraPhotos, protectSince);
     await recordPlayerUpdate(playerId);
+
+    // Only meaningful when a real parent account is linked -- an
+    // admin-authored player may have none, in which case there's nowhere to
+    // save this (the form doesn't show the field in that case either; see
+    // showParentPhoneField in PlayerForm).
+    if (current?.parentId) {
+      await prisma.user.update({
+        where: { id: current.parentId },
+        data: { cellPhone: data.parentCellPhone || null },
+      });
+    }
 
     // A direct admin edit has no PlayerEditRequest of its own to flag --
     // when the admin opts to announce it, log one as self-submitted and
@@ -199,6 +211,15 @@ export async function createPlayerParent(
     });
     playerId = player.id;
     await syncPhotos(playerId, data.extraPhotos);
+
+    // The parent's own number lives on their account, not this player (see
+    // parentCellPhone in lib/validations/player.ts) -- applied immediately
+    // rather than staged, since it's the parent's own contact info, not
+    // something about the athlete that needs admin review.
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: { cellPhone: data.parentCellPhone || null },
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { error: error.issues[0]?.message ?? "Please check the form for errors." };
@@ -226,6 +247,15 @@ export async function updatePlayerParent(
 
   try {
     const data = parseUpdatePlayerForm(formData);
+
+    // The parent's own number lives on their account, not this player --
+    // applied immediately rather than staged below, since it's the
+    // parent's own contact info, not something about the athlete that
+    // needs admin review. See createPlayerParent's identical reasoning.
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: { cellPhone: data.parentCellPhone || null },
+    });
 
     // Parent edits are staged for admin review rather than applied directly,
     // so coaches watching this player aren't notified until an admin approves

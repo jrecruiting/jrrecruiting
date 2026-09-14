@@ -1,9 +1,16 @@
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { getSports } from "@/lib/data/sports";
 import { createPlayerParent } from "@/actions/players";
 import { PlayerForm } from "@/components/player/player-form";
 
 export default async function NewAthletePage() {
-  const sports = await getSports();
+  const session = await auth();
+
+  const [sports, parent] = await Promise.all([
+    getSports(),
+    prisma.user.findUnique({ where: { id: session!.user.id }, select: { cellPhone: true } }),
+  ]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -21,6 +28,8 @@ export default async function NewAthletePage() {
         action={createPlayerParent}
         submitLabel="Continue to Payment"
         requireConsentDialog
+        showParentPhoneField
+        defaultValues={{ parentCellPhone: parent?.cellPhone }}
       />
     </div>
   );
