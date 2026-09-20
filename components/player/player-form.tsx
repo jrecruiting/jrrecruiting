@@ -179,13 +179,24 @@ export function PlayerForm({
     setVideoRows((rows) => [...rows, { key: newVideoRowKey() }]);
   }
 
-  // Reorders by swapping array position, not by editing field values -- the
-  // inputs inside each row are uncontrolled (defaultValue, not value), so
-  // React's keyed reconciliation moves each row's live DOM node (including
-  // whatever the parent/admin is mid-typing) along with its key when the
-  // array order changes, rather than leaving the text behind. On save, the
-  // submitted order becomes the new sortOrder (see syncVideos in
-  // lib/player-data.ts), so no other change is needed for this to persist.
+  // Video fields are controlled (value+onChange below), not uncontrolled
+  // (defaultValue) -- React 19 automatically resets every *uncontrolled*
+  // field in a <form action={...}> right after each submission (including
+  // a successful one), reapplying whatever defaultValue that field's JSX
+  // computes on the next render. A row added via "Add Video" during this
+  // same visit has no defaultValue of its own (it was never part of the
+  // page's original server-rendered data), so that reset wiped it back to
+  // blank immediately after every save -- which fed an empty, filtered-out
+  // row into the *next* save's submission, and syncVideos (lib/player-data
+  // .ts) correctly treats "not submitted" as "delete it." This is what
+  // actually deleted a previously-saved video's notes/stats after adding
+  // a second one in the same visit. Keeping the value in React state
+  // instead of the DOM sidesteps the reset entirely: React doesn't reset
+  // fields whose displayed value it directly controls.
+  function updateVideoRow(key: string, field: "url" | "title" | "notes", value: string) {
+    setVideoRows((rows) => rows.map((r) => (r.key === key ? { ...r, [field]: value } : r)));
+  }
+
   function moveVideoRow(key: string, direction: "up" | "down") {
     setVideoRows((rows) => {
       const index = rows.findIndex((r) => r.key === key);
@@ -509,7 +520,8 @@ export function PlayerForm({
                     id={`videoUrl-${row.key}`}
                     name="videoUrl"
                     placeholder="https://youtube.com/... or hudl.com/..."
-                    defaultValue={row.url ?? ""}
+                    value={row.url ?? ""}
+                    onChange={(e) => updateVideoRow(row.key, "url", e.target.value)}
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
@@ -519,7 +531,8 @@ export function PlayerForm({
                     name="videoTitle"
                     placeholder="e.g. Junior Year Highlights"
                     maxLength={100}
-                    defaultValue={row.title ?? ""}
+                    value={row.title ?? ""}
+                    onChange={(e) => updateVideoRow(row.key, "title", e.target.value)}
                   />
                 </div>
                 <Button
@@ -541,11 +554,12 @@ export function PlayerForm({
                     rows={2}
                     maxLength={500}
                     placeholder="e.g. 12 tackles, 2 sacks, 1 forced fumble"
-                    defaultValue={row.notes ?? ""}
+                    value={row.notes ?? ""}
+                    onChange={(e) => updateVideoRow(row.key, "notes", e.target.value)}
                   />
                 </div>
               ) : (
-                <input type="hidden" name="videoNotes" defaultValue={row.notes ?? ""} />
+                <input type="hidden" name="videoNotes" value={row.notes ?? ""} readOnly />
               )}
             </div>
           ))}
