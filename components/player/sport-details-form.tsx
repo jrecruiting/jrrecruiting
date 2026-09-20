@@ -62,6 +62,19 @@ export function SportDetailsForm({
     setStatRows((rows) => [...rows, { key: newStatRowKey(), custom: false }]);
   }
 
+  // Controlled (value+onChange below), not uncontrolled (defaultValue) --
+  // same reasoning and same real-world failure as PlayerForm's video rows
+  // (see updateVideoRow's comment there): React 19 resets every
+  // uncontrolled field in a <form action={...}> right after each
+  // submission, and a stat row added during this same visit has no
+  // defaultValue of its own to fall back to, so it silently reverted to
+  // blank immediately after being saved -- which then fed an empty,
+  // filtered-out row into the very next save, deleting it for real, since
+  // updateSportDetails writes `stats` as a full replace with no protection.
+  function updateStatRow(key: string, field: "label" | "value", val: string) {
+    setStatRows((rows) => rows.map((r) => (r.key === key ? { ...r, [field]: val } : r)));
+  }
+
   function removeStatRow(key: string) {
     setStatRows((rows) => rows.filter((r) => r.key !== key));
   }
@@ -135,7 +148,8 @@ export function SportDetailsForm({
                     id={`statLabel-${row.key}`}
                     name="statLabel"
                     placeholder="e.g. Agility Score"
-                    defaultValue={row.label ?? ""}
+                    value={row.label ?? ""}
+                    onChange={(e) => updateStatRow(row.key, "label", e.target.value)}
                   />
                 ) : (
                   <Select
@@ -165,7 +179,8 @@ export function SportDetailsForm({
                   id={`statValue-${row.key}`}
                   name="statValue"
                   placeholder="e.g. 4.6s"
-                  defaultValue={row.value ?? ""}
+                  value={row.value ?? ""}
+                  onChange={(e) => updateStatRow(row.key, "value", e.target.value)}
                 />
               </div>
               <Button
