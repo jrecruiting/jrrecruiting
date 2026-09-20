@@ -35,6 +35,8 @@ import {
   FilmSlate,
   AddressBook,
   NotePencil,
+  CaretUp,
+  CaretDown,
 } from "@phosphor-icons/react/dist/ssr";
 import type { Icon } from "@phosphor-icons/react";
 
@@ -175,6 +177,24 @@ export function PlayerForm({
 
   function addVideoRow() {
     setVideoRows((rows) => [...rows, { key: newVideoRowKey() }]);
+  }
+
+  // Reorders by swapping array position, not by editing field values -- the
+  // inputs inside each row are uncontrolled (defaultValue, not value), so
+  // React's keyed reconciliation moves each row's live DOM node (including
+  // whatever the parent/admin is mid-typing) along with its key when the
+  // array order changes, rather than leaving the text behind. On save, the
+  // submitted order becomes the new sortOrder (see syncVideos in
+  // lib/player-data.ts), so no other change is needed for this to persist.
+  function moveVideoRow(key: string, direction: "up" | "down") {
+    setVideoRows((rows) => {
+      const index = rows.findIndex((r) => r.key === key);
+      const swapWith = direction === "up" ? index - 1 : index + 1;
+      if (index === -1 || swapWith < 0 || swapWith >= rows.length) return rows;
+      const next = [...rows];
+      [next[index], next[swapWith]] = [next[swapWith], next[index]];
+      return next;
+    });
   }
 
   function removeVideoRow(key: string) {
@@ -453,12 +473,36 @@ export function PlayerForm({
             profile.
           </p>
 
-          {videoRows.map((row) => (
+          {videoRows.map((row, index) => (
             <div
               key={row.key}
               className="flex flex-col gap-3 rounded-lg border border-border/60 p-3"
             >
-              <div className="grid grid-cols-[1fr_1fr_auto] items-end gap-3">
+              <div className="grid grid-cols-[auto_1fr_1fr_auto] items-end gap-3">
+                <div className="flex flex-col gap-0.5">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-5 w-6"
+                    disabled={index === 0}
+                    onClick={() => moveVideoRow(row.key, "up")}
+                    aria-label="Move video up"
+                  >
+                    <CaretUp className="h-4 w-4" aria-hidden />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-5 w-6"
+                    disabled={index === videoRows.length - 1}
+                    onClick={() => moveVideoRow(row.key, "down")}
+                    aria-label="Move video down"
+                  >
+                    <CaretDown className="h-4 w-4" aria-hidden />
+                  </Button>
+                </div>
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor={`videoUrl-${row.key}`}>Video URL</Label>
                   <Input
