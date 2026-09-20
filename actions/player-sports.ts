@@ -64,6 +64,28 @@ async function updateSportDetails(
 ): Promise<{ error?: string } | undefined> {
   try {
     const data = parseSportDetailsForm(formData);
+
+    // Guards against a stale page (the browser's back button, or another
+    // tab) silently overwriting a newer change -- same reasoning as
+    // updatePlayerAdmin's identical check in actions/players.ts. This
+    // write has no per-field way to merge (position/bio/stats all get
+    // replaced wholesale below), so a real conflict is refused outright
+    // rather than risking a partial, confusing overwrite.
+    const formLoadedAtRaw = Number(formData.get("formLoadedAt"));
+    const protectSince = formLoadedAtRaw ? new Date(formLoadedAtRaw) : undefined;
+    if (protectSince) {
+      const current = await prisma.playerSport.findUnique({
+        where: { playerId_sportId: { playerId, sportId } },
+        select: { updatedAt: true },
+      });
+      if (current && current.updatedAt > protectSince) {
+        return {
+          error:
+            "These sport details were updated elsewhere after you opened this page, so saving now could overwrite that change. Please reload the page and reapply your edit.",
+        };
+      }
+    }
+
     await prisma.playerSport.update({
       where: { playerId_sportId: { playerId, sportId } },
       data: {

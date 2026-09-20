@@ -9,6 +9,11 @@ import { SportDetailsForm } from "@/components/player/sport-details-form";
 import { OffersManager } from "@/components/player/offers-manager";
 import { SchoolInterestManager } from "@/components/player/school-interest-manager";
 
+// See the player edit page's identical directive for the full reasoning --
+// makes this page ineligible for the browser's back/forward cache, which
+// pairs with updateSportDetails' own stale-save conflict check below.
+export const dynamic = "force-dynamic";
+
 export default async function EditSportDetailsParentPage({
   params,
 }: {
@@ -28,6 +33,11 @@ export default async function EditSportDetailsParentPage({
   });
 
   if (!playerSport || playerSport.player.parentId !== session!.user.id) notFound();
+
+  // Baked into this render's HTML (see SportDetailsForm's dataFetchedAt),
+  // not read from the client's clock -- see the player edit page's
+  // identical dataFetchedAt for the full reasoning.
+  const dataFetchedAt = Date.now();
 
   const boundUpdate = updateSportDetailsParent.bind(null, playerId, sportId);
   const boundAddOffer = addOfferParent.bind(null, playerId, sportId);
@@ -55,6 +65,7 @@ export default async function EditSportDetailsParentPage({
             ? (playerSport.sport.statSuggestions as string[])
             : []
         }
+        dataFetchedAt={dataFetchedAt}
         defaultValues={{
           position: playerSport.position,
           // Player Projection is admin-only and never sent to this page.

@@ -8,6 +8,11 @@ import { SportDetailsForm } from "@/components/player/sport-details-form";
 import { OffersManager } from "@/components/player/offers-manager";
 import { SchoolInterestManager } from "@/components/player/school-interest-manager";
 
+// See the player edit page's identical directive for the full reasoning --
+// makes this page ineligible for the browser's back/forward cache, which
+// pairs with updateSportDetails' own stale-save conflict check below.
+export const dynamic = "force-dynamic";
+
 export default async function EditSportDetailsPage({
   params,
 }: {
@@ -26,6 +31,11 @@ export default async function EditSportDetailsPage({
   });
 
   if (!playerSport) notFound();
+
+  // Baked into this render's HTML (see SportDetailsForm's dataFetchedAt),
+  // not read from the client's clock -- see the player edit page's
+  // identical dataFetchedAt for the full reasoning.
+  const dataFetchedAt = Date.now();
 
   const boundUpdate = updateSportDetailsAdmin.bind(null, playerId, sportId);
   const boundAddOffer = addOfferAdmin.bind(null, playerId, sportId);
@@ -54,6 +64,7 @@ export default async function EditSportDetailsPage({
             : []
         }
         showProjection
+        dataFetchedAt={dataFetchedAt}
         defaultValues={{
           position: playerSport.position,
           projections: playerSport.projections,

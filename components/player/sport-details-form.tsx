@@ -31,6 +31,7 @@ export function SportDetailsForm({
   suggestions,
   defaultValues,
   showProjection = false,
+  dataFetchedAt,
 }: {
   action: (state: SportFormState, formData: FormData) => Promise<SportFormState>;
   sportName: string;
@@ -44,6 +45,14 @@ export function SportDetailsForm({
   };
   // Player Projection is an internal admin-only label, never shown to parents.
   showProjection?: boolean;
+  // When the server fetched defaultValues, in ms since epoch -- lets
+  // updateSportDetails (actions/player-sports.ts) tell a save from a stale
+  // page (the browser's back button, or another tab) apart from a fresh
+  // one. See PlayerForm's identical dataFetchedAt for the full reasoning.
+  // Read directly from this prop on every render (not stored in local
+  // state the way the stat rows are), so it isn't at risk of the reset
+  // bug those rows had -- see updateStatRow's comment above.
+  dataFetchedAt?: number;
 }) {
   const [state, formAction, isPending] = useActionState(action, undefined);
   const [statRows, setStatRows] = useState<StatRow[]>(() =>
@@ -87,6 +96,7 @@ export function SportDetailsForm({
 
   return (
     <form action={formAction} className="flex max-w-2xl flex-col gap-6">
+      <input type="hidden" name="formLoadedAt" defaultValue={dataFetchedAt ?? ""} />
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="position">Position</Label>
         <Input id="position" name="position" defaultValue={defaultValues?.position ?? ""} />
