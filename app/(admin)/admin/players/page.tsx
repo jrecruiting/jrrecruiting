@@ -10,9 +10,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus } from "@phosphor-icons/react/dist/ssr";
+import { Plus, Eye, EyeSlash } from "@phosphor-icons/react/dist/ssr";
 import { playerTypeLabel } from "@/lib/player-types";
 import { ProjectionQuickSelect } from "@/components/admin/projection-quick-select";
+import { setPlayerHiddenAdmin } from "@/actions/players";
 
 const statusVariant: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
   ACTIVE: "default",
@@ -104,9 +105,39 @@ export default async function AdminPlayersPage() {
                 </TableCell>
                 <TableCell>{player.gradYear ?? "—"}</TableCell>
                 <TableCell>
-                  <Badge variant={statusVariant[player.listingStatus] ?? "outline"}>
-                    {player.listingStatus.replace("_", " ")}
-                  </Badge>
+                  <div className="flex items-center gap-1.5">
+                    <Badge variant={statusVariant[player.listingStatus] ?? "outline"}>
+                      {player.listingStatus.replace("_", " ")}
+                    </Badge>
+                    {player.listingStatus === "ACTIVE" && (
+                      <form action={setPlayerHiddenAdmin.bind(null, player.id, true)}>
+                        <Button
+                          type="submit"
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          title="Hide from coaches"
+                          aria-label="Hide from coaches"
+                        >
+                          <Eye className="h-3.5 w-3.5" aria-hidden />
+                        </Button>
+                      </form>
+                    )}
+                    {player.listingStatus === "INACTIVE" && (
+                      <form action={setPlayerHiddenAdmin.bind(null, player.id, false)}>
+                        <Button
+                          type="submit"
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          title="Unhide (restore visibility)"
+                          aria-label="Unhide (restore visibility)"
+                        >
+                          <EyeSlash className="h-3.5 w-3.5" aria-hidden />
+                        </Button>
+                      </form>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell>
                   {player._count.profileViews > 0 ? (

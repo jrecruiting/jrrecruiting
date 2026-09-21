@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSports } from "@/lib/data/sports";
-import { updatePlayerAdmin, deletePlayerAdmin } from "@/actions/players";
+import { updatePlayerAdmin, deletePlayerAdmin, setPlayerHiddenAdmin } from "@/actions/players";
 import { addPlayerSportAdmin, removePlayerSportAdmin } from "@/actions/player-sports";
 import { PlayerForm } from "@/components/player/player-form";
 import { PlayerSportsList } from "@/components/player/player-sports-list";
@@ -80,6 +80,8 @@ export default async function EditPlayerPage({
   const boundUpdate = updatePlayerAdmin.bind(null, playerId);
   const boundDelete = deletePlayerAdmin.bind(null, playerId);
   const boundAddSport = addPlayerSportAdmin.bind(null, playerId);
+  const boundHide = setPlayerHiddenAdmin.bind(null, playerId, true);
+  const boundUnhide = setPlayerHiddenAdmin.bind(null, playerId, false);
 
   return (
     <div className="flex flex-col gap-6">
@@ -87,12 +89,40 @@ export default async function EditPlayerPage({
         <h1 className="font-heading text-2xl font-bold tracking-tight">
           Edit {player.firstName} {player.lastName}
         </h1>
-        <form action={boundDelete}>
-          <Button type="submit" variant="destructive" size="sm">
-            Delete Player
-          </Button>
-        </form>
+        <div className="flex items-center gap-2">
+          {player.listingStatus === "ACTIVE" && (
+            <form action={boundHide}>
+              <Button type="submit" variant="outline" size="sm" className="border-border/60">
+                Hide from Coaches
+              </Button>
+            </form>
+          )}
+          {player.listingStatus === "INACTIVE" && (
+            <form action={boundUnhide}>
+              <Button type="submit" variant="outline" size="sm" className="border-border/60">
+                Unhide (Restore Visibility)
+              </Button>
+            </form>
+          )}
+          <form action={boundDelete}>
+            <Button type="submit" variant="destructive" size="sm">
+              Delete Player
+            </Button>
+          </form>
+        </div>
       </div>
+
+      {player.listingStatus === "INACTIVE" && (
+        <Card className="border-amber-500/50 bg-amber-500/5">
+          <CardContent>
+            <p className="text-sm">
+              This player is hidden from coaches -- they won&apos;t appear in search, the home
+              feed, or be reachable by a direct profile link. The profile, stats, and view
+              history are unchanged and nothing has been deleted.
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
       {pendingEdit && (
         <Card className="border-gold/50 bg-gold/5">

@@ -166,6 +166,39 @@ export async function updatePlayerAdmin(
   return { error: undefined };
 }
 
+// Hiding sets listingStatus to INACTIVE -- an existing status every
+// coach-facing query (search, home feed, direct profile view) already
+// treats the same as "doesn't exist" (see lib/search/build-where.ts and
+// app/(coach)/players/[playerId]/page.tsx), it just never had an admin
+// control to set it. A softer, reversible alternative to Delete: the
+// profile, its stats, and its view history all stay intact, and Unhide
+// restores it exactly as it was.
+//
+// Only acts when the current status matches what the button offering this
+// action implies (ACTIVE -> hide, INACTIVE -> unhide) -- guards against a
+// stale page/double-click silently reactivating a player who's actually
+// DRAFT or PENDING_PAYMENT (hasn't paid) or EXPIRED, none of which this
+// toggle is meant to touch.
+export async function setPlayerHiddenAdmin(playerId: string, hidden: boolean) {
+  await requireRole("ADMIN");
+
+  const player = await prisma.player.findUnique({
+    where: { id: playerId },
+    select: { listingStatus: true },
+  });
+  if (!player) notFound();
+
+  if (hidden && player.listingStatus === "ACTIVE") {
+    await prisma.player.update({ where: { id: playerId }, data: { listingStatus: "INACTIVE" } });
+  } else if (!hidden && player.listingStatus === "INACTIVE") {
+    await prisma.player.update({ where: { id: playerId }, data: { listingStatus: "ACTIVE" } });
+  }
+
+  revalidatePath("/admin/players");
+  revalidatePath(`/admin/players/${playerId}/edit`);
+  revalidatePath("/home");
+}
+
 export async function deletePlayerAdmin(playerId: string) {
   await requireRole("ADMIN");
   await prisma.player.delete({ where: { id: playerId } });
