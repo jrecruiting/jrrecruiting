@@ -1,6 +1,7 @@
 "use server";
 
 import { randomBytes, createHash } from "crypto";
+import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
@@ -10,6 +11,13 @@ import { signUpSchema, forgotPasswordSchema, resetPasswordSchema } from "@/lib/v
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { scheduleOutboxFlush } from "@/lib/email/send";
 import { APP_URL, ADMIN_EMAIL } from "@/lib/email/resend";
+import { isEmailVerificationPending } from "@/lib/email-verification-status";
+import {
+  newVerificationToken,
+  verificationUrl,
+  issueVerificationEmail,
+  completeEmailVerification,
+} from "@/lib/email-verification";
 
 export async function signInWithCredentials(
   _prevState: string | undefined,
@@ -23,6 +31,25 @@ export async function signInWithCredentials(
   const { success } = await rateLimit(`sign-in:${ip}`, { limit: 10, windowMs: 15 * 60 * 1000 });
   if (!success) {
     return "Too many sign-in attempts. Please try again in a few minutes.";
+  }
+
+  // An unconfirmed coach is refused at the auth layer regardless (see
+  // authorize in lib/auth.ts); this only exists so a real coach who
+  // forgot to click the link gets pointed at the resend page instead of a
+  // misleading "invalid password." The password is checked first, so this
+  // can't be used to learn which emails are registered or pending.
+  if (typeof email === "string" && typeof password === "string") {
+    const candidate = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true, passwordHash: true },
+    });
+    if (
+      candidate?.passwordHash &&
+      (await bcrypt.compare(password, candidate.passwordHash)) &&
+      (await isEmailVerificationPending(candidate.id))
+    ) {
+      redirect(`/verify-email?status=pending&email=${encodeURIComponent(email)}`);
+    }
   }
 
   // A specific destination (e.g. bounced here from a protected page) is
@@ -114,6 +141,12 @@ export async function signUp(
 
   const passwordHash = await bcrypt.hash(data.password, 12);
 
+  // Coaches have to prove they control the inbox before they can sign in or
+  // appear in the admin approval queue. The token is created in the same
+  // write as the account, so there's no window where a coach exists
+  // ungated by mistake.
+  const verification = data.role === "COACH" ? newVerificationToken() : null;
+
   await prisma.user.create({
     data: {
       email: data.email,
@@ -130,23 +163,28 @@ export async function signUp(
               },
             }
           : undefined,
+      emailVerificationTokens: verification
+        ? { create: { tokenHash: verification.tokenHash, expiresAt: verification.expiresAt } }
+        : undefined,
     },
   });
 
-  if (data.role === "COACH") {
+  if (data.role === "COACH" && verification) {
+    // The admin's "new coach" notification is deliberately NOT sent here --
+    // it goes out once the coach confirms (completeEmailVerification), so
+    // fake sign-ups that never confirm never reach the admin at all.
     await prisma.emailOutbox.create({
       data: {
-        toEmail: ADMIN_EMAIL,
-        templateKey: "new-coach-signup",
-        payload: {
-          coachName: data.name,
-          coachEmail: data.email,
-          organization: data.organization || "",
-        },
+        toEmail: data.email,
+        templateKey: "verify-email",
+        payload: { coachName: data.name, verifyUrl: verificationUrl(verification.token) },
       },
     });
     scheduleOutboxFlush();
-  } else if (data.role === "PARENT") {
+    redirect(`/verify-email?status=sent&email=${encodeURIComponent(data.email)}`);
+  }
+
+  if (data.role === "PARENT") {
     await prisma.emailOutbox.create({
       data: {
         toEmail: ADMIN_EMAIL,
@@ -160,15 +198,13 @@ export async function signUp(
     scheduleOutboxFlush();
   }
 
-  // Coaches can browse/search immediately with reduced info; full detail
-  // unlocks once an admin verifies them (see lib/coach-visibility.ts).
-  const redirectTo = data.role === "COACH" ? "/home" : "/dashboard";
-
+  // Only parents reach this point -- coaches were redirected above to
+  // confirm their email before they can sign in.
   try {
     await signIn("credentials", {
       email: data.email,
       password: data.password,
-      redirectTo,
+      redirectTo: "/dashboard",
     });
   } catch (error) {
     if (error instanceof AuthError) {
@@ -180,6 +216,48 @@ export async function signUp(
 
 export async function signOutAction() {
   await signOut({ redirectTo: "/" });
+}
+
+export type ResendVerificationState =
+  | { status: "idle" }
+  | { status: "sent"; message: string }
+  | { status: "error"; message: string };
+
+const RESEND_VERIFICATION_GENERIC_MESSAGE =
+  "If that email is waiting on confirmation, we've sent a new link. Check your inbox and spam folder.";
+
+// Same answer whether or not the email matched anything, so this can't be
+// used to find out which addresses are registered. Only acts on accounts
+// that are actually still pending -- an already-confirmed coach (or a
+// parent) can't be sent confirmation mail through here.
+export async function resendVerificationEmail(
+  _prevState: ResendVerificationState,
+  formData: FormData
+): Promise<ResendVerificationState> {
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  if (!email || !z.string().email().safeParse(email).success) {
+    return { status: "error", message: "Enter the email you signed up with." };
+  }
+
+  const ip = await getClientIp();
+  const byIp = await rateLimit(`verify-resend:ip:${ip}`, { limit: 5, windowMs: 60 * 60 * 1000 });
+  const byEmail = await rateLimit(`verify-resend:email:${email}`, {
+    limit: 3,
+    windowMs: 60 * 60 * 1000,
+  });
+  if (!byIp.success || !byEmail.success) {
+    return { status: "error", message: "Too many requests. Please try again later." };
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true, email: true, name: true },
+  });
+  if (user && (await isEmailVerificationPending(user.id))) {
+    await issueVerificationEmail(user);
+  }
+
+  return { status: "sent", message: RESEND_VERIFICATION_GENERIC_MESSAGE };
 }
 
 // 24 hours -- 1 hour was too tight for real-world email delays and turned
@@ -305,6 +383,13 @@ export async function resetPassword(
       data: { usedAt: new Date() },
     }),
   ]);
+
+  // Clicking a reset link that was emailed to this address proves the
+  // person controls the inbox just as well as the confirmation link does,
+  // so it also clears a pending coach confirmation -- otherwise a coach who
+  // loses the original email would be stuck behind a second, redundant
+  // step. No-op for anyone who wasn't pending.
+  await completeEmailVerification(resetToken.userId);
 
   const redirectTo =
     resetToken.user.role === "COACH"

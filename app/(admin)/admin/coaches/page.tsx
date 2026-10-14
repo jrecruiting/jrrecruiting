@@ -15,11 +15,22 @@ const statusVariant: Record<string, "default" | "secondary" | "destructive"> = {
 };
 
 export default async function AdminCoachesPage() {
-  const coaches = await prisma.coachProfile.findMany({
-    orderBy: { createdAt: "desc" },
-    include: { user: true },
-    take: 100,
-  });
+  // Coaches who signed up but haven't clicked their confirmation email yet
+  // are kept out of the queue -- that's the whole point of confirming: a
+  // fake sign-up never reaches this list. Anyone without an outstanding
+  // confirmation (every coach from before this existed, plus admin-created
+  // ones) shows as normal.
+  const [coaches, unconfirmedCount] = await Promise.all([
+    prisma.coachProfile.findMany({
+      where: { user: { emailVerificationTokens: { none: { usedAt: null } } } },
+      orderBy: { createdAt: "desc" },
+      include: { user: true },
+      take: 100,
+    }),
+    prisma.coachProfile.count({
+      where: { user: { emailVerificationTokens: { some: { usedAt: null } } } },
+    }),
+  ]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -30,6 +41,14 @@ export default async function AdminCoachesPage() {
           Add Coach
         </Button>
       </div>
+
+      {unconfirmedCount > 0 && (
+        <p className="text-sm text-muted-foreground">
+          {unconfirmedCount} sign-up{unconfirmedCount === 1 ? "" : "s"} waiting on email
+          confirmation {unconfirmedCount === 1 ? "is" : "are"} hidden from this list.
+          Unconfirmed sign-ups are removed automatically after 14 days.
+        </p>
+      )}
 
       {coaches.length === 0 ? (
         <p className="text-muted-foreground">No coach sign-ups yet.</p>

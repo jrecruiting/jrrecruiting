@@ -55,6 +55,7 @@ model User {
   payments                 Payment[]
   createdPlayers           Player[]                  @relation("AdminAuthoredPlayers")
   passwordResetTokens      PasswordResetToken[]
+  emailVerificationTokens  EmailVerificationToken[]
   editRequests             PlayerEditRequest[]
   resolvedEditRequests     PlayerEditRequest[]       @relation("EditRequestResolvedBy")
   paymentPlanSubscriptions PaymentPlanSubscription[]
@@ -660,6 +661,23 @@ model PasswordResetToken {
 
   @@index([userId])
   @@map("password_reset_tokens")
+}
+
+// A coach who signs up themselves gets one of these and can't sign in (or show
+// up in the admin approval queue) until it's used -- i.e. until they prove they
+// control the inbox. "Pending" means an unused row exists; accounts that
+// predate this table (or are admin-created) have no row and are never gated.
+model EmailVerificationToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@map("email_verification_tokens")
 }
 
 // ── Rate limiting ───────────────────────────────────────────

@@ -15,7 +15,12 @@ export async function GET(req: Request) {
 
   const [newCoaches, views, stars] = await Promise.all([
     prisma.user.findMany({
-      where: { role: "COACH", createdAt: { gte: since } },
+      // Confirmed coaches only -- same reasoning as the Coach Verification page.
+      where: {
+        role: "COACH",
+        createdAt: { gte: since },
+        emailVerificationTokens: { none: { usedAt: null } },
+      },
       select: { name: true, email: true, coachProfile: { select: { organization: true } } },
       orderBy: { createdAt: "asc" },
     }),

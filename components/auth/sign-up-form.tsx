@@ -256,8 +256,10 @@ export function SignUpForm({
                       <Input id="phone" name="phone" type="tel" />
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Coach accounts are manually reviewed before you can search player
-                      profiles. We&apos;ll email you once you&apos;re approved.
+                      After you sign up, we&apos;ll email you a link to confirm your email
+                      address. Coach accounts are then manually reviewed before you can
+                      search player profiles, and we&apos;ll email you once you&apos;re
+                      approved.
                     </p>
                   </>
                 )}

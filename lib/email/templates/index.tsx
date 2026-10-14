@@ -14,6 +14,7 @@ import { NewClaimRequestEmail } from "./new-claim-request";
 import { NewEditRequestEmail } from "./new-edit-request";
 import { NewCoachSignupEmail } from "./new-coach-signup";
 import { NewParentSignupEmail } from "./new-parent-signup";
+import { VerifyEmailEmail } from "./verify-email";
 import { NewOfferSubmittedEmail } from "./new-offer-submitted";
 import { OfferApprovedEmail } from "./offer-approved";
 import { OfferRejectedEmail } from "./offer-rejected";
@@ -42,6 +43,7 @@ export type EmailTemplateKey =
   | "new-edit-request"
   | "new-coach-signup"
   | "new-parent-signup"
+  | "verify-email"
   | "new-offer-submitted"
   | "offer-approved"
   | "offer-rejected"
@@ -166,6 +168,16 @@ export function renderEmailTemplate(
             coachName={payload.coachName as string}
             coachEmail={payload.coachEmail as string}
             organization={payload.organization as string}
+          />
+        ),
+      };
+    case "verify-email":
+      return {
+        subject: "Confirm your email for J.R. Recruiting",
+        react: (
+          <VerifyEmailEmail
+            coachName={(payload.coachName as string) || "Coach"}
+            verifyUrl={payload.verifyUrl as string}
           />
         ),
       };

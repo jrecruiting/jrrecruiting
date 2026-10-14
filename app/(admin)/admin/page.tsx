@@ -14,7 +14,15 @@ export default async function AdminOverviewPage() {
   ] = await Promise.all([
     prisma.player.count(),
     prisma.coachProfile.count({ where: { verificationStatus: "APPROVED" } }),
-    prisma.coachProfile.count({ where: { verificationStatus: "PENDING" } }),
+    // Excludes sign-ups still waiting on email confirmation, matching the
+    // Coach Verification page -- otherwise this number would count fake
+    // sign-ups the list below never shows.
+    prisma.coachProfile.count({
+      where: {
+        verificationStatus: "PENDING",
+        user: { emailVerificationTokens: { none: { usedAt: null } } },
+      },
+    }),
     prisma.playerEditRequest.count({ where: { status: "PENDING" } }),
     prisma.claimRequest.count({ where: { status: "PENDING" } }),
     prisma.offer.count({ where: { status: "PENDING" } }),

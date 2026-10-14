@@ -4,6 +4,7 @@ import Google from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { isEmailVerificationPending } from "@/lib/email-verification-status";
 import type { CoachVerificationStatus, Role } from "@prisma/client";
 
 declare module "next-auth" {
@@ -52,6 +53,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const valid = await bcrypt.compare(password, user.passwordHash);
         if (!valid) return null;
+
+        // Enforced here, not just in the sign-in action, so posting straight
+        // to the auth endpoint can't skip it. The sign-in action checks the
+        // same thing first only to show a friendlier message.
+        if (await isEmailVerificationPending(user.id)) return null;
 
         return {
           id: user.id,
