@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { DeleteCoachButton } from "@/components/admin/delete-coach-button";
+import { BulkCoachControls } from "@/components/admin/bulk-coach-controls";
 import { TestAccountToggle } from "@/components/admin/test-account-toggle";
 import { Plus } from "@phosphor-icons/react/dist/ssr";
 
@@ -50,6 +51,10 @@ export default async function AdminCoachesPage() {
         </p>
       )}
 
+      <BulkCoachControls
+        pendingCount={coaches.filter((c) => c.verificationStatus === "PENDING").length}
+      />
+
       {coaches.length === 0 ? (
         <p className="text-muted-foreground">No coach sign-ups yet.</p>
       ) : (
@@ -60,12 +65,23 @@ export default async function AdminCoachesPage() {
             return (
               <Card key={coach.id} className="border-border/60">
                 <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p className="font-medium">{coach.user.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {coach.user.email} &middot; {coach.organization}
-                      {coach.title ? ` · ${coach.title}` : ""}
-                    </p>
+                  <div className="flex items-start gap-3">
+                    {coach.verificationStatus === "PENDING" && (
+                      <input
+                        type="checkbox"
+                        name="bulk-coach"
+                        value={coach.userId}
+                        aria-label={`Select ${coach.user.name}`}
+                        className="mt-1 h-4 w-4 cursor-pointer accent-[var(--gold)]"
+                      />
+                    )}
+                    <div>
+                      <p className="font-medium">{coach.user.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {coach.user.email} &middot; {coach.organization}
+                        {coach.title ? ` · ${coach.title}` : ""}
+                      </p>
+                    </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-3">
                     <TestAccountToggle

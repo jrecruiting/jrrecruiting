@@ -150,6 +150,37 @@ export async function deleteCoach(userId: string) {
   revalidatePath("/admin/coaches");
 }
 
+// Bulk cleanup for the approval queue (fake sign-ups). Deletes rather than
+// rejects on purpose: rejecting emails the coach, and these addresses are
+// usually fake, which would bounce and hurt the site's email reputation.
+//
+// Re-checks everything server-side rather than trusting the selection the
+// browser sent: only COACH accounts that are still PENDING review can be
+// removed this way, so a tampered request can't take out an approved or
+// rejected coach, a parent, or an admin. Returns how many were actually
+// deleted so the UI can report the real number.
+export async function deleteCoachesBulk(userIds: string[]): Promise<number> {
+  await requireRole("ADMIN");
+
+  const ids = Array.from(new Set(userIds.filter((id) => typeof id === "string" && id))).slice(
+    0,
+    200
+  );
+  if (ids.length === 0) return 0;
+
+  const result = await prisma.user.deleteMany({
+    where: {
+      id: { in: ids },
+      role: "COACH",
+      coachProfile: { verificationStatus: "PENDING" },
+    },
+  });
+
+  revalidatePath("/admin/coaches");
+  revalidatePath("/admin");
+  return result.count;
+}
+
 export async function rejectCoach(coachProfileId: string, reason: string) {
   const session = await requireRole("ADMIN");
 
